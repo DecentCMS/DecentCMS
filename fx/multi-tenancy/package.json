@@ -1,0 +1,17 @@
+{
+  "name": "decentcms-fx-multi-tenancy",
+  "version": "0.0.0",
+  "description": "Multi-tenancy support for DecentCMS",
+  "main": "index.js",
+  "scripts": {
+    "test": "test/index.js"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*",
+    "proxyquire": "*"
+  },
+  "dependencies": {}
+}

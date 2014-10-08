@@ -1,0 +1,12 @@
+{
+  "name": "DecentCMS",
+  "version": "0.0.0",
+  "description": "A Decent CMS written in Node",
+  "main": "server.js",
+  "author": {
+    "name": "Bertrand Le Roy",
+    "email": "bertrand@decentcms.com"
+  },
+  "dependencies": {
+  }
+}

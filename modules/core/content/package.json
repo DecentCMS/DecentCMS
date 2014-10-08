@@ -1,0 +1,16 @@
+{
+  "name": "decentcms-core-content",
+  "version": "0.0.0",
+  "description": "The core content management module for DecentCMS",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT"
+}

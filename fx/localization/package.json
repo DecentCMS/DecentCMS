@@ -1,0 +1,17 @@
+{
+  "name": "decentcms-fx-localization",
+  "version": "0.0.0",
+  "description": "Localization utilities for DecentCMS.",
+  "main": "index.js",
+  "scripts": {
+    "test": "test/index.js"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "*",
+    "chai": "*"
+  },
+  "dependencies": {
+  }
+}
