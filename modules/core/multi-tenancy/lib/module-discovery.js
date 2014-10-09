@@ -28,6 +28,7 @@ function discover() {
           });
           modulePaths.forEach(function(modulePath) {
             var manifestPath = path.join(modulePath, 'package.json');
+            if (!fs.existsSync(manifestPath)) return;
             try {
               var manifest = require(manifestPath);
               console.log(t('Loaded module %s', modulePath));
