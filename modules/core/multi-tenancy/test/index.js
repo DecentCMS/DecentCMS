@@ -278,13 +278,46 @@ describe('Shell', function() {
         .to.have.property('service1')
         .and.that.to.be.an.instanceof(Array);
 
-      var service1Instance = shell.services.service1[0];
+      var service1Instance = shell.require('service1');
       expect(service1Instance)
         .to.have.a.property('what', 'instance of service 1');
 
       expect(shell.serviceManifests)
         .to.have.a.property(resolvedPathToService)
         .and.that.to.have.a.property('path', 'lib/service1');
+    });
+
+    it('will give a different instance of a service every time', function() {
+      var ServiceClass1 = serviceClassFactory(1);
+      var stubs = {};
+      var resolvedPathToService = path.resolve('path/to/module1/lib/service1.js');
+      stubs[resolvedPathToService] = ServiceClass1;
+      var PhoniedShell = proxyquire('../lib/shell', stubs);
+      var shell = new PhoniedShell({
+        features: ['feature 1'],
+        availableModules: {
+          'path/to/module1': {
+            name: 'module 1',
+            services: {
+              service1: {
+                feature: 'feature 1',
+                path: 'lib/service1'
+              }
+            }
+          }
+        }
+      });
+      shell.loadModule('path/to/module1');
+
+      var serviceInstance1 = shell.require('service1');
+      var serviceInstance2 = shell.require('service1');
+      expect(serviceInstance1)
+        .to.not.equal(serviceInstance2);
+
+      serviceInstance1 = shell.getServices('service1')[0];
+      serviceInstance2 = shell.getServices('service1')[0];
+      expect(serviceInstance1)
+        .to.not.equal(serviceInstance2);
     });
 
     it('won\'t load a service that\'s not available', function() {
@@ -347,14 +380,15 @@ describe('Shell', function() {
       });
       shell.load();
 
-      expect(shell.services.service1)
+      var service1s = shell.getServices('service1')
+      expect(service1s)
         .to.have.length(2);
 
-      expect(shell.services.service1[0])
+      expect(service1s[0])
         .to.have.a.property('what', 'instance of service 1');
-      expect(shell.services.service1[1])
+      expect(service1s[1])
         .to.have.a.property('what', 'instance of service 2');
-      expect(shell.services.service2[0])
+      expect(shell.getServices('service2')[0])
         .to.have.a.property('what', 'instance of service 3');
     });
 
@@ -407,63 +441,19 @@ describe('Shell', function() {
       });
       shell.load();
 
-      expect(shell.services.service1)
+      var service1s = shell.getServices('service1')
+      expect(service1s)
         .to.have.length(3);
 
-      expect(shell.services.service1[0])
+      expect(service1s[0])
         .to.have.a.property('what', 'instance of service 2');
-      expect(shell.services.service1[1])
+      expect(service1s[1])
         .to.have.a.property('what', 'instance of service 3');
-      expect(shell.services.service1[2])
+      expect(service1s[2])
         .to.have.a.property('what', 'instance of service 1');
-    });
-
-    it('can get and require services', function() {
-      var stubs = {};
-      var resolvedPathToService1 = path.resolve('path/to/module1/lib/service1.js');
-      stubs[resolvedPathToService1] = serviceClassFactory(1);
-      var resolvedPathToService2 = path.resolve('path/to/module2/lib/service2.js');
-      stubs[resolvedPathToService2] = serviceClassFactory(2);
-      var resolvedPathToService3 = path.resolve('path/to/module2/lib/service3.js');
-      stubs[resolvedPathToService3] = serviceClassFactory(3);
-
-      var PhoniedShell = proxyquire('../lib/shell', stubs);
-      var shell = new PhoniedShell({
-        features: ['feature 1'],
-        availableModules: {
-          'path/to/module1': {
-            name: 'module 1',
-            services: {
-              service1: {
-                feature: 'feature 1',
-                path: 'lib/service1'
-              }
-            }
-          },
-          'path/to/module2': {
-            name: 'module 2',
-            services: {
-              service1: {
-                feature: 'feature 1',
-                path: 'lib/service2'
-              },
-              service2: {
-                feature: 'feature 1',
-                path: 'lib/service3'
-              }
-            }
-          }
-        }
-      });
-      shell.load();
-
-      var services1 = shell.getServices('service1');
-      expect(services1).to.have.length(2);
-      expect(services1[0]).to.have.a.property('what', 'instance of service 1');
-      expect(services1[1]).to.have.a.property('what', 'instance of service 2');
-
-      expect(shell.require('service2'))
-        .to.have.a.property('what', 'instance of service 3');
+      // Require gets the least dependant
+      expect(shell.require('service1'))
+        .to.have.a.property('what', 'instance of service 1');
     });
   });
 });

@@ -197,12 +197,11 @@ Shell.prototype.loadModule = function(modulePath) {
       });
     }
     var ServiceClass = require(servicePath);
-    var serviceInstance = new ServiceClass(self);
     if (!self.services[serviceName]) {
-      self.services[serviceName] = [serviceInstance];
+      self.services[serviceName] = [ServiceClass];
     }
     else {
-      self.services[serviceName].push(serviceInstance);
+      self.services[serviceName].push(ServiceClass);
     }
     self.serviceManifests[servicePath] = service;
     console.log(t('Loaded service %s from %s', serviceName, servicePath));
@@ -215,27 +214,32 @@ Shell.prototype.loadModule = function(modulePath) {
  * If more than one service exists in the tenant for that contract, one instance that
  * has no dependency on any other service for that contract is returned. Do not
  * count on any particular service being returned if that is the case.
+ * A new instance is returned every time the function is called.
  * 
  * @param {String} service  The name of the contract for which a service instance is required.
  */
 Shell.prototype.require = function(service) {
   var services = this.services[service];
   if (Array.isArray(services)) {
-    return services.length > 0 ? services[services.length - 1] : null;
+    return services.length > 0 ? new (services[services.length - 1])(this) : null;
   }
-  return services;
+  return null;
 };
 
 /**
  * @description
- * Returns the list of services that are implementing the named contract passed as a parameter.
+ * Returns a list of service instances that are implementing the named contract passed as a parameter.
  * The services are returned in order of dependency: if service A has a dependency
  * on service B, B is guaranteed to appear earlier in the list.
+ * New instances are returned every time the function is called.
  * 
  * @param {String} service  The name of the contract for which service instances are required.
  */
 Shell.prototype.getServices = function(service) {
-  return this.services[service];
+  return this.services[service]
+    .map(function(serviceClass) {
+    return new serviceClass(this);
+  });
 };
 
 /**
