@@ -3,10 +3,10 @@
 var domain = require('domain');
 var http = require('http');
 var https = require('https');
-var t = require('./fx/localization/lib/t');
+var t = require('./modules/core/localization/lib/t');
 var cluster = require('cluster');
-var moduleDiscovery = require('./fx/multi-tenancy/lib/module-discovery');
-var Shell = require('./fx/multi-tenancy/lib/shell');
+var moduleDiscovery = require('./modules/core/multi-tenancy/lib/module-discovery');
+var Shell = require('./modules/core/multi-tenancy/lib/shell');
 
 var port = +process.env.PORT || 1337;
 var host = process.env.IP || "localhost";

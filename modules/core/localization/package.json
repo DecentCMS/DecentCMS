@@ -1,5 +1,5 @@
 {
-  "name": "decentcms-fx-localization",
+  "name": "decentcms-core-localization",
   "version": "0.0.0",
   "description": "Localization utilities for DecentCMS.",
   "main": "index.js",

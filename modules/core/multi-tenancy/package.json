@@ -1,5 +1,5 @@
 {
-  "name": "decentcms-fx-multi-tenancy",
+  "name": "decentcms-core-multi-tenancy",
   "version": "0.0.0",
   "description": "Multi-tenancy support for DecentCMS",
   "main": "index.js",
