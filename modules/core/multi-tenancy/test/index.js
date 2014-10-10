@@ -261,8 +261,9 @@ describe('Shell', function() {
       var shell = new PhoniedShell({
         features: ['feature 1'],
         availableModules: {
-          'path/to/module1': {
+          'module 1': {
             name: 'module 1',
+            physicalPath: 'path/to/module1',
             services: {
               service1: {
                 feature: 'feature 1',
@@ -272,7 +273,7 @@ describe('Shell', function() {
           }
         }
       });
-      shell.loadModule('path/to/module1');
+      shell.loadModule('module 1');
 
       expect(shell.services)
         .to.have.property('service1')
@@ -296,8 +297,9 @@ describe('Shell', function() {
       var shell = new PhoniedShell({
         features: ['feature 1'],
         availableModules: {
-          'path/to/module1': {
+          'module 1': {
             name: 'module 1',
+            physicalPath: 'path/to/module1',
             services: {
               service1: {
                 feature: 'feature 1',
@@ -307,7 +309,7 @@ describe('Shell', function() {
           }
         }
       });
-      shell.loadModule('path/to/module1');
+      shell.loadModule('module 1');
 
       var serviceInstance1 = shell.require('service1');
       var serviceInstance2 = shell.require('service1');
@@ -354,8 +356,9 @@ describe('Shell', function() {
       var shell = new PhoniedShell({
         features: ['feature 1'],
         availableModules: {
-          'path/to/module1': {
+          'module 1': {
             name: 'module 1',
+            physicalPath: 'path/to/module1',
             services: {
               service1: {
                 feature: 'feature 1',
@@ -363,8 +366,9 @@ describe('Shell', function() {
               }
             }
           },
-          'path/to/module2': {
+          'module 2': {
             name: 'module 2',
+            physicalPath: 'path/to/module2',
             services: {
               service1: {
                 feature: 'feature 1',
@@ -405,35 +409,38 @@ describe('Shell', function() {
       var shell = new PhoniedShell({
         features: ['feature 1'],
         availableModules: {
-          'path/to/module1': {
+          'module 1': {
             name: 'module 1',
+            physicalPath: 'path/to/module1',
             services: {
               service1: {
                 feature: 'feature 1',
                 path: 'lib/service1',
-                dependencies: ['path/to/module3']
+                dependencies: ['module 3']
               }
             }
           },
-          'path/to/module2': {
+          'module 2': {
             name: 'module 2',
+            physicalPath: 'path/to/module2',
             services: {
               service1: {
                 feature: 'feature 1',
                 path: 'lib/service2',
                 // That will check it won't try to load the same module twice.
                 // Don't do that for real.
-                dependencies: ['path/to/module1']
+                dependencies: ['module 1']
               }
             }
           },
-          'path/to/module3': {
+          'module 3': {
             name: 'module 3',
+            physicalPath: 'path/to/module3',
             services: {
               service1: {
                 feature: 'feature 1',
                 path: 'lib/service3',
-                dependencies: ['path/to/module2']
+                dependencies: ['module 2']
               }
             }
           }
@@ -454,6 +461,36 @@ describe('Shell', function() {
       // Require gets the least dependant
       expect(shell.require('service1'))
         .to.have.a.property('what', 'instance of service 1');
+    });
+
+    it('will initialize modules', function() {
+      var ServiceClass1 = serviceClassFactory(1);
+      var initialized = false;
+      ServiceClass1.init = function(shell) {
+        initialized = true;
+      };
+      var stubs = {};
+      var resolvedPathToService = path.resolve('path/to/module1/lib/service1.js');
+      stubs[resolvedPathToService] = ServiceClass1;
+      var PhoniedShell = proxyquire('../lib/shell', stubs);
+      var shell = new PhoniedShell({
+        features: ['feature 1'],
+        availableModules: {
+          'module 1': {
+            name: 'module 1',
+            physicalPath: 'path/to/module1',
+            services: {
+              service1: {
+                feature: 'feature 1',
+                path: 'lib/service1'
+              }
+            }
+          }
+        }
+      });
+      shell.loadModule('module 1');
+
+      expect(initialized).to.be.ok;
     });
   });
 });

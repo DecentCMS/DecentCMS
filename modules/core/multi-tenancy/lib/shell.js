@@ -22,7 +22,7 @@ var t = require('../../localization/lib/t');
  * @param {String}  [options.pfx]              The path to the pfx SSL certificate to use with this tenant.
  * @param {Array}   [options.features]         The list of enabled feature names on this tenant.
  * @param {Object}  [options.services]         The enabled services keyed by service name.
- * @param {Boolean} [options.active]           True if the tenant is active/
+ * @param {Boolean} [options.active]           True if the tenant is active.
  */
 function Shell(options) {
   options = options || {};
@@ -82,10 +82,12 @@ Shell.load = function(sitePath, defaults) {
  * Discovers all tenants in the ./sites directory.
  * 
  * @param {Object} defaults  Default settings for the shells.
+ * @param {String} rootPath  The root path where to look for shell settings files.
+ *                           Defaults to ./sites
  */
-Shell.discover = function(defaults) {
-  var rootPath = './sites';
-  console.log(t('Discovering tenant in %s', rootPath));
+Shell.discover = function(defaults, rootPath) {
+  rootPath = rootPath || './sites';
+  console.log(t('Discovering tenants in %s', rootPath));
   var siteNames = fs.readdirSync(rootPath);
   siteNames.forEach(function(siteName) {
     var resolvedSitePath = path.resolve(rootPath, siteName);
@@ -175,11 +177,11 @@ Shell.prototype.load = function() {
  * Loads all the services in the module under the path passed as a parameter.
  * Services are loaded while respecting the dependency order.
  * 
- * @param {String} modulePath  The path under which the module resides.
+ * @param {String} moduleName  The name of the module to load.
  */
-Shell.prototype.loadModule = function(modulePath) {
+Shell.prototype.loadModule = function(moduleName) {
   var self = this;
-  var manifest = this.availableModules[modulePath];
+  var manifest = this.availableModules[moduleName];
   if (manifest.loaded) return;
   manifest.loaded = true;
   var features = this.features;
@@ -188,7 +190,7 @@ Shell.prototype.loadModule = function(modulePath) {
     var service = services[serviceName];
     var serviceFeature = service.feature;
     if (serviceFeature && features.indexOf(serviceFeature) === -1) continue;
-    var servicePath = path.resolve(modulePath, service.path + ".js");
+    var servicePath = path.resolve(manifest.physicalPath, service.path + ".js");
     if (self.serviceManifests[servicePath]) continue;
     var dependencies = service.dependencies;
     if (dependencies) {
@@ -204,6 +206,9 @@ Shell.prototype.loadModule = function(modulePath) {
       self.services[serviceName].push(ServiceClass);
     }
     self.serviceManifests[servicePath] = service;
+    if (ServiceClass.init) {
+      ServiceClass.init(self);
+    }
     console.log(t('Loaded service %s from %s', serviceName, servicePath));
   }
 };
@@ -250,8 +255,24 @@ Shell.prototype.getServices = function(service) {
  * @param {http.ServerResponse}  res Response
  */
 Shell.prototype.handleRequest = function(req, res) {
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.end(t('Hello from %s.\nURL: %s\nHeaders: %j', this.name, req.url, req.headers));
+  var payload = {
+    req: req,
+    res: res,
+    handled: false
+  };
+  this.emit(Shell.handleRouteEvent, payload);
+
+  if (payload.handled) return;
+
+  res.writeHead(404, {'Content-Type': 'text/plain'});
+  res.end(t('There\'s no such page on %s.\nURL: %s\nHeaders: %j', this.name, req.url, req.headers));
 };
 
-module.exports = Shell;
+/**
+ * @description
+ * The event that is broadcast when a route needs to be resolved.
+ * @type {string}
+ */
+Shell.handleRouteEvent = Shell.prototype.handleRouteEvent = 'decentcms.core.shell.handle-route';
+
+  module.exports = Shell;

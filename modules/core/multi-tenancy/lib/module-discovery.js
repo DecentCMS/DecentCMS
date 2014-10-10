@@ -31,8 +31,10 @@ function discover() {
             if (!fs.existsSync(manifestPath)) return;
             try {
               var manifest = require(manifestPath);
-              console.log(t('Loaded module %s', modulePath));
-              availableModules[modulePath] = manifest;
+              var moduleName = manifest.name;
+              manifest.physicalPath = manifestPath;
+              console.log(t('Loaded module %s from %s', moduleName, manifestPath));
+              availableModules[moduleName] = manifest;
             }
             catch(ex) {
               ex.path = manifestPath;

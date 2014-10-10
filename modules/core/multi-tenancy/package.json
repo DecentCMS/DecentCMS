@@ -1,10 +1,11 @@
 {
   "name": "decentcms-core-multi-tenancy",
+  "friendlyName": "Multi-tenancy",
   "version": "0.0.0",
   "description": "Multi-tenancy support for DecentCMS",
-  "main": "index.js",
+  "main": "./index",
   "scripts": {
-    "test": "test/index.js"
+    "test": "./test/index"
   },
   "author": "Bertrand Le Roy",
   "license": "MIT",
