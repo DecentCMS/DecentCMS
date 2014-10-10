@@ -8,9 +8,9 @@ function ContentItem(document) {
   return document;
 }
 
-function Service(shell) {
+function ContentManager(shell) {
   this.shell = shell;
 }
-Service.prototype.ContentItem = ContentItem;
+ContentManager.prototype.ContentItem = ContentItem;
 
 module.exports = Service;
