@@ -2,7 +2,7 @@
 'use strict';
 var fs = require('fs');
 var path = require('path');
-var t = require('../../localization/lib/t');
+var t = require('decent-core-localization').t;
 
 var availableModules = {};
 

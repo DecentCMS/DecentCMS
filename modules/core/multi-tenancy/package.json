@@ -1,5 +1,5 @@
 {
-  "name": "decentcms-core-multi-tenancy",
+  "name": "decent-core-multi-tenancy",
   "friendlyName": "Multi-tenancy",
   "version": "0.0.0",
   "description": "Multi-tenancy support for DecentCMS",
@@ -14,5 +14,7 @@
     "mocha": "*",
     "proxyquire": "*"
   },
-  "dependencies": {}
+  "dependencies": {
+    "decent-core-localization": "*"
+  }
 }

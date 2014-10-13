@@ -4,7 +4,7 @@ var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 var path = require('path');
 var fs = require('fs');
-var t = require('../../localization/lib/t');
+var t = require('decent-core-localization').t;
 
 /**
  * @description
@@ -38,6 +38,8 @@ function Shell(options) {
   this.services = options.services || {};
   this.active = !(options.active === false);
   this.serviceManifests = {};
+  this.moduleManifests = {};
+  this.modules = [];
   this.loaded = false;
 }
 
@@ -182,10 +184,11 @@ Shell.prototype.load = function() {
 Shell.prototype.loadModule = function(moduleName) {
   var self = this;
   var manifest = this.availableModules[moduleName];
-  if (manifest.loaded) return;
-  manifest.loaded = true;
+  if (self.moduleManifests[moduleName]) return;
+  self.moduleManifests[moduleName] = manifest;
   var features = this.features;
   var services = manifest.services;
+  var anyEnabledService = false;
   for (var serviceName in services) {
     var service = services[serviceName];
     var serviceFeature = service.feature;
@@ -205,11 +208,16 @@ Shell.prototype.loadModule = function(moduleName) {
     else {
       self.services[serviceName].push(ServiceClass);
     }
+    ServiceClass.manifest = service;
     self.serviceManifests[servicePath] = service;
     if (ServiceClass.init) {
       ServiceClass.init(self);
     }
+    anyEnabledService = true;
     console.log(t('Loaded service %s from %s', serviceName, servicePath));
+  }
+  if (anyEnabledService) {
+    self.modules.push(moduleName);
   }
 };
 
@@ -217,18 +225,38 @@ Shell.prototype.loadModule = function(moduleName) {
  * @description
  * Returns an instance of a service implementing the named contract passed as a parameter.
  * If more than one service exists in the tenant for that contract, one instance that
- * has no dependency on any other service for that contract is returned. Do not
- * count on any particular service being returned if that is the case.
+ * has dependencies on any other service for that contract is returned. Do not
+ * count on any particular service being returned if that is the case among the ones
+ * that have the most dependencies.
  * A new instance is returned every time the function is called.
  * 
  * @param {String} service  The name of the contract for which a service instance is required.
  */
 Shell.prototype.require = function(service) {
   var services = this.services[service];
-  if (Array.isArray(services)) {
-    return services.length > 0 ? new (services[services.length - 1])(this) : null;
-  }
-  return null;
+  var ServiceClass = Array.isArray(services)
+    ? (services.length > 0 ? services[services.length - 1] : null) : null;
+  return this.construct(ServiceClass);
+};
+
+/**
+ * @description
+ * Constructs an instance of the class passed in.
+ * If the class is a shell singleton, the same instance
+ * is always returned for any given shell.
+ * Otherwise, a new instance is created on each call.
+ * Don't call this directly, it should only be internally used by Shell.
+ * @param {Function} ServiceClass The class to instantiate.
+ * @returns {*} An instance of
+ */
+Shell.prototype.construct = function(ServiceClass) {
+  return ServiceClass ?
+    ServiceClass.isShellSingleton ?
+      ServiceClass.instance ?
+        ServiceClass.instance :
+        ServiceClass.instance = new ServiceClass(this)
+      : new ServiceClass(this)
+    : null;
 };
 
 /**
@@ -241,10 +269,7 @@ Shell.prototype.require = function(service) {
  * @param {String} service  The name of the contract for which service instances are required.
  */
 Shell.prototype.getServices = function(service) {
-  return this.services[service]
-    .map(function(serviceClass) {
-    return new serviceClass(this);
-  });
+  return this.services[service].map(this.construct);
 };
 
 /**
@@ -260,12 +285,17 @@ Shell.prototype.handleRequest = function(req, res) {
     res: res,
     handled: false
   };
+  // Does anyone want to handle this?
   this.emit(Shell.handleRouteEvent, payload);
-
-  if (payload.handled) return;
-
-  res.writeHead(404, {'Content-Type': 'text/plain'});
-  res.end(t('There\'s no such page on %s.\nURL: %s\nHeaders: %j', this.name, req.url, req.headers));
+  this.emit(Shell.fetchContentEvent, {
+    callback: function(err, data) {
+      // Let's render stuff
+      this.emit(Shell.renderPageEvent, {
+        req: payload.req,
+        res: payload.res
+      });
+    }
+  });
 };
 
 /**
@@ -273,6 +303,20 @@ Shell.prototype.handleRequest = function(req, res) {
  * The event that is broadcast when a route needs to be resolved.
  * @type {string}
  */
-Shell.handleRouteEvent = Shell.prototype.handleRouteEvent = 'decentcms.core.shell.handle-route';
+Shell.handleRouteEvent = Shell.prototype.handleRouteEvent = 'decent.core.shell.handle-route';
 
-  module.exports = Shell;
+/**
+ * @description
+ * The event that is broadcast when content needs to be fetched from stores.
+ * @type {string}
+ */
+Shell.fetchContentEvent = Shell.prototype.fetchContentEvent = 'decent.core.shell.fetch-content';
+
+/**
+ * @description
+ * The event that is broadcast when the page is ready to be rendered.
+ * @type {string}
+ */
+Shell.renderPageEvent = Shell.prototype.renderPageEvent = 'decent.core.shell.render-page';
+
+module.exports = Shell;

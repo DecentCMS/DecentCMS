@@ -252,6 +252,37 @@ describe('Shell', function() {
       expect(resolvedShell.name).to.equal('Site 1');
     });
 
+    it('can construct new instances of classes', function() {
+      var shell = new Shell();
+      var SomeClass = function(shell) {
+        this.shell = shell;
+      }
+      var instance1 = shell.construct(SomeClass);
+      var instance2 = shell.construct(SomeClass);
+
+      expect(instance1)
+        .to.be.an.instanceof(SomeClass);
+      expect(instance2)
+        .to.be.an.instanceof(SomeClass);
+      expect(instance1)
+        .to.not.equal(instance2);
+    });
+
+    it('always constructs the same shell singletons', function() {
+      var shell = new Shell();
+      var SomeClass = function(shell) {
+        this.shell = shell;
+      }
+      SomeClass.isShellSingleton = true;
+      var instance1 = shell.construct(SomeClass);
+      var instance2 = shell.construct(SomeClass);
+
+      expect(instance1)
+        .to.be.an.instanceof(SomeClass);
+      expect(instance1)
+        .to.equal(instance2);
+    });
+
     it('can load a service from a module', function() {
       var ServiceClass1 = serviceClassFactory(1);
       var stubs = {};
@@ -288,6 +319,42 @@ describe('Shell', function() {
         .and.that.to.have.a.property('path', 'lib/service1');
     });
 
+    it('loads services when there are multiple shells', function() {
+      var ServiceClass1 = serviceClassFactory(1);
+      var initialized = false;
+      ServiceClass1.init = function(shell) {
+        initialized = true;
+      };
+      var stubs = {};
+      var resolvedPathToService = path.resolve('path/to/module1/lib/service1.js');
+      stubs[resolvedPathToService] = ServiceClass1;
+      var PhoniedShell = proxyquire('../lib/shell', stubs);
+      var shellSettings = {
+        features: ['feature 1'],
+        availableModules: {
+          'module 1': {
+            name: 'module 1',
+            physicalPath: 'path/to/module1',
+            services: {
+              service1: {
+                feature: 'feature 1',
+                path: 'lib/service1'
+              }
+            }
+          }
+        }
+      };
+      var shell1 = new PhoniedShell(shellSettings);
+      var shell2 = new PhoniedShell(shellSettings);
+      shell1.load();
+      shell2.load();
+
+      expect(shell1.services)
+        .to.have.property('service1');
+      expect(shell2.services)
+        .to.have.property('service1');
+    });
+
     it('will give a different instance of a service every time', function() {
       var ServiceClass1 = serviceClassFactory(1);
       var stubs = {};
@@ -322,7 +389,7 @@ describe('Shell', function() {
         .to.not.equal(serviceInstance2);
     });
 
-    it('won\'t load a service that\'s not available', function() {
+    it('won\'t load a service that\'s not available, and won\'t load the module either', function() {
       var shell = new Shell({
         features: ['not feature 1', 'not feature 1 either'],
         availableModules: {
@@ -341,6 +408,8 @@ describe('Shell', function() {
 
       expect(shell.services)
         .to.not.have.property('service1');
+      expect(shell.modules)
+        .to.be.empty;
     });
 
     it('will load multiple services with the same name', function() {
@@ -396,7 +465,7 @@ describe('Shell', function() {
         .to.have.a.property('what', 'instance of service 3');
     });
 
-    it('will load services in dependency order', function() {
+    it('will load services and modules in dependency order', function() {
       var stubs = {};
       var resolvedPathToService1 = path.resolve('path/to/module1/lib/service1.js');
       stubs[resolvedPathToService1] = serviceClassFactory(1);
@@ -461,6 +530,8 @@ describe('Shell', function() {
       // Require gets the least dependant
       expect(shell.require('service1'))
         .to.have.a.property('what', 'instance of service 1');
+      expect(shell.modules)
+        .to.deep.equal(["module 2", "module 3", "module 1"]);
     });
 
     it('will initialize modules', function() {
