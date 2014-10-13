@@ -1,5 +1,6 @@
-var contentItem = require('services/content-item');
+// DecentCMS (c) 2014 Bertrand Le Roy, under MIT license. See license.txt for licensing details.
+'use strict';
 
 module.exports = {
-  contentItem: contentItem
+  contentManager: require('lib/content-manager')
 };
