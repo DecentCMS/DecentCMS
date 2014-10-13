@@ -1,0 +1,27 @@
+{
+  "name": "decent-core-autoroute",
+  "friendlyName": "Autoroute",
+  "version": "0.0.0",
+  "description": "Token-based route generation for DecentCMS content items",
+  "services": {
+    "route-handler": {
+      "path": "./lib/autoroute-route-handler",
+      "feature": "autoroute",
+      "priority": 9000,
+      "dependencies": ["decent-core-express"]
+    }
+  },
+  "features": {
+    "autoroute": {
+      "name": "Autoroute",
+      "description": "Token-based route generation for DecentCMS content items"
+    }
+  },
+  "main": "./index",
+  "scripts": {
+    "test": "./lib/index"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "dependencies": {}
+}
