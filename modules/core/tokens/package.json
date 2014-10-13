@@ -1,10 +1,23 @@
 {
-  "name": "decentcms-core-tokens",
+  "name": "decent-core-tokens",
+  "friendlyName": "Tokens",
   "version": "0.0.0",
   "description": "Token evaluation for DecentCMS",
-  "main": "index.js",
+  "services": {
+    "token": {
+      "path": "./lib/token",
+      "feature": "tokens"
+    }
+  },
+  "features": {
+    "tokens": {
+      "name": "Tokens",
+      "description": "Token evaluation for DecentCMS"
+    }
+  },
+  "main": "./index",
   "scripts": {
-    "test": "test/index.js"
+    "test": "./test/index"
   },
   "author": "Bertrand Le Roy",
   "license": "MIT",

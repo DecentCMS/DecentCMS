@@ -21,7 +21,7 @@ var Token = function(shell) {
  * calls for pipe extensions to register themselves.
  * @type {String}
  */
-Token.registerPipesEvent = 'decentcms.core.token.register-pipes';
+Token.registerPipesEvent = Token.prototype.registerPipesEvent = 'decent.core.token.register-pipes';
 
 /**
  * @description
