@@ -1,0 +1,30 @@
+{
+  "name": "decent-core-file-resolution",
+  "version": "0.0.0",
+  "description": "Resolves file names in the system's hierarchy of themes and modules.",
+  "services": {
+    "file-resolution": {
+      "path": "./lib/file-resolution",
+      "feature": "file-resolution"
+    }
+  },
+  "features": {
+    "file-resolution": {
+      "name": "File Resolution",
+      "description": "Resolves files in modules and themes."
+    }
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "./test/index"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "*",
+    "decent-core-localization": "*",
+    "decent-core-multi-tenancy": "*",
+    "moka": "*",
+    "proxyquire": "*"
+  }
+}
