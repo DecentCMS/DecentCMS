@@ -1,0 +1,27 @@
+{
+  "name": "decent-core-express",
+  "version": "0.0.0",
+  "description": "Integration of Express into DecentCMS.",
+  "services": {
+    "express": {
+      "path": "./lib/express-route-handler",
+      "feature": "express"
+    }
+  },
+  "features": {
+    "express": {
+      "name": "Express",
+      "description": "Integration of Express into DecentCMS"
+    }
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": ".test/index.js"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "dependencies": {
+    "decent-core-localization": "*",
+    "express": "*"
+  }
+}
