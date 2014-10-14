@@ -83,5 +83,5 @@ describe('file-resolution', function() {
     var resolvedPaths = fileResolver.all('foo/bar.baz');
 
     expect(resolvedPaths)
-      .to.deep.equal([resolvedPathToFileInDependent, resolvedPathToFileInDependency]);
+      .to.deep.equal([resolvedPathToFileInDependency, resolvedPathToFileInDependent]);
   });});

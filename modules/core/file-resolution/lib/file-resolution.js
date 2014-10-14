@@ -25,8 +25,8 @@ FileResolution.isShellSingleton = true;
 /**
  * @description
  * Resolves local paths to the physical path of the file in the
- * first module in dependency order (most dependent modules are
- * first) that has it. For example, if module1 and module 2 both
+ * first module in dependency order (dependencies are last)
+ * that has it. For example, if module1 and module 2 both
  * have the file, but a service in module 2 depends on module 1,
  * then the path of the file in module 2 is returned.
  * @param {String} filePath The local path under the module's root of the file to find.
@@ -53,8 +53,7 @@ FileResolution.prototype.resolve = function(filePath) {
 /**
  * @description
  * Finds all occurrences of the file whose path is passed in,
- * in order of dependency, from the most dependent to the least
- * dependent.
+ * in order of dependency, starting from dependencies.
  * @param {String} filePath The local path under the module's root of the file to find.
  * @returns {Array} The list of paths found.
  */
@@ -66,7 +65,7 @@ FileResolution.prototype.all = function(filePath) {
   var results = [];
   var modules = this.shell.modules;
   if (modules.length === 0) return null;
-  for (var i = modules.length - 1; i >= 0; i--) {
+  for (var i = 0; i< modules.length; i++) {
     var module = modules[i];
     var realPath = path.resolve(module, filePath);
     if (fs.existsSync(realPath)) {
