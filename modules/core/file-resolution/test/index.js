@@ -65,4 +65,23 @@ describe('file-resolution', function() {
     expect(resolvedPath)
       .to.equal(resolvedPathToFileInDependent);
   });
-});
+
+  it('can find paths in all modules in dependency order', function() {
+    var shell = new Shell();
+    shell.modules = ['path/to/dependency', 'path/to/dependent'];
+    var resolvedPathToFileInDependency = path.resolve('path/to/dependency/foo/bar.baz');
+    var resolvedPathToFileInDependent = path.resolve('path/to/dependent/foo/bar.baz');
+    var stubs = {
+      fs: {
+        existsSync: function (p) {
+          return p === resolvedPathToFileInDependency || p === resolvedPathToFileInDependent;
+        }
+      }
+    };
+    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var fileResolver = new FileResolver(shell);
+    var resolvedPaths = fileResolver.all('foo/bar.baz');
+
+    expect(resolvedPaths)
+      .to.deep.equal([resolvedPathToFileInDependent, resolvedPathToFileInDependency]);
+  });});

@@ -17,6 +17,7 @@ var path = require('path');
 var FileResolution = function(shell) {
   this.shell = shell;
   this.shell.resolvedFiles = {};
+  this.shell.resolvedFilesAll = {};
 };
 
 FileResolution.isShellSingleton = true;
@@ -48,5 +49,32 @@ FileResolution.prototype.resolve = function(filePath) {
   };
   return null;
 };
+
+/**
+ * @description
+ * Finds all occurrences of the file whose path is passed in,
+ * in order of dependency, from the most dependent to the least
+ * dependent.
+ * @param {String} filePath The local path under the module's root of the file to find.
+ * @returns {Array} The list of paths found.
+ */
+FileResolution.prototype.all = function(filePath) {
+  var resolvedFilesAll = this.shell.resolvedFilesAll;
+  if (filePath in resolvedFilesAll) {
+    return resolvedFilesAll[filePath];
+  }
+  var results = [];
+  var modules = this.shell.modules;
+  if (modules.length === 0) return null;
+  for (var i = modules.length - 1; i >= 0; i--) {
+    var module = modules[i];
+    var realPath = path.resolve(module, filePath);
+    if (fs.existsSync(realPath)) {
+      results.push(realPath);
+    }
+  };
+  resolvedFilesAll[filePath] = results;
+  return results;
+}
 
 module.exports = FileResolution;
