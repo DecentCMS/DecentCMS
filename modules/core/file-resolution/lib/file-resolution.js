@@ -17,8 +17,8 @@ var path = require('path');
  */
 var FileResolution = function(shell) {
   this.shell = shell;
-  this.shell.resolvedFiles = {};
-  this.shell.resolvedFilesAll = {};
+  this.shell.resolvedFiles = this.shell.resolvedFiles || {};
+  this.shell.resolvedFilesAll = this.shell.resolvedFilesAll || {};
 };
 
 FileResolution.isShellSingleton = true;
@@ -79,7 +79,7 @@ FileResolution.prototype.resolve = function(fileName) {
           var subPath = subs[k];
           if (!pathToken.test(subPath)) continue;
           var fullPath = path.resolve(p, subPath);
-          if (i === arguments.length - 1) return fullPath;
+          if (i === arguments.length - 1) return resolvedFiles[filePath] = fullPath;
           nextPaths.push(fullPath);
         }
       }
@@ -88,14 +88,14 @@ FileResolution.prototype.resolve = function(fileName) {
       for (j = 0; j < paths.length; j++) {
         var fullPath = path.resolve(paths[j], pathToken);
         if (fs.existsSync(fullPath)) {
-          if (i === arguments.length - 1) return fullPath;
+          if (i === arguments.length - 1) return resolvedFiles[filePath] = fullPath;
           nextPaths.push(fullPath);
         }
       }
     }
     paths = nextPaths;
   }
-  return null;
+  return resolvedFiles[filePath] = null;
 };
 
 /**

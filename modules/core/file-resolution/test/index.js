@@ -153,4 +153,73 @@ describe('file-resolution', function() {
     expect(resolvedPaths)
       .to.deep.equal([resolvedPathToFile1, resolvedPathToFile2, resolvedPathToFile3]);
   });
+
+  it('resolves mixed regular expression and string paths', function() {
+    var shell = new Shell();
+    shell.modules = ['path/to/module1'];
+    var resolvedPathToModuleRoot = path.resolve('path/to/module1');
+    var resolvedPathToFile1 = path.resolve('path/to/module1/foo/baz.js');
+    var resolvedPathToFile2 = path.resolve('path/to/module1/foofoo/baz.js');
+    var stubs = {
+      fs: {
+        readdirSync: function (p) {
+          if (p === resolvedPathToModuleRoot) return ['foo', 'foofoo', 'bar', 'baz'];
+        },
+        existsSync: function (p) {
+          return p === resolvedPathToFile1 || p === resolvedPathToFile2;
+        }
+      }
+    };
+    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var fileResolver = new FileResolver(shell);
+    var resolvedPath = fileResolver.resolve(/^foo.*$/i, 'baz.js');
+    var resolvedPaths = fileResolver.all(/^foo.*$/i, 'baz.js');
+
+    expect(resolvedPath)
+      .to.equal(resolvedPathToFile1);
+    expect(resolvedPaths)
+      .to.deep.equal([resolvedPathToFile1, resolvedPathToFile2]);
+  });
+
+  it('caches results and misses', function() {
+    var shell = new Shell();
+    shell.modules = ['path/to/module1'];
+    var resolvedPathToModuleRoot = path.resolve('path/to/module1');
+    var resolvedPathToFile1 = path.resolve('path/to/module1/foo/baz.js');
+    var resolvedPathToFile2 = path.resolve('path/to/module1/foofoo/baz.js');
+    var stubs = {
+      fs: {
+        readdirSync: function(p) {
+          if (p === resolvedPathToModuleRoot) return ['foo', 'foofoo', 'bar', 'baz'];
+        },
+        existsSync: function (p) {
+          return p === resolvedPathToFile1 || p === resolvedPathToFile2;
+        }
+      }
+    };
+    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var fileResolver = new FileResolver(shell);
+    var cacheKey = fileResolver.getCacheKey([/^foo.*$/i, 'baz.js']);
+    var resolvedPath = fileResolver.resolve(/^foo.*$/i, 'baz.js');
+    var resolvedPaths = fileResolver.all(/^foo.*$/i, 'baz.js');
+    var nope = 'does/not/exist';
+    var miss = fileResolver.resolve(nope);
+    var missall = fileResolver.all(nope);
+
+    expect(shell.resolvedFiles[cacheKey])
+      .to.equal(resolvedPath);
+    expect(shell.resolvedFilesAll[cacheKey])
+      .to.equal(resolvedPaths);
+    expect(shell.resolvedFiles)
+      .to.have.property(nope, null);
+    expect(shell.resolvedFilesAll[nope])
+      .to.deep.equal([]);
+
+    // Remove the files, then hit the API again
+    stubs.fs.readdirSync = function(p) {return [];};
+    expect(fileResolver.resolve(/^foo.*$/i, 'baz.js'))
+      .to.equal(resolvedPath);
+    expect(fileResolver.all(/^foo.*$/i, 'baz.js'))
+      .to.equal(resolvedPaths);
+  });
 });
