@@ -83,5 +83,74 @@ describe('file-resolution', function() {
     var resolvedPaths = fileResolver.all('foo/bar.baz');
 
     expect(resolvedPaths)
-      .to.deep.equal([resolvedPathToFileInDependency, resolvedPathToFileInDependent]);
-  });});
+      .to.deep.equal([resolvedPathToFileInDependent, resolvedPathToFileInDependency]);
+  });
+
+  it('can find deep paths', function() {
+    var shell = new Shell();
+    shell.modules = ['path/to/module1'];
+    var resolvedPathToFolder = path.resolve('path/to/module1/foo');
+    var resolvedPathToFile = path.resolve('path/to/module1/foo/bar.baz');
+    var stubs = {
+      fs: {
+        existsSync: function (p) {
+          return p === resolvedPathToFile || p === resolvedPathToFolder;
+        }
+      }
+    };
+    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var fileResolver = new FileResolver(shell);
+    var resolvedPath = fileResolver.resolve('foo', 'bar.baz');
+
+    expect(resolvedPath)
+      .to.equal(resolvedPathToFile);
+  });
+
+  it('can find by regular expression', function() {
+    var shell = new Shell();
+    shell.modules = ['path/to/module1'];
+    var resolvedPathToModuleRoot = path.resolve('path/to/module1');
+    var resolvedPathToFolder = path.resolve('path/to/module1/foo');
+    var resolvedPathToFile = path.resolve('path/to/module1/foo/baz.js');
+    var stubs = {
+      fs: {
+        readdirSync: function(p) {
+          if (p === resolvedPathToModuleRoot) return ['foo', 'foofoo', 'bar', 'baz'];
+          if (p === resolvedPathToFolder) return ['baz.js', 'baz.json', 'baz.md', 'foo.bar'];
+        }
+      }
+    };
+    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var fileResolver = new FileResolver(shell);
+    var resolvedPath = fileResolver.resolve(/^foo.*$/i, /^baz\.js.*$/i);
+
+    expect(resolvedPath)
+      .to.equal(resolvedPathToFile);
+  });
+
+  it('can find all by regular expression', function() {
+    var shell = new Shell();
+    shell.modules = ['path/to/module1'];
+    var resolvedPathToModuleRoot = path.resolve('path/to/module1');
+    var resolvedPathToFolder1 = path.resolve('path/to/module1/foo');
+    var resolvedPathToFolder2 = path.resolve('path/to/module1/foofoo');
+    var resolvedPathToFile1 = path.resolve('path/to/module1/foo/baz.js');
+    var resolvedPathToFile2 = path.resolve('path/to/module1/foo/baz.json');
+    var resolvedPathToFile3 = path.resolve('path/to/module1/foofoo/baz.json');
+    var stubs = {
+      fs: {
+        readdirSync: function(p) {
+          if (p === resolvedPathToModuleRoot) return ['foo', 'foofoo', 'bar', 'baz'];
+          if (p === resolvedPathToFolder1) return ['baz.js', 'baz.json', 'baz.md', 'foo.bar'];
+          if (p === resolvedPathToFolder2) return ['baz.json', 'baz.md', 'foo.bar'];
+        }
+      }
+    };
+    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var fileResolver = new FileResolver(shell);
+    var resolvedPaths = fileResolver.all(/^foo.*$/i, /^baz\.js.*$/i);
+
+    expect(resolvedPaths)
+      .to.deep.equal([resolvedPathToFile1, resolvedPathToFile2, resolvedPathToFile3]);
+  });
+});
