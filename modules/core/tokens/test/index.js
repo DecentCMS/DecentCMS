@@ -32,3 +32,21 @@ describe('Token', function() {
       .to.equal('A string with a piped token in it: 4242424242.');
   });
 });
+
+describe('Markup View Engine', function() {
+  var shell = new EventEmitter();
+  shell.require = function(service) {
+    return service === 'token' ? new Token(shell) : null;
+  };
+  var ViewEngine = require('../lib/markup-view-engine');
+  var viewEngine = new ViewEngine(shell);
+
+  it('compiles templates', function() {
+    var compiled = viewEngine.compile('Foo: {{foo}}, Bar: {{bar}}');
+
+    expect(compiled({foo: 'foo', bar: 'bar'}))
+      .to.equal('Foo: foo, Bar: bar');
+    expect(compiled({foo: 42, bar: 6}))
+      .to.equal('Foo: 42, Bar: 6');
+  });
+});

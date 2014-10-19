@@ -18,11 +18,6 @@
       "path": "./lib/template-rendering-strategy",
       "feature": "template-rendering-strategy",
       "dependencies": ["decent-core-file-resolution"]
-    },
-    "view-engine": {
-      "path": "./lib/markup-view-engine",
-      "feature": "markup-view-engine",
-      "dependencies": ["decent-core-tokens"]
     }
   },
   "features": {
@@ -37,10 +32,6 @@
     "template-rendering-strategy": {
       "name": "Template Rendering Strategy",
       "Description": "Renders shapes using template files."
-    },
-    "markup-view-engine": {
-      "name": "Markup View Engine",
-      "Description": "A view engine that uses Markup.js to render templates."
     }
   },
   "main": "./index.js",

@@ -7,12 +7,20 @@
     "token": {
       "path": "./lib/token",
       "feature": "tokens"
+    },
+    "view-engine": {
+      "path": "./lib/markup-view-engine",
+      "feature": "markup-view-engine"
     }
   },
   "features": {
     "tokens": {
       "name": "Tokens",
       "description": "Token evaluation for DecentCMS"
+    },
+    "markup-view-engine": {
+      "name": "Markup View Engine",
+      "Description": "A view engine that uses Markup.js to render templates."
     }
   },
   "main": "./index",
