@@ -1,0 +1,39 @@
+{
+  "name": "decent-core-ui",
+  "version": "0.0.0",
+  "description": "Core UI composition API for DecentCMS",
+  "services": {
+    "shape": {
+      "path": "./lib/shape",
+      "feature": "shape"
+    },
+    "placement-strategy": {
+      "path": "./lib/file-placement-strategy",
+      "feature": "file-placement-strategy",
+      "dependencies": [
+        "decent-core-file-resolution"
+      ]
+    }
+  },
+  "features": {
+    "file-placement-strategy": {
+      "name": "File-Based Placement Strategy",
+      "Description": "Dispatches shapes according to descriptions in files."
+    },
+    "shape": {
+      "name": "Shape",
+      "description": "Shape manipulation API for UI composition"
+    }
+  },
+  "main": "./index.js",
+  "scripts": {
+    "test": "./test/index"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*",
+    "proxyquire": "*"
+  }
+}
