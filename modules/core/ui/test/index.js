@@ -293,3 +293,32 @@ describe('File Placement Strategy', function() {
     });
   });
 });
+
+describe('Zone template', function() {
+  var zoneTemplate = require('../views/zone');
+  var shell = new EventEmitter();
+  var shapeHelper = new Shape(shell);
+  shell.require = function(service) {
+    if (service === 'shape') return shapeHelper;
+  };
+
+  it('renders items under itself', function() {
+    shell.on('decent.core.shape.render', function(shape) {
+      var temp = shapeHelper.temp(shape);
+      temp.html = '[' + shapeHelper.meta(shape).type + ']';
+    });
+    var zone = {
+      meta: {type: 'zone'},
+      items: [
+        {meta: {type: 'shape1'}},
+        {meta: {type: 'shape2'}},
+        {meta: {type: 'shape3'}},
+        {meta: {type: 'shape4'}}
+      ]
+    };
+    var html = zoneTemplate(zone, shell);
+
+    expect(html)
+      .to.equal('[shape1]\n[shape2]\n[shape3]\n[shape4]');
+  });
+});
