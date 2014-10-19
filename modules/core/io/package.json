@@ -1,7 +1,7 @@
 {
-  "name": "decent-core-file-resolution",
+  "name": "decent-core-io",
   "version": "0.0.0",
-  "description": "Resolves file names in the system's hierarchy of themes and modules.",
+  "description": "I/O APIs for DecentCMS.",
   "services": {
     "file-resolution": {
       "path": "./lib/file-resolution",

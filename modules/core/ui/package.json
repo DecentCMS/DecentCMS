@@ -10,14 +10,16 @@
     "placement-strategy": {
       "path": "./lib/file-placement-strategy",
       "feature": "file-placement-strategy",
-      "dependencies": [
-        "decent-core-file-resolution"
-      ]
+      "dependencies": ["decent-core-io"]
     },
     "rendering-strategy": {
       "path": "./lib/template-rendering-strategy",
       "feature": "template-rendering-strategy",
-      "dependencies": ["decent-core-file-resolution"]
+      "dependencies": ["decent-core-io"]
+    },
+    "view-engine": {
+      "path": "./lib/code-view-engine",
+      "feature": "code-view-engine"
     }
   },
   "features": {
@@ -32,6 +34,10 @@
     "template-rendering-strategy": {
       "name": "Template Rendering Strategy",
       "Description": "Renders shapes using template files."
+    },
+    "code-view-engine": {
+      "name": "Code View Engine",
+      "Description": "A view engine that uses plain JavaScript code."
     }
   },
   "main": "./index.js",
@@ -46,6 +52,5 @@
     "proxyquire": "*"
   },
   "dependencies": {
-    "decent-core-tokens": "0.0.0"
   }
 }
