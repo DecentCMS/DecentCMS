@@ -13,16 +13,34 @@
       "dependencies": [
         "decent-core-file-resolution"
       ]
+    },
+    "rendering-strategy": {
+      "path": "./lib/template-rendering-strategy",
+      "feature": "template-rendering-strategy",
+      "dependencies": ["decent-core-file-resolution"]
+    },
+    "view-engine": {
+      "path": "./lib/markup-view-engine",
+      "feature": "markup-view-engine",
+      "dependencies": ["decent-core-tokens"]
     }
   },
   "features": {
+    "shape": {
+      "name": "Shape",
+      "description": "Shape manipulation API for UI composition"
+    },
     "file-placement-strategy": {
       "name": "File-Based Placement Strategy",
       "Description": "Dispatches shapes according to descriptions in files."
     },
-    "shape": {
-      "name": "Shape",
-      "description": "Shape manipulation API for UI composition"
+    "template-rendering-strategy": {
+      "name": "Template Rendering Strategy",
+      "Description": "Renders shapes using template files."
+    },
+    "markup-view-engine": {
+      "name": "Markup View Engine",
+      "Description": "A view engine that uses Markup.js to render templates."
     }
   },
   "main": "./index.js",
@@ -35,5 +53,8 @@
     "chai": "*",
     "mocha": "*",
     "proxyquire": "*"
+  },
+  "dependencies": {
+    "decent-core-tokens": "0.0.0"
   }
 }
