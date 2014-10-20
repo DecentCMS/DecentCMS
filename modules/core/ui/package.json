@@ -7,6 +7,10 @@
       "path": "./lib/shape",
       "feature": "shape"
     },
+    "render-stream": {
+      "path": "./lib/render-stream",
+      "feature": "render-stream"
+    },
     "placement-strategy": {
       "path": "./lib/file-placement-strategy",
       "feature": "file-placement-strategy",
@@ -26,6 +30,10 @@
     "shape": {
       "name": "Shape",
       "description": "Shape manipulation API for UI composition"
+    },
+    "render-stream": {
+      "name": "Render Stream",
+      "description": "Recursive, asynchronous stream that view engines must render to."
     },
     "file-placement-strategy": {
       "name": "File-Based Placement Strategy",

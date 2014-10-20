@@ -303,9 +303,10 @@ describe('Zone template', function() {
   };
 
   it('renders items under itself', function() {
-    shell.on('decent.core.shape.render', function(shape) {
-      var temp = shapeHelper.temp(shape);
-      temp.html = '[' + shapeHelper.meta(shape).type + ']';
+    shell.on('decent.core.shape.render', function(payload) {
+      var shape = payload.shape;
+      var renderer = payload.renderStream;
+      renderer.write('[' + shapeHelper.meta(shape).type + ']');
     });
     var zone = {
       meta: {type: 'zone'},
@@ -316,9 +317,128 @@ describe('Zone template', function() {
         {meta: {type: 'shape4'}}
       ]
     };
-    var html = zoneTemplate(zone, shell);
+    var html = [];
+    var renderer = new require('stream').PassThrough();
+    renderer.on('data', function(chunk) {
+      html.push(chunk);
+    });
+    zoneTemplate(zone, renderer, shell);
 
-    expect(html)
-      .to.equal('[shape1]\n[shape2]\n[shape3]\n[shape4]');
+    expect(html.join(''))
+      .to.equal('[shape1]\n[shape2]\n[shape3]\n[shape4]\n');
+  });
+});
+
+describe('Code View Engine', function() {
+  it('can render html using JavaScript functions.', function() {
+    var shapeTemplate = function(shape, renderer) {
+      renderer.write('[shape]')
+    };
+    shapeTemplate['@noCallThru'] = true;
+    var stubs = {'shape': shapeTemplate};
+    var CodeViewEngine = proxyquire('../lib/code-view-engine', stubs);
+    var codeViewEngine = new CodeViewEngine({});
+    var html = [];
+    var renderer = new require('stream').PassThrough();
+    renderer.on('data', function(chunk) {
+      html.push(chunk);
+    });
+    var template = codeViewEngine.load('shape');
+    template({}, renderer);
+
+    expect(html.join(''))
+      .to.equal('[shape]');
+  });
+});
+
+describe('Template Rendering Strategy', function() {
+  var buildShell = function() {
+    var shell = new EventEmitter();
+    var shapeHelper = new Shape(shell);
+    shell.require = function(service) {
+      switch(service) {
+        case 'file-resolution': return fileResolver;
+        case 'shape': return shapeHelper;
+      }
+    };
+    shell.getServices = function(service) {
+      if (service === 'view-engine') return [viewEngine1, viewEngine2];
+    };
+    return shell;
+  };
+  var viewEngine1 = {
+    load: function(templatePath) {
+      return function(shape, renderer, shell) {
+        renderer.write('[ve1:' + shape.meta.type + ':' + templatePath + ']');
+      };
+    },
+    extension: 've1'
+  };
+  var viewEngine2 = {
+    load: function(templatePath) {
+      return function(shape, renderer, shell) {
+        renderer.write('[ve2:' + shape.meta.type + ':' + templatePath + ']');
+      };
+    },
+    extension: 've2'
+  };
+  var fileResolver = {
+    resolve: function(folder, file) {
+      if (file.source === 'zone\\.(ve1|ve2)') return 'path/to/zone.ve1';
+      return 'template.ve2';
+    }
+  };
+  var TemplateRenderingStrategy =
+        require('../lib/template-rendering-strategy');
+
+  it('selects a view engine based on the template it finds', function() {
+    var shell = buildShell();
+    TemplateRenderingStrategy.init(shell);
+    var html = [];
+    var renderer = new require('stream').PassThrough();
+    renderer.on('data', function(chunk) {
+      html.push(chunk.toString());
+    });
+    shell.emit('decent.core.shape.render', {
+      shape: {meta: {type: 'shape1'}},
+      renderStream: renderer
+    });
+
+    expect(html.join(''))
+      .to.equal('[ve2:shape1:template.ve2]')
+  });
+
+  it('renders an untyped shape as a zone', function() {
+    var shell = buildShell();
+    TemplateRenderingStrategy.init(shell);
+    var html = [];
+    var renderer = new require('stream').PassThrough();
+    renderer.on('data', function(chunk) {
+      html.push(chunk.toString());
+    });
+    shell.emit('decent.core.shape.render', {
+      shape: {},
+      renderStream: renderer
+    });
+
+    expect(html.join(''))
+      .to.equal('[ve1:zone:path/to/zone.ve1]')
+  });
+
+  it('renders a shape with temp.html directly without template', function() {
+    var shell = buildShell();
+    TemplateRenderingStrategy.init(shell);
+    var html = [];
+    var renderer = new require('stream').PassThrough();
+    renderer.on('data', function(chunk) {
+      html.push(chunk.toString());
+    });
+    shell.emit('decent.core.shape.render', {
+      shape: {temp: {html: 'some html'}},
+      renderStream: renderer
+    });
+
+    expect(html.join(''))
+      .to.equal('some html')
   });
 });

@@ -2,6 +2,9 @@
 'use strict';
 
 module.exports = {
-  filePlacementStrategy: require('./lib/file-placement-strategy'),
-  shape: require('./lib/shape')
+  Shape: require('./lib/shape'),
+  RenderStream: require('./lib/render-stream'),
+  FilePlacementStrategy: require('./lib/file-placement-strategy'),
+  TemplateRenderingStrategy: require('./lib/file-placement-strategy'),
+  CodeViewEngine: require('./lib/code-view-engine')
 };

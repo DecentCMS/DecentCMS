@@ -58,6 +58,18 @@ Shape.prototype.meta = function(shape) {
 
 /**
  * @description
+ * Gets or creates the temporary storage object for a shape.
+ * This is an object that can be used for temporary storage
+ * of data that should not be persisted.
+ * @param {object} shape The shape.
+ * @returns {object} The temp object for the shape.
+ */
+Shape.prototype.temp = function(shape) {
+  return shape.temp ? shape.temp : shape.temp = {};
+};
+
+/**
+ * @description
  * Parses a dotted path into an array of orders.
  * For example: "1.42.after.1" -> [1, 42, 'after', 1]
  *
