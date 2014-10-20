@@ -235,12 +235,14 @@ Shell.prototype.loadModule = function(moduleName) {
  * A new instance is returned every time the function is called.
  * 
  * @param {String} service  The name of the contract for which a service instance is required.
+ * @param {object} options Options to pass into the service's constructor.
+ * @returns {object} An instance of the service, or null if it wasn't found.
  */
-Shell.prototype.require = function(service) {
+Shell.prototype.require = function(service, options) {
   var services = this.services[service];
   var ServiceClass = Array.isArray(services)
     ? (services.length > 0 ? services[services.length - 1] : null) : null;
-  return this.construct(ServiceClass);
+  return this.construct(ServiceClass, options);
 };
 
 /**
@@ -248,18 +250,22 @@ Shell.prototype.require = function(service) {
  * Constructs an instance of the class passed in.
  * If the class is a shell singleton, the same instance
  * is always returned for any given shell.
+ * Shell singletons are classes marked with isShellSingleton = true.
  * Otherwise, a new instance is created on each call.
  * Don't call this directly, it should only be internally used by Shell.
  * @param {Function} ServiceClass The class to instantiate.
- * @returns {*} An instance of
+ *                                This constructor must always take a shell as its first argument.
+ *                                It can also take an optional 'options' argument, unless it's a shell singleton.
+ * @param {object} options Options to pass into the service's constructor.
+ * @returns {object} An instance of the service, or null if it wasn't found.
  */
-Shell.prototype.construct = function(ServiceClass) {
+Shell.prototype.construct = function(ServiceClass, options) {
   return ServiceClass ?
     ServiceClass.isShellSingleton ?
       ServiceClass.instance ?
         ServiceClass.instance :
         ServiceClass.instance = new ServiceClass(this)
-      : new ServiceClass(this)
+      : new ServiceClass(this, options)
     : null;
 };
 
@@ -270,10 +276,15 @@ Shell.prototype.construct = function(ServiceClass) {
  * on service B, B is guaranteed to appear earlier in the list.
  * New instances are returned every time the function is called.
  * 
- * @param {String} service  The name of the contract for which service instances are required.
+ * @param {String} service The name of the contract for which service instances are required.
+ * @param {object} options Options to pass into the services' constructors.
+ * @returns {Array} An array of instances of the service.
  */
-Shell.prototype.getServices = function(service) {
-  return this.services[service].map(this.construct);
+Shell.prototype.getServices = function(service, options) {
+  var self = this;
+  return self.services[service].map(function(service) {
+    return self.construct(service, options);
+  });
 };
 
 /**
@@ -293,6 +304,10 @@ Shell.prototype.handleRequest = function(req, res) {
   this.emit(Shell.handleRouteEvent, payload);
   this.emit(Shell.fetchContentEvent, {
     callback: function(err, data) {
+      if (err) {
+        this.emit(Shell.renderErrorPage, err);
+        return;
+      }
       // Let's render stuff
       this.emit(Shell.renderPageEvent, {
         req: payload.req,
@@ -322,5 +337,12 @@ Shell.fetchContentEvent = Shell.prototype.fetchContentEvent = 'decent.core.shell
  * @type {string}
  */
 Shell.renderPageEvent = Shell.prototype.renderPageEvent = 'decent.core.shell.render-page';
+
+/**
+ * @description
+ * This event is triggered when an error has happened during the page lifecycle.
+ * @type {string}
+ */
+Shell.renderErrorPage = Shell.prototype.renderErrorPage = 'decent.core.shell.render-error';
 
 module.exports = Shell;

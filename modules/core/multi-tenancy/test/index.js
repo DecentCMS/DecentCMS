@@ -563,5 +563,41 @@ describe('Shell', function() {
 
       expect(initialized).to.be.ok;
     });
+
+    it('will pass options into constructors when constructing an instance', function() {
+      var options = {foo: 42, bar: 'baz'};
+      var ServiceClass = function(shell, options) {
+        this.options = options;
+      }
+      var shell = new Shell({});
+      var instance = shell.construct(ServiceClass, options);
+
+      expect(instance.options)
+        .to.equal(options);
+    });
+
+    it('will pass options into constructors when requiring an instance', function() {
+      var options = {foo: 42, bar: 'baz'};
+      var ServiceClass = function(shell, options) {
+        this.options = options;
+      }
+      var shell = new Shell({services: {service: [ServiceClass]}});
+      var instance = shell.require('service', options);
+
+      expect(instance.options)
+        .to.equal(options);
+    });
+
+    it('will pass options into constructors when getting instances', function() {
+      var options = {foo: 42, bar: 'baz'};
+      var ServiceClass = function(shell, options) {
+        this.options = options;
+      }
+      var shell = new Shell({services: {service: [ServiceClass]}});
+      var instances = shell.getServices('service', options);
+
+      expect(instances[0].options)
+        .to.equal(options);
+    });
   });
 });
