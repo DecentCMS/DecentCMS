@@ -217,6 +217,14 @@ Shell.prototype.loadModule = function(moduleName) {
     if (ServiceClass.init) {
       ServiceClass.init(self);
     }
+    // Wire up declared static event handlers
+    if (ServiceClass.on) {
+      for (var eventName in ServiceClass.on) {
+        self.on(eventName, function(payload) {
+          ServiceClass.on[eventName](self, payload);
+        });
+      }
+    }
     anyEnabledService = true;
     console.log(t('Loaded service %s from %s', serviceName, servicePath));
   }

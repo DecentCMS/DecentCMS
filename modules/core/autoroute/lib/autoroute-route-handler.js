@@ -5,8 +5,8 @@ var AutorouteRouteHandler = function(shell) {
   this.shell = shell;
 };
 
-AutorouteRouteHandler.init = function(shell) {
-  shell.on('decent.express.register-middleware', function(expressApp) {
+AutorouteRouteHandler.on = {
+  'decent.express.register-middleware': function(shell, expressApp) {
     expressApp.register(AutorouteRouteHandler.manifest.priority || 9000, function (app) {
       app.get('*', function (req, res, next) {
         var contentManager = shell.require('contentManager');
@@ -18,7 +18,7 @@ AutorouteRouteHandler.init = function(shell) {
         });
       });
     });
-  });
+  }
 };
 
 module.exports = AutorouteRouteHandler;

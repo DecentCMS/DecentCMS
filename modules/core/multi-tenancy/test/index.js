@@ -564,6 +564,43 @@ describe('Shell', function() {
       expect(initialized).to.be.ok;
     });
 
+    it('will wire up static service events', function() {
+      var ServiceClass = function(shell) {this.shell = shell;};
+      var log = [];
+      ServiceClass.on = {
+        'an-event': function(shell, payload) {
+          log.push(payload);
+        }
+      };
+      ServiceClass['@noCallThru'] = true;
+      var stubs = {};
+      var resolvedPathToService = path.resolve('path/to/module/lib/service.js');
+      stubs[resolvedPathToService] = ServiceClass;
+      var PhoniedShell = proxyquire('../lib/shell', stubs);
+      var shell = new PhoniedShell({
+        features: ['feature'],
+        availableModules: {
+          'module': {
+            name: 'module',
+            physicalPath: 'path/to/module',
+            services: {
+              service1: {
+                feature: 'feature',
+                path: 'lib/service'
+              }
+            }
+          }
+        }
+      });
+      shell.loadModule('module');
+
+      var payload = 'emitting event...';
+      shell.emit('an-event', payload);
+
+      expect(log.join(''))
+        .to.equal(payload);
+    });
+
     it('will pass options into constructors when constructing an instance', function() {
       var options = {foo: 42, bar: 'baz'};
       var ServiceClass = function(shell, options) {
