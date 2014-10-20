@@ -1,6 +1,8 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT license. See license.txt for licensing details.
 'use strict';
 
+// TODO: Expose event for environment tokens to participate in building context.
+
 /**
  * @description
  * String token interpolation service for DecentCMS.

@@ -56,6 +56,7 @@ FileResolution.prototype.getCacheKey = function(pathTokens) {
  * @returns {String} The physical path of the found file, or null if it wasn't found.
  */
 FileResolution.prototype.resolve = function(fileName) {
+  // TODO: make this async
   // Lookup the cache
   var filePath = this.getCacheKey(Array.prototype.slice.call(arguments, 0));
   var resolvedFiles = this.shell.resolvedFiles;
@@ -110,6 +111,7 @@ FileResolution.prototype.resolve = function(fileName) {
  * @returns {Array} The list of paths found.
  */
 FileResolution.prototype.all = function(fileName) {
+  // TODO: make this async
   // Lookup the cache
   var filePath = this.getCacheKey(Array.prototype.slice.call(arguments, 0));
   var resolvedFilesAll = this.shell.resolvedFilesAll;

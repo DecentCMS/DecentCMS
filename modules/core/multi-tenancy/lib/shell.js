@@ -1,5 +1,9 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
+
+// TODO: Enable shells to be restarted.
+// TODO: Build file monitoring events so code that caches parsed files can expire and re-parse entries on-the-fly. Make sure that this can be done as an optional feature.
+
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 var path = require('path');
@@ -14,15 +18,15 @@ var t = require('decent-core-localization').t;
  * 
  * @constructor
  * @param {Object}  options
- * @param {String}  [options.name]             The name of the tenant.
- * @param {String}  [options.host]             The host name under which the tenant answers.
- * @param {Number}  [options.port]             The port to which the tenant answers.
- * @param {String}  [options.cert]             The path to the SSL certificate to use with this tenant.
- * @param {String}  [options.key]              The path to the SSL key to use with this tenant.
- * @param {String}  [options.pfx]              The path to the pfx SSL certificate to use with this tenant.
- * @param {Array}   [options.features]         The list of enabled feature names on this tenant.
- * @param {Object}  [options.services]         The enabled services keyed by service name.
- * @param {Boolean} [options.active]           True if the tenant is active.
+ * @param {String}  [options.name]     The name of the tenant.
+ * @param {String}  [options.host]     The host name under which the tenant answers.
+ * @param {Number}  [options.port]     The port to which the tenant answers.
+ * @param {String}  [options.cert]     The path to the SSL certificate to use with this tenant.
+ * @param {String}  [options.key]      The path to the SSL key to use with this tenant.
+ * @param {String}  [options.pfx]      The path to the pfx SSL certificate to use with this tenant.
+ * @param {Array}   [options.features] The list of enabled feature names on this tenant.
+ * @param {Object}  [options.services] The enabled services keyed by service name.
+ * @param {Boolean} [options.active]   True if the tenant is active.
  */
 function Shell(options) {
   options = options || {};
