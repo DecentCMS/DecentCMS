@@ -113,4 +113,5 @@ if (runInCluster && cluster.isMaster) {
       console.log(t('Tenant %s added to listener on %s:%s.', shellName, shell.host, shell.port));
     }
   }
+  console.log(t('All tenants started in %s ms.', new Date() - Shell.discoveryStart))
 }
