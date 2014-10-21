@@ -636,5 +636,13 @@ describe('Shell', function() {
       expect(instances[0].options)
         .to.equal(options);
     });
+
+    it('will return an empty array when getting a service that doesn\'t exist', function() {
+      var shell = new Shell({services: {}});
+      var instances = shell.getServices('service');
+
+      expect(instances)
+        .to.be.empty;
+    });
   });
 });

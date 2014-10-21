@@ -18,19 +18,23 @@ var t = require('decent-core-localization').t;
  * 
  * @constructor
  * @param {Object}  options
- * @param {String}  [options.name]     The name of the tenant.
- * @param {String}  [options.host]     The host name under which the tenant answers.
- * @param {Number}  [options.port]     The port to which the tenant answers.
- * @param {String}  [options.cert]     The path to the SSL certificate to use with this tenant.
- * @param {String}  [options.key]      The path to the SSL key to use with this tenant.
- * @param {String}  [options.pfx]      The path to the pfx SSL certificate to use with this tenant.
- * @param {Array}   [options.features] The list of enabled feature names on this tenant.
- * @param {Object}  [options.services] The enabled services keyed by service name.
- * @param {Boolean} [options.active]   True if the tenant is active.
+ * @param {String}  [options.name]         The name of the tenant.
+ * @param {String}  [options.rootPath]     The path to the site's folder.
+ * @param {String}  [options.settingsPath] The path to the settings file for this tenant.
+ * @param {String}  [options.host]         The host name under which the tenant answers.
+ * @param {Number}  [options.port]         The port to which the tenant answers.
+ * @param {String}  [options.cert]         The path to the SSL certificate to use with this tenant.
+ * @param {String}  [options.key]          The path to the SSL key to use with this tenant.
+ * @param {String}  [options.pfx]          The path to the pfx SSL certificate to use with this tenant.
+ * @param {Array}   [options.features]     The list of enabled feature names on this tenant.
+ * @param {Object}  [options.services]     The enabled services keyed by service name.
+ * @param {Boolean} [options.active]       True if the tenant is active.
  */
 function Shell(options) {
   options = options || {};
   this.name = options.name;
+  this.rootPath = options.rootPath;
+  this.settingsPath = options.settingsPath;
   this.host = options.host || 'localhost';
   this.port = options.port || 80;
   this.https = !!options.https;
@@ -74,6 +78,8 @@ Shell.load = function(sitePath, defaults) {
   defaults = defaults || {};
   var settingsPath = path.join(sitePath, 'settings.json');
   var settings = require(settingsPath);
+  settings.settingsPath = settingsPath;
+  settings.rootPath = sitePath;
   for (var settingName in defaults) {
     if (!(settingName in settings)) {
       settings[settingName] = defaults[settingName];
@@ -92,6 +98,7 @@ Shell.load = function(sitePath, defaults) {
  *                           Defaults to ./sites
  */
 Shell.discover = function(defaults, rootPath) {
+  Shell.discoveryStart = new Date();
   rootPath = rootPath || './sites';
   console.log(t('Discovering tenants in %s', rootPath));
   var siteNames = fs.readdirSync(rootPath);
@@ -107,6 +114,8 @@ Shell.discover = function(defaults, rootPath) {
       throw ex;
     }
   });
+  var elapsed = new Date() - Shell.discoveryStart;
+  console.log(t('All tenants discovered in %s ms.', elapsed))
 };
 
 /**
@@ -172,8 +181,8 @@ Shell.prototype.disable = function() {
  */
 Shell.prototype.load = function() {
   if (this.loaded || !this.availableModules) return;
-  for (var modulePath in this.availableModules) {
-    this.loadModule(modulePath);
+  for (var moduleName in this.availableModules) {
+    this.loadModule(moduleName);
   }
   this.loaded = true;
 };
@@ -187,12 +196,12 @@ Shell.prototype.load = function() {
  */
 Shell.prototype.loadModule = function(moduleName) {
   var self = this;
-  var manifest = this.availableModules[moduleName];
+  var manifest = self.availableModules[moduleName];
   if (self.moduleManifests[moduleName]) return;
   self.moduleManifests[moduleName] = manifest;
-  var features = this.features;
+  var features = self.features;
   var services = manifest.services;
-  var anyEnabledService = false;
+  var anyEnabledService;
   for (var serviceName in services) {
     var service = services[serviceName];
     var serviceFeature = service.feature;
@@ -290,6 +299,7 @@ Shell.prototype.construct = function(ServiceClass, options) {
  */
 Shell.prototype.getServices = function(service, options) {
   var self = this;
+  if (!(service in self.services)) return [];
   return self.services[service].map(function(service) {
     return self.construct(service, options);
   });
@@ -303,21 +313,22 @@ Shell.prototype.getServices = function(service, options) {
  * @param {http.ServerResponse}  res Response
  */
 Shell.prototype.handleRequest = function(req, res) {
+  var self = this;
   var payload = {
     req: req,
     res: res,
     handled: false
   };
   // Does anyone want to handle this?
-  this.emit(Shell.handleRouteEvent, payload);
-  this.emit(Shell.fetchContentEvent, {
+  self.emit(Shell.handleRouteEvent, payload);
+  self.emit(Shell.fetchContentEvent, {
     callback: function(err, data) {
       if (err) {
-        this.emit(Shell.renderErrorPage, err);
+        self.emit(Shell.renderErrorPage, err);
         return;
       }
       // Let's render stuff
-      this.emit(Shell.renderPageEvent, {
+      self.emit(Shell.renderPageEvent, {
         req: payload.req,
         res: payload.res
       });
