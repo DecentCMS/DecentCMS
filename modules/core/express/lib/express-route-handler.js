@@ -27,10 +27,14 @@ ExpressRouteHandler.init = function(shell) {
   var app = express();
   var expressApp = new ExpressApp(app);
   shell.services['express-app'] = [expressApp];
-  shell.emit('decent.express.register-middleware', expressApp);
-  expressApp.lock();
   shell.on(shell.handleRouteEvent, function(payload) {
-    expressApp.app.handle(req, res);
+    if (!expressApp.locked) {
+      // Register middleware now.
+      shell.emit('decent.express.register-middleware', expressApp);
+      expressApp.lock();
+    }
+    // Handle the request (using private API for  good cause)
+    expressApp.app.handle(payload.req, payload.res);
   });
 };
 
