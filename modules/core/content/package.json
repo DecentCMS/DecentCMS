@@ -1,16 +1,28 @@
 {
-  "name": "decentcms-core-content",
+  "name": "decent-core-content",
+  "friendlyName": "Core Content",
   "version": "0.0.0",
   "description": "The core content management module for DecentCMS",
-  "main": "index.js",
+  "services": {
+    "content-manager": {
+      "path": "./lib/content-manager",
+      "feature": "content-manager"
+    }
+  },
+  "features": {
+    "content-manager": {
+      "name": "Content Manager",
+      "description": "The core content management API for DecentCMS"
+    }
+  },
+  "main": "./index",
   "directories": {
-    "test": "tests"
+    "test": "./test/index"
   },
-  "dependencies": {},
+  "dependencies": {
+    "decent-core-localization": "*"
+  },
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "Bertrand Le Roy",
   "license": "MIT"
 }

@@ -2,5 +2,5 @@
 'use strict';
 
 module.exports = {
-  contentManager: require('lib/content-manager')
+  ContentManager: require('./lib/content-manager')
 };
