@@ -69,6 +69,12 @@ describe('file-resolution', function() {
   it('can find paths in all modules in dependency order', function() {
     var shell = new Shell();
     shell.modules = ['path/to/dependency', 'path/to/dependent'];
+    var resolvedPathToDependency = path.resolve('path/to/dependency');
+    var resolvedPathToDependent = path.resolve('path/to/dependent');
+    shell.moduleManifests = {
+      'path/to/dependency': {physicalPath: resolvedPathToDependency},
+      'path/to/dependent': {physicalPath: resolvedPathToDependent}
+    };
     var resolvedPathToFileInDependency = path.resolve('path/to/dependency/foo/bar.baz');
     var resolvedPathToFileInDependent = path.resolve('path/to/dependent/foo/bar.baz');
     var stubs = {
@@ -132,6 +138,9 @@ describe('file-resolution', function() {
     var shell = new Shell();
     shell.modules = ['path/to/module1'];
     var resolvedPathToModuleRoot = path.resolve('path/to/module1');
+    shell.moduleManifests = {
+      'path/to/module1': {physicalPath: resolvedPathToModuleRoot}
+    };
     var resolvedPathToFolder1 = path.resolve('path/to/module1/foo');
     var resolvedPathToFolder2 = path.resolve('path/to/module1/foofoo');
     var resolvedPathToFile1 = path.resolve('path/to/module1/foo/baz.js');
@@ -158,6 +167,9 @@ describe('file-resolution', function() {
     var shell = new Shell();
     shell.modules = ['path/to/module1'];
     var resolvedPathToModuleRoot = path.resolve('path/to/module1');
+    shell.moduleManifests = {
+      'path/to/module1': {physicalPath: resolvedPathToModuleRoot}
+    };
     var resolvedPathToFile1 = path.resolve('path/to/module1/foo/baz.js');
     var resolvedPathToFile2 = path.resolve('path/to/module1/foofoo/baz.js');
     var stubs = {
@@ -185,6 +197,9 @@ describe('file-resolution', function() {
     var shell = new Shell();
     shell.modules = ['path/to/module1'];
     var resolvedPathToModuleRoot = path.resolve('path/to/module1');
+    shell.moduleManifests = {
+      'path/to/module1': {physicalPath: resolvedPathToModuleRoot}
+    };
     var resolvedPathToFile1 = path.resolve('path/to/module1/foo/baz.js');
     var resolvedPathToFile2 = path.resolve('path/to/module1/foofoo/baz.js');
     var stubs = {

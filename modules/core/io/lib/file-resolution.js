@@ -120,9 +120,12 @@ FileResolution.prototype.all = function(fileName) {
   }
   // No hit, loop over the path tokens
   var results = [];
-  var modules = this.shell.modules;
+  var shell = this.shell;
+  var modules = shell.modules;
   if (modules.length === 0) return resolvedFiles[filePath] = null;
-  var paths = modules.map(function(p) {return path.resolve(p);});
+  var paths = modules.map(function(p) {
+    return shell.moduleManifests[p].physicalPath;
+  });
   paths.reverse();
   for (var i = 0; i < arguments.length; i++) {
     if (paths.length == 0) return resolvedFiles[filePath] = null;

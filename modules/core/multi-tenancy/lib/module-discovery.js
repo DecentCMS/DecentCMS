@@ -32,7 +32,7 @@ function discover() {
             try {
               var manifest = require(manifestPath);
               var moduleName = manifest.name;
-              manifest.physicalPath = manifestPath;
+              manifest.physicalPath = path.dirname(manifestPath);
               console.log(t('Loaded module %s from %s', moduleName, manifestPath));
               availableModules[moduleName] = manifest;
             }
