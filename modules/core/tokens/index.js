@@ -1,4 +1,7 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-module.exports = require('./lib/token');
+module.exports = {
+  Token: require('./lib/token'),
+  MarkupViewEngine: require('./lib/markup-view-engine')
+};
