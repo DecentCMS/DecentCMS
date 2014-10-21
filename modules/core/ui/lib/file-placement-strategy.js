@@ -56,9 +56,9 @@ FilePlacementStrategy.init = function(shell) {
                     continue;
                   }
                   if (displayTypeExpression
-                    && (!shapeToPlace.meta
-                      || !shapeToPlace.meta.displayType
-                      || !displayTypeExpression.test(shapeToPlace.meta.displayType))) {
+                    && (!shapeToPlace.temp
+                      || !shapeToPlace.temp.displayType
+                      || !displayTypeExpression.test(shapeToPlace.temp.displayType))) {
                     continue;
                   }
                   // We have a match. Place the shape, and remove it from the list.

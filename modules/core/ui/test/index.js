@@ -208,10 +208,10 @@ describe('File Placement Strategy', function() {
     var layout = {};
     var homePage, pageBaz, pageFooBar, post, htmlWidget1, htmlWidget2, tagCloudWidget, shape11, shape12, shape2, shape3, custom1, custom2;
     var shapes = [
-      homePage =       {meta: {type: 'page', displayType: 'main'}, id: '/'},
-      pageBaz =        {meta: {type: 'page', displayType: 'main'}, id: '/baz'},
-      pageFooBar =     {meta: {type: 'page', displayType: 'summary'}, id: '/foo/bar'},
-      post =           {meta: {type: 'post', displayType: 'summary'}, id: '/foo/post'},
+      homePage =       {meta: {type: 'page'}, temp: {displayType: 'main'}, id: '/'},
+      pageBaz =        {meta: {type: 'page'}, temp: {displayType: 'main'}, id: '/baz'},
+      pageFooBar =     {meta: {type: 'page'}, temp: {displayType: 'summary'}, id: '/foo/bar'},
+      post =           {meta: {type: 'post'}, temp: {displayType: 'summary'}, id: '/foo/post'},
       htmlWidget1 =    {meta: {type: 'html-widget'}, id: ':widget:html1'},
       htmlWidget2 =    {meta: {type: 'html-widget'}, id: ':widget:html2'},
       tagCloudWidget = {meta: {type: 'tag-cloud-widget'}, id: ':widget:tag-cloud'},
