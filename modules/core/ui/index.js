@@ -2,9 +2,10 @@
 'use strict';
 
 module.exports = {
+  CodeViewEngine: require('./lib/code-view-engine'),
+  FilePlacementStrategy: require('./lib/file-placement-strategy'),
   Shape: require('./lib/shape'),
   RenderStream: require('./lib/render-stream'),
-  FilePlacementStrategy: require('./lib/file-placement-strategy'),
   TemplateRenderingStrategy: require('./lib/file-placement-strategy'),
-  CodeViewEngine: require('./lib/code-view-engine')
+  ZoneHandler: require('')
 };

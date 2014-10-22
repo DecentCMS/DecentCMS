@@ -9,6 +9,8 @@ describe('file-resolution', function() {
   it('resolves paths to existing files, and non-existing files to null', function() {
     var shell = new Shell();
     shell.modules = ['path/to/module1'];
+    var resolvedModulePath = path.resolve('path/to/module1');
+    shell.moduleManifests = {'path/to/module1': {physicalPath: resolvedModulePath}};
     var resolvedPathToFile = path.resolve('path/to/module1/foo/bar.baz');
     var stubs = {
       fs: {
@@ -30,6 +32,12 @@ describe('file-resolution', function() {
   it('resolves paths to existing files in disabled modules to null', function() {
     var shell = new Shell();
     shell.modules = ['path/to/other-module', 'path/to/other-other-module'];
+    var resolvedOtherModulePath = path.resolve('path/to/other-module');
+    var resolvedOtherOtherModulePath = path.resolve('path/to/other-other-module');
+    shell.moduleManifests = {
+      'path/to/other-module': {physicalPath: resolvedOtherModulePath},
+      'path/to/other-other-module': {physicalPath: resolvedOtherOtherModulePath}
+    };
     var resolvedPathToFile = path.resolve('path/to/module1/foo/bar.baz');
     var stubs = {
       fs: {
@@ -49,6 +57,12 @@ describe('file-resolution', function() {
   it('resolves paths to most dependent module', function() {
     var shell = new Shell();
     shell.modules = ['path/to/dependency', 'path/to/dependent'];
+    var resolvedDependencyModulePath = path.resolve('path/to/dependency');
+    var resolvedDependentModulePath = path.resolve('path/to/dependent');
+    shell.moduleManifests = {
+      'path/to/dependency': {physicalPath: resolvedDependencyModulePath},
+      'path/to/dependent': {physicalPath: resolvedDependentModulePath}
+    };
     var resolvedPathToFileInDependency = path.resolve('path/to/dependency/foo/bar.baz');
     var resolvedPathToFileInDependent = path.resolve('path/to/dependent/foo/bar.baz');
     var stubs = {
@@ -95,6 +109,8 @@ describe('file-resolution', function() {
   it('can find deep paths', function() {
     var shell = new Shell();
     shell.modules = ['path/to/module1'];
+    var resolvedModulePath = path.resolve('path/to/module1');
+    shell.moduleManifests = {'path/to/module1': {physicalPath: resolvedModulePath}};
     var resolvedPathToFolder = path.resolve('path/to/module1/foo');
     var resolvedPathToFile = path.resolve('path/to/module1/foo/bar.baz');
     var stubs = {
@@ -115,6 +131,8 @@ describe('file-resolution', function() {
   it('can find by regular expression', function() {
     var shell = new Shell();
     shell.modules = ['path/to/module1'];
+    var resolvedModulePath = path.resolve('path/to/module1');
+    shell.moduleManifests = {'path/to/module1': {physicalPath: resolvedModulePath}};
     var resolvedPathToModuleRoot = path.resolve('path/to/module1');
     var resolvedPathToFolder = path.resolve('path/to/module1/foo');
     var resolvedPathToFile = path.resolve('path/to/module1/foo/baz.js');

@@ -44,7 +44,7 @@ FileContentStore.on = {
         var itemFilePath = path.join(siteDataRoot, id, 'index.json');
         fs.readFile(itemFilePath, function(err, data) {
           if (err) {
-            console.log(err.name);
+            console.log('File not found ' + err.name);
             // TODO: handle only file not found, re-throw the rest.
             // Not a folder, maybe a file
             itemFilePath = path.join(siteDataRoot, id);

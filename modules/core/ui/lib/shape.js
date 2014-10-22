@@ -30,20 +30,33 @@ Shape.isShellSingleton = true;
 Shape.prototype.place = function(root, path, shape, order) {
   if (path === '-') return;
   path = Array.isArray(path) ? path : path.split('/');
+  var tempRoot = this.temp(root);
+  if (!tempRoot.items) {
+    tempRoot.items = [];
+  }
+  if (!tempRoot.zones) {
+    tempRoot.zones = {};
+  }
   if (path.length > 0) {
     for (var i = 0; i < path.length; i++) {
       var next = root[path[i]];
       if (!next) {
-        next = root[path[i]] = {meta: {parent: root}};
+        next = root[path[i]] = {
+          meta: {type: 'zone'},
+          temp: {
+            parent: root,
+            items: [],
+            zones: {}
+          }
+        };
       }
+      tempRoot.zones[path[i]] = next;
       root = next;
+      tempRoot = this.temp(root);
     }
   }
-  if (!root.items) {
-    root.items = [];
-  }
-  this.insert(root.items, shape, order);
-  this.meta(shape).parent = root;
+  this.insert(tempRoot.items, shape, order);
+  this.temp(shape).parent = root;
 };
 
 /**

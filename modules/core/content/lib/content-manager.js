@@ -8,12 +8,33 @@ function ContentManager(shell) {
   this.items = {};
   this.itemsToFetch = {};
   this.shapes = [];
-  var self = this;
-  shell.on(shell.fetchContentEvent, function(payload) {self.fetchItems(payload);});
-  shell.on(shell.renderPageEvent, function(payload) {self.buildRenderedPage(payload);});
 }
 
-ContentManager.isShellSingleton = true;
+ContentManager.on = {
+  'decent-core-shell-start-request': function(shell, payload) {
+    var contentManager =
+          payload.req.contentManager =
+            new ContentManager(shell);
+    shell.on(shell.fetchContentEvent,
+      contentManager._fetchContentHandler = function(payload) {
+        contentManager.fetchItems(payload);
+      }
+    );
+    shell.on(shell.renderPageEvent,
+      contentManager._renderPageHandler = function(payload) {
+        contentManager.buildRenderedPage(payload);
+      }
+    );
+  },
+  'decent-core-shell-end-request': function(shell, payload) {
+    var contentManager = payload.req.contentManager;
+    shell
+      .removeListener(shell.fetchContentEvent, contentManager._fetchContentHandler)
+      .removeListener(shell.renderPageEvent, contentManager._renderPageHandler);
+    delete payload.req.contentManager;
+    delete payload.req.layout;
+  }
+};
 
 ContentManager.prototype.get = function(id, callback) {
   var self = this;
@@ -42,11 +63,13 @@ ContentManager.prototype.fetchItems = function(payload) {
   var self = this;
   var callback = payload.callback;
   for (var id in self.itemsToFetch) {
-    if (self.items.hasOwnProperty(id)) {
+    if (self.items.hasOwnProperty(id)
+      && self.itemsToFetch
+      && self.itemsToFetch.hasOwnProperty(id)) {
       // items was already fetched, just call the callback
       // and remove the item from the list to fetch.
-      for (var i = 0; i < self.itemsTofetch[id].length; i++) {
-        var callback = self.itemsToFetch[i];
+      for (var i = 0; i < self.itemsToFetch[id].length; i++) {
+        var callback = self.itemsToFetch[id][i];
         if (callback) callback(self.items[id]);
       }
       delete self.itemsToFetch[id];
@@ -64,7 +87,7 @@ ContentManager.prototype.fetchItems = function(payload) {
   });
   // Each handler should have synchronously removed the items it can take care of.
   if (Object.getOwnPropertyNames(self.items).length > 0) {
-    var error = new Error(t('Couldn\'t load items %s', self.items.join(', ')));
+    var error = new Error(t('Couldn\'t load items %s', require('util').inspect(self.items)));
     if (callback) callback(error,  self.items);
   }
 };
@@ -76,7 +99,7 @@ ContentManager.prototype.itemsFetchedCallback = function(err, data) {
   }
   // If all items have been loaded from storage, it's time to start the next task
   if (Object.getOwnPropertyNames(this.itemsToFetch).length === 0) {
-    data.callback()
+    data.callback();
   }
 };
 
@@ -105,20 +128,36 @@ ContentManager.prototype.buildRenderedPage = function(payload) {
   var req = payload.req;
   var res = payload.res;
   var shapes = req.shapes;
-  var layout = {meta: {type: 'layout'}};
+  var layout = req.layout = {meta: {type: 'layout'}};
+  // Build the shape tree through placement strategies
   this.shell.emit('decent.core.shape.placement', {
     shape: layout,
     shapes: shapes
   });
-  var renderStream = this.shell.require('render-stream');
+  // Render the shape tree
+  var renderStream = this.shell.require('render-stream', {contentManager: this});
   // TODO: add filters, that are just additional pipes before res.
-  renderStream.pipe(res);
+  renderStream.on('data', function(data) {
+    res.write(data);
+  });
+  // Let handlers manipulate items and shapes
+  this.shell.emit(ContentManager.handleItemEvent, {
+    shape: layout,
+    renderStream: renderStream
+  });
+  // Render
   this.shell.emit('decent.core.shape.render', {
     shape: layout,
     renderStream: renderStream
   });
+  // Tear down
+  renderStream.end();
   res.end();
+  console.log(t('%s handled %s in %s ms.', this.shell.name, req.url, new Date() - req.startTime));
 };
+
+// TODO: make event names consistent everywhere
+// TODO: finish documenting emitted events
 
 /**
  * @description
@@ -143,6 +182,26 @@ ContentManager.loadItemsEvent.payload = {
    */
   callback: Function
 };
-// TODO: finish documenting emitted events
+
+/**
+ * @description
+ * This item lets handlers manipulate the shapes before
+ * they get rendered.
+ * Handlers are responsible for drilling into the tree according to
+ * their knowledge of the shapes they are handling.
+ */
+ContentManager.handleItemEvent = 'decent.core.handle-item';
+ContentManager.handleItemEvent.payload = {
+  /**
+   * @description
+   * The content item shape
+   */
+  item: Object,
+  /**
+   * @description
+   * The shell
+   */
+  shell: Object
+};
 
 module.exports = ContentManager;

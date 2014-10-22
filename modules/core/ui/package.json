@@ -7,6 +7,10 @@
       "path": "./lib/shape",
       "feature": "shape"
     },
+    "shape-item-promise-handler": {
+      "path": "./lib/shape-item-promise-handler",
+      "feature": "shape"
+    },
     "render-stream": {
       "path": "./lib/render-stream",
       "feature": "render-stream"
@@ -14,16 +18,24 @@
     "placement-strategy": {
       "path": "./lib/file-placement-strategy",
       "feature": "file-placement-strategy",
-      "dependencies": ["decent-core-io"]
+      "dependencies": [
+        "decent-core-io"
+      ]
     },
-    "rendering-strategy": {
-      "path": "./lib/template-rendering-strategy",
-      "feature": "template-rendering-strategy",
-      "dependencies": ["decent-core-io"]
+    "zone-handler": {
+      "path": "./lib/zone-handler",
+      "feature": "zone-handler"
     },
     "view-engine": {
       "path": "./lib/code-view-engine",
       "feature": "code-view-engine"
+    },
+    "rendering-strategy": {
+      "path": "./lib/template-rendering-strategy",
+      "feature": "template-rendering-strategy",
+      "dependencies": [
+        "decent-core-io"
+      ]
     }
   },
   "features": {
@@ -37,15 +49,19 @@
     },
     "file-placement-strategy": {
       "name": "File-Based Placement Strategy",
-      "Description": "Dispatches shapes according to descriptions in files."
+      "description": "Dispatches shapes according to descriptions in files."
     },
-    "template-rendering-strategy": {
-      "name": "Template Rendering Strategy",
-      "Description": "Renders shapes using template files."
+    "zone-handler": {
+      "name": "Zone Handler",
+      "description": "Recursively handles zone shapes."
     },
     "code-view-engine": {
       "name": "Code View Engine",
-      "Description": "A view engine that uses plain JavaScript code."
+      "description": "A view engine that uses plain JavaScript code."
+    },
+    "template-rendering-strategy": {
+      "name": "Template Rendering Strategy",
+      "description": "Renders shapes using template files."
     }
   },
   "main": "./index.js",
@@ -60,5 +76,6 @@
     "proxyquire": "*"
   },
   "dependencies": {
+    "htmlencode": "*"
   }
 }

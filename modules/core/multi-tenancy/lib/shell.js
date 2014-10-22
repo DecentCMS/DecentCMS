@@ -187,6 +187,7 @@ Shell.prototype.load = function() {
   this.loaded = true;
 };
 
+// TODO: replace service manifest with meta-data on the services themselves, auto-discover and load
 /**
  * @description
  * Loads all the services in the module under the path passed as a parameter.
@@ -229,9 +230,11 @@ Shell.prototype.loadModule = function(moduleName) {
     // Wire up declared static event handlers
     if (ServiceClass.on) {
       for (var eventName in ServiceClass.on) {
-        self.on(eventName, function(payload) {
-          ServiceClass.on[eventName](self, payload);
-        });
+        (function(ServiceClass, eventName) {
+          self.on(eventName, function (payload) {
+            ServiceClass.on[eventName](self, payload);
+          });
+        })(ServiceClass, eventName);
       }
     }
     anyEnabledService = true;
@@ -314,11 +317,15 @@ Shell.prototype.getServices = function(service, options) {
  */
 Shell.prototype.handleRequest = function(req, res) {
   var self = this;
+  req.startTime = new Date();
   var payload = {
+    shell: self,
     req: req,
     res: res,
     handled: false
   };
+  // Let services register themselves with the request
+  self.emit(Shell.startRequestEvent, payload);
   // Does anyone want to handle this?
   self.emit(Shell.handleRouteEvent, payload);
   self.emit(Shell.fetchContentEvent, {
@@ -332,9 +339,31 @@ Shell.prototype.handleRequest = function(req, res) {
         req: payload.req,
         res: payload.res
       });
+      // Tear down
+      self.emit(Shell.endRequestEvent, payload);
+      self
+        .removeAllListeners(Shell.endRequestEvent)
+        .removeAllListeners(Shell.renderPageEvent);
     }
   });
 };
+
+// TODO: document event payloads
+/**
+ * @description
+ * The event that is broadcast at the beginning of request handling.
+ * This is a good time to attach a service to the request object.
+ * @type {string}
+ */
+Shell.startRequestEvent = Shell.prototype.startRequestEvent = 'decent-core-shell-start-request';
+
+/**
+ * @description
+ * The event that is broadcast at the end of request handling.
+ * This is a good time to detach services and events.
+ * @type {string}
+ */
+Shell.endRequestEvent = Shell.prototype.endRequestEvent = 'decent-core-shell-end-request';
 
 /**
  * @description

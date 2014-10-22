@@ -1,0 +1,32 @@
+{
+  "name": "decent-core-parts",
+  "friendlyName": "Core Parts",
+  "version": "0.0.0",
+  "description": "Core content parts for DecentCMS",
+  "services": {
+    "title-part": {
+      "path": "./lib/title-part",
+      "feature": "core-parts"
+    },
+    "text-part": {
+      "path": "./lib/text-part",
+      "feature": "core-parts"
+    }
+  },
+  "features": {
+    "core-parts": {
+      "name": "Core Parts",
+      "description": "Core content parts: title, text."
+    }
+  },
+  "main": "./index",
+  "scripts": {
+    "test": "./test/index"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*"
+  }
+}

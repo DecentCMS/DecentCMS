@@ -9,7 +9,7 @@ AutorouteRouteHandler.on = {
   'decent.express.register-middleware': function(shell, expressApp) {
     expressApp.register(AutorouteRouteHandler.manifest.priority || 9000, function (app) {
       app.get('*', function (req, res, next) {
-        var contentManager = shell.require('content-manager');
+        var contentManager = req.contentManager;
         if (!contentManager) return;
         contentManager.render({
           req: req,

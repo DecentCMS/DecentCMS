@@ -129,7 +129,7 @@ describe('Shape', function() {
     var shape1 = {id: 1};
     shapeHelper.place(layout, 'content/foo/bar', shape1, '1');
 
-    expect(layout.content.foo.bar.items)
+    expect(layout.content.foo.bar.temp.items)
       .to.deep.equal([shape1]);
 
     var shape2 = {id: 2};
@@ -137,9 +137,9 @@ describe('Shape', function() {
     shapeHelper.place(layout, 'content/foo/baz', shape2, '1');
     shapeHelper.place(layout, 'content/foo/baz', shape3, 'before');
 
-    expect(layout.content.foo.bar.items)
+    expect(layout.content.foo.bar.temp.items)
       .to.deep.equal([shape1]);
-    expect(layout.content.foo.baz.items)
+    expect(layout.content.foo.baz.temp.items)
       .to.deep.equal([shape3, shape2]);
   });
 });
@@ -229,68 +229,33 @@ describe('File Placement Strategy', function() {
     });
 
     // Check parents were set
-    expect(layout.content.meta.parent).to.equal(layout);
-    expect(layout.content.header.meta.parent).to.equal(layout.content);
-    expect(layout['custom-zone'].meta.parent).to.equal(layout);
-    expect(layout.sidebar.meta.parent).to.equal(layout);
-    expect(layout.zone1.meta.parent).to.equal(layout);
-    expect(layout.zone2.meta.parent).to.equal(layout);
-    expect(homePage.meta.parent).to.equal(layout.content);
-    expect(pageBaz.meta.parent).to.equal(layout.content);
-    expect(pageFooBar.meta.parent).to.equal(layout.content.header);
-    expect(post.meta.parent).to.equal(layout.content.header);
-    expect(htmlWidget1.meta.parent).to.equal(layout.sidebar);
-    expect(htmlWidget2.meta.parent).to.equal(layout.sidebar);
-    expect(tagCloudWidget.meta.parent).to.equal(layout.sidebar);
-    expect(shape11.meta.parent).to.equal(layout.zone1);
-    expect(shape12.meta.parent).to.equal(layout.zone1);
-    expect(shape2.meta.parent).to.equal(layout.zone1);
-    expect(shape3.meta.parent).to.equal(layout.zone2);
-    expect(custom1.meta.parent).to.equal(layout['custom-zone']);
-    expect(custom2.meta.parent).to.equal(layout['custom-zone']);
-
-    // Remove parents to make the deep equal test of layout easier
-    delete layout.content.meta;
-    delete layout.content.header.meta;
-    delete layout['custom-zone'].meta;
-    delete layout.sidebar.meta;
-    delete layout.zone1.meta;
-    delete layout.zone2.meta;
-    delete homePage.meta.parent;
-    delete pageBaz.meta.parent;
-    delete pageFooBar.meta.parent;
-    delete post.meta.parent;
-    delete htmlWidget1.meta.parent;
-    delete htmlWidget2.meta.parent;
-    delete tagCloudWidget.meta.parent;
-    delete shape11.meta.parent;
-    delete shape12.meta.parent;
-    delete shape2.meta.parent;
-    delete shape3.meta.parent;
-    delete custom1.meta.parent;
-    delete custom2.meta.parent;
+    expect(layout.content.temp.parent).to.equal(layout);
+    expect(layout.content.header.temp.parent).to.equal(layout.content);
+    expect(layout['custom-zone'].temp.parent).to.equal(layout);
+    expect(layout.sidebar.temp.parent).to.equal(layout);
+    expect(layout.zone1.temp.parent).to.equal(layout);
+    expect(layout.zone2.temp.parent).to.equal(layout);
+    expect(homePage.temp.parent).to.equal(layout.content);
+    expect(pageBaz.temp.parent).to.equal(layout.content);
+    expect(pageFooBar.temp.parent).to.equal(layout.content.header);
+    expect(post.temp.parent).to.equal(layout.content.header);
+    expect(htmlWidget1.temp.parent).to.equal(layout.sidebar);
+    expect(htmlWidget2.temp.parent).to.equal(layout.sidebar);
+    expect(tagCloudWidget.temp.parent).to.equal(layout.sidebar);
+    expect(shape11.temp.parent).to.equal(layout.zone1);
+    expect(shape12.temp.parent).to.equal(layout.zone1);
+    expect(shape2.temp.parent).to.equal(layout.zone1);
+    expect(shape3.temp.parent).to.equal(layout.zone2);
+    expect(custom1.temp.parent).to.equal(layout['custom-zone']);
+    expect(custom2.temp.parent).to.equal(layout['custom-zone']);
 
     // Check all shapes were placed in the right zones, and in the right order
-    expect(layout).to.deep.equal({
-      content: {
-        items: [pageBaz, homePage],
-        header: {
-          items: [pageFooBar, post]
-        }
-      },
-      'custom-zone': {
-        items: [custom2, custom1]
-      },
-      sidebar: {
-        items: [htmlWidget1, htmlWidget2, tagCloudWidget]
-      },
-      zone1: {
-        items: [shape2, shape11, shape12]
-      },
-      zone2: {
-        items: [shape3]
-      }
-    });
+    expect(layout.content.temp.items).to.deep.equal([pageBaz, homePage]);
+    expect(layout.content.header.temp.items).to.deep.equal([pageFooBar, post]);
+    expect(layout['custom-zone'].temp.items).to.deep.equal([custom2, custom1]);
+    expect(layout.sidebar.temp.items).to.deep.equal([htmlWidget1, htmlWidget2, tagCloudWidget]);
+    expect(layout.zone1.temp.items).to.deep.equal([shape2, shape11, shape12]);
+    expect(layout.zone2.temp.items).to.deep.equal([shape3]);
   });
 });
 
@@ -310,12 +275,14 @@ describe('Zone template', function() {
     });
     var zone = {
       meta: {type: 'zone'},
-      items: [
-        {meta: {type: 'shape1'}},
-        {meta: {type: 'shape2'}},
-        {meta: {type: 'shape3'}},
-        {meta: {type: 'shape4'}}
-      ]
+      temp: {
+        items: [
+          {meta: {type: 'shape1'}},
+          {meta: {type: 'shape2'}},
+          {meta: {type: 'shape3'}},
+          {meta: {type: 'shape4'}}
+        ]
+      }
     };
     var html = [];
     var renderer = new require('stream').PassThrough();
