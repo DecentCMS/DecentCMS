@@ -25,17 +25,44 @@ FileContentStore.on = {
     var count = 0;
     var siteDataRoot = path.join(shell.rootPath, 'data/content');
     var handle = function(id, filePath, data) {
+      // Parse the content item file
       var item = JSON.parse(data);
-      var temp = shapeHelper.temp(item);
-      temp.filePath = filePath;
-      items[id] = item;
-      for(var j = 0; j < itemsToFetch[id].length; j++) {
-        itemsToFetch[id](null, item);
+      // Prepare the last operations for later.
+      var finalCallback = function() {
+        // Add the file path to temp meta data
+        var temp = shapeHelper.temp(item);
+        temp.filePath = filePath;
+        // Add to the items list
+        items[id] = item;
+        // Call all the item-specific callbacks
+        for (var j = 0; j < itemsToFetch[id].length; j++) {
+          itemsToFetch[id](null, item);
+        }
+        // Remove from the list of remaining items to fetch
+        delete itemsToFetch[id];
+        // If we're done, call the global callback
+        if (--count <= 0) {
+          callback();
+        }
+      };
+      // Look for any part that needs to load an additional file.
+      // Typically, that could be a markdown file for the body.
+      var count = 0;
+      for (var partName in item) {
+        if (partName === 'meta' || partName === 'temp') continue;
+        var part = item[partName];
+        if (part.hasOwnProperty('path')) {
+          count++;
+          var extraFilePath = path.join(path.dirname(filePath), part.path);
+          fs.readFile(extraFilePath, function(err, data) {
+            // TODO: handle error
+            part._data = data.toString();
+            count--;
+            if (count <= 0) finalCallback();
+          });
+        }
       }
-      delete itemsToFetch[id];
-      if (--count <= 0) {
-        callback();
-      }
+      if (count <= 0) finalCallback();
     };
     for (var id in itemsToFetch) {
       count++;
@@ -56,11 +83,11 @@ FileContentStore.on = {
                 count--;
                 return;
               }
-              handle(id, itemFilePath, data);
+              handle(id, itemFilePath, data.toString());
             });
             return;
           }
-          handle(id, itemFilePath, data);
+          handle(id, itemFilePath, data.toString());
         });
       })(id);
     }
