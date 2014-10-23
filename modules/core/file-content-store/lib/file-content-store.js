@@ -38,7 +38,7 @@ FileContentStore.on = {
             && part.hasOwnProperty('path')) {
             var extraFilePath = path.join(path.dirname(filePath), part.path);
             fs.readFile(extraFilePath, function extraFileRead(err, data) {
-              if (err) { next(err); return; }
+              if (err) { callback(err); return; }
               part._data = data.toString();
               next();
             });
@@ -75,11 +75,11 @@ FileContentStore.on = {
         }
         else {
           // File not found is normal, so let it flow, but re-throw others
-          if (err.code !== 'ENOENT') { next(err); return; }
+          if (err.code !== 'ENOENT') { callback(err); return; }
           // This was not a folder, maybe it was already a file.
           itemFilePath = path.join(siteDataRoot, id);
           fs.readFile(itemFilePath, function readItemFile(err, data) {
-            if (err) { next(err); return; }
+            if (err) { callback(err); return; }
             handle(id, itemFilePath, data.toString(), next);
           });
         }
