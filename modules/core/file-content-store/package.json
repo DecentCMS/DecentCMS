@@ -24,5 +24,8 @@
   "devDependencies": {
     "chai": "*",
     "moka": "*"
+  },
+  "dependencies": {
+    "async": "*"
   }
 }
