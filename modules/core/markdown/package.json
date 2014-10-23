@@ -1,0 +1,26 @@
+{
+  "name": "decent-core-markdown",
+  "version": "0.0.0",
+  "description": "Markdown for DecentCMS",
+  "services": {
+    "text-flavor": {
+      "path": "./lib/markdown-flavor",
+      "feature": "markdown"
+    }
+  },
+  "features": {
+    "markdown": {
+      "name": "Markdown",
+      "description": "Markdown support for DecentCMS"
+    }
+  },
+  "main": "./index",
+  "scripts": {
+    "test": "./test/index"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "dependencies": {
+    "marked": "*"
+  }
+}
