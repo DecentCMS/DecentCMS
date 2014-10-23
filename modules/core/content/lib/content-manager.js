@@ -140,6 +140,7 @@ ContentManager.prototype.buildRenderedPage = function(payload) {
   renderStream.on('data', function(data) {
     res.write(data);
   });
+  // TODO: enable handlers to do async
   // Let handlers manipulate items and shapes
   this.shell.emit(ContentManager.handleItemEvent, {
     shape: layout,
@@ -156,7 +157,42 @@ ContentManager.prototype.buildRenderedPage = function(payload) {
   console.log(t('%s handled %s in %s ms.', this.shell.name, req.url, new Date() - req.startTime));
 };
 
+/**
+ * @description
+ * Finds the type definition of an item if it exists on the tenant configuration.
+ * @param {object} item The content item.
+ * @returns {*} The content type, or null if it can't be found.
+ */
+ContentManager.prototype.getType = function(item) {
+  var typeName, type;
+  if (!item.meta
+    || !(typeName = item.meta.type)
+    || !this.shell.types
+    || !(type = this.shell.types[typeName])) return null;
+  return type;
+};
+
+/**
+ * @description
+ * Gets a list of part names that are of the part type the gets passed in.
+ * @param {object} item         The content item.
+ * @param {string} partTypeName The name of the part type to look for.
+ * @returns {Array} An array of part names.
+ */
+ContentManager.prototype.getParts = function(item, partTypeName) {
+  var type = this.getType(item);
+  if (!type) return [];
+  var parts = [];
+  for (var partName in type.parts) {
+    var partDefinition = type.parts[partName];
+    if (partDefinition.type !== partTypeName) continue;
+    parts.push(partName);
+  }
+  return parts;
+}
+
 // TODO: make event names consistent everywhere
+// TODO: don't use the shell as a universal event bus. Instead, make ContentManager and others EventEmitters
 // TODO: finish documenting emitted events
 
 /**
