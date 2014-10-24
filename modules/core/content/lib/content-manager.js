@@ -98,6 +98,7 @@ ContentManager.prototype.itemsFetchedCallback = function(err, data) {
     return;
   }
   // If all items have been loaded from storage, it's time to start the next task
+  // TODO: what happens if not all items can be fetched?
   if (Object.getOwnPropertyNames(this.itemsToFetch).length === 0) {
     data.callback();
   }

@@ -344,6 +344,7 @@ Shell.prototype.handleRequest = function(req, res) {
       });
       // Tear down
       self.emit(Shell.endRequestEvent, payload);
+      // TODO: re-think that.
       self
         .removeAllListeners(Shell.endRequestEvent)
         .removeAllListeners(Shell.renderPageEvent);

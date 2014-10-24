@@ -11,6 +11,7 @@ AutorouteRouteHandler.on = {
       app.get('*', function (req, res, next) {
         var contentManager = req.contentManager;
         if (!contentManager) return;
+        // TODO: rename render to promissToRender
         contentManager.render({
           req: req,
           id: req.path,
