@@ -25,7 +25,7 @@ FileContentStore.on = {
 
     var siteDataRoot = path.join(shell.rootPath, 'data/content');
 
-    var handle = function handleITemData(id, filePath, data, callback) {
+    var handle = function handleItemData(id, filePath, data, callback) {
       // Parse the content item file
       var item = JSON.parse(data);
       // Look for any part that needs to load an additional file.
