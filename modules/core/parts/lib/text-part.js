@@ -12,9 +12,7 @@ TextPart.on = {
     var content = options.shape;
     if (!content.meta
       || content.meta.type !== 'content'
-      || !content.temp
-      || !content.temp.item
-      || !content.temp.item.title) return;
+      || !content.temp) return;
     var temp = content.temp;
     var item = temp.item;
     var renderer = options.renderStream;
