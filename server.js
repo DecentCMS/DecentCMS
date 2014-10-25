@@ -82,7 +82,6 @@ if (runInCluster && cluster.isMaster) {
     d.run(function() {
       shell.handleRequest(req, res);
     });
-    res.end('');
   };
 
   var httpServer;

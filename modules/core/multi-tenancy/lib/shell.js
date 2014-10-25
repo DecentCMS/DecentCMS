@@ -341,11 +341,12 @@ Shell.prototype.handleRequest = function(request, response) {
       }
       // Let's render stuff
       self.emit(Shell.renderPageEvent, {
-        req: payload.req,
-        res: payload.res
+        req: request,
+        res: response
       });
       // Tear down
       self.emit(Shell.endRequestEvent, payload);
+      response.end('');
     }
   });
 };
