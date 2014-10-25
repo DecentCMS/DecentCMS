@@ -125,13 +125,13 @@ Shell.discover = function(defaults, rootPath) {
  * @description
  * Returns the shell that should handle this request.
  * 
- * @param {IncomingMessage} req The request
+ * @param {IncomingMessage} request The request
  */
-Shell.resolve = function(req) {
+Shell.resolve = function(request) {
   for (var shellName in Shell.list) {
     var shell = Shell.list[shellName];
 
-    if (shell.active && shell.canHandle(req)) {
+    if (shell.active && shell.canHandle(request)) {
       return shell;
     }
   }
@@ -142,11 +142,11 @@ Shell.resolve = function(req) {
  * @description
  * Determines if the shell can handle that request.
  *
- * @param {IncomingMessage} req The request
+ * @param {IncomingMessage} request The request
  * @returns {Boolean} true if the shell can handle the request.
  */
-Shell.prototype.canHandle = function(req) {
-  var host = req.headers.host;
+Shell.prototype.canHandle = function(request) {
+  var host = request.headers.host;
   return (
     (
       ((this.https && this.port === 443) || this.port === 80)
@@ -156,7 +156,7 @@ Shell.prototype.canHandle = function(req) {
   )
   && (
     !this.path
-    || req.url.substr(0, this.path.length) === this.path
+    || request.url.substr(0, this.path.length) === this.path
   );
 }
 

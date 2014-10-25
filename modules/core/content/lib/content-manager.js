@@ -197,10 +197,10 @@ ContentManager.prototype.promiseToRender = function(options) {
  */
 ContentManager.prototype.buildRenderedPage = function(payload) {
   // TODO: use request and response everywhere instead of req, res
-  var req = payload.request;
-  var res = payload.response;
-  var shapes = req.shapes;
-  var layout = req.layout = {meta: {type: 'layout'}};
+  var request = payload.request;
+  var response = payload.response;
+  var shapes = request.shapes;
+  var layout = request.layout = {meta: {type: 'layout'}};
   // Build the shape tree through placement strategies
   this.shell.emit(ContentManager.placementEvent, {
     shape: layout,
@@ -210,7 +210,7 @@ ContentManager.prototype.buildRenderedPage = function(payload) {
   var renderStream = this.shell.require('render-stream', {contentManager: this});
   // TODO: add filters, that are just additional pipes before res.
   renderStream.on('data', function(data) {
-    res.write(data);
+    response.write(data);
   });
   // TODO: enable handlers to do async
   // Let handlers manipulate items and shapes
@@ -225,7 +225,7 @@ ContentManager.prototype.buildRenderedPage = function(payload) {
   });
   // Tear down
   renderStream.end();
-  console.log(t('%s handled %s in %s ms.', this.shell.name, req.url, new Date() - req.startTime));
+  console.log(t('%s handled %s in %s ms.', this.shell.name, request.url, new Date() - request.startTime));
 };
 
 /**
