@@ -43,6 +43,7 @@ ExpressApp.prototype.lock = function() {
     .forEach(function (registration) {
       registration(self.app);
     });
+  self.locked = true;
 };
 
 module.exports = ExpressApp;
