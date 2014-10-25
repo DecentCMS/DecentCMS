@@ -113,7 +113,7 @@ ContentManager.prototype.itemsFetchedCallback = function(err, data) {
   }
 };
 
-ContentManager.prototype.render = function(options) {
+ContentManager.prototype.promiseToRender = function(options) {
   if (!options.req.shapes) {
     options.req.shapes = [];
   }
