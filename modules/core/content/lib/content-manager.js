@@ -21,26 +21,26 @@ function ContentManager(shell) {
 ContentManager.on = {
   'decent-core-shell-start-request': function(shell, payload) {
     // Create a content manager for the duration of the request.
-    payload.req.contentManager = new ContentManager(shell);
+    payload.request.contentManager = new ContentManager(shell);
   },
   'decent.core.shell.fetch-content': function(shell, payload) {
-    if (!payload.req) return;
+    if (!payload.request) return;
     // Find the content manager for the current request
-    var contentManager = payload.req.contentManager;
+    var contentManager = payload.request.contentManager;
     if (!contentManager) return;
     // Use it to fetch items from the content store
     contentManager.fetchItems(payload);
   },
   'decent.core.shell.render-page': function(shell, payload) {
-    if (!payload.req) return;
+    if (!payload.request) return;
     // Find the content manager for the current request
-    var contentManager = payload.req.contentManager;
+    var contentManager = payload.request.contentManager;
     if (!contentManager) return;
     // Use it to build the rendered page
     contentManager.buildRenderedPage(payload);
   },
   'decent-core-shell-end-request': function(shell, payload) {
-    var request = payload.req;
+    var request = payload.request;
     if (!request) return;
     var contentManager = request.contentManager;
     if (contentManager) {
@@ -192,13 +192,13 @@ ContentManager.prototype.promiseToRender = function(options) {
  * * decent.core.handle-item
  * * decent.core.shape.render
  * @param payload
- * @param {IncomingMessage} [payload.req] The request.
- * @param {ServerResponse}  [payload.res] The response.
+ * @param {IncomingMessage} [payload.request] The request.
+ * @param {ServerResponse}  [payload.response] The response.
  */
 ContentManager.prototype.buildRenderedPage = function(payload) {
   // TODO: use request and response everywhere instead of req, res
-  var req = payload.req;
-  var res = payload.res;
+  var req = payload.request;
+  var res = payload.response;
   var shapes = req.shapes;
   var layout = req.layout = {meta: {type: 'layout'}};
   // Build the shape tree through placement strategies

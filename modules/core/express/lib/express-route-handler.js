@@ -34,7 +34,7 @@ ExpressRouteHandler.init = function(shell) {
       expressApp.lock();
     }
     // Handle the request (using private API for  good cause)
-    expressApp.app.handle(payload.req, payload.res);
+    expressApp.app.handle(payload.request, payload.response);
   });
 };
 

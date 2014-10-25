@@ -330,8 +330,8 @@ Shell.prototype.handleRequest = function(request, response) {
   request.startTime = new Date();
   var payload = {
     shell: self,
-    req: request,
-    res: response
+    request: request,
+    response: response
   };
   // Let services register themselves with the request
   self.emit(Shell.startRequestEvent, payload);
@@ -339,18 +339,15 @@ Shell.prototype.handleRequest = function(request, response) {
   self.emit(Shell.handleRouteEvent, payload);
   self.emit(Shell.fetchContentEvent, {
     shell: self,
-    req: request,
-    res: response,
-    callback: function(err, data) {
+    request: request,
+    response: response,
+    callback: function(err) {
       if (err) {
         self.emit(Shell.renderErrorPage, err);
         return;
       }
       // Let's render stuff
-      self.emit(Shell.renderPageEvent, {
-        req: request,
-        res: response
-      });
+      self.emit(Shell.renderPageEvent, payload);
       // Tear down
       self.emit(Shell.endRequestEvent, payload);
       response.end('');
@@ -358,7 +355,6 @@ Shell.prototype.handleRequest = function(request, response) {
   });
 };
 
-// TODO: document event payloads
 /**
  * @description
  * The event that is broadcast at the beginning of request handling.
@@ -366,6 +362,11 @@ Shell.prototype.handleRequest = function(request, response) {
  * @type {string}
  */
 Shell.startRequestEvent = 'decent-core-shell-start-request';
+Shell.startRequestEvent.payload = {
+  shell: 'Shell',
+  request: 'IncomingMessage',
+  response: 'ServerResponse'
+};
 
 /**
  * @description
@@ -374,6 +375,11 @@ Shell.startRequestEvent = 'decent-core-shell-start-request';
  * @type {string}
  */
 Shell.endRequestEvent = 'decent-core-shell-end-request';
+Shell.endRequestEvent.payload = {
+  shell: 'Shell',
+  request: 'IncomingMessage',
+  response: 'ServerResponse'
+};
 
 /**
  * @description
@@ -381,6 +387,11 @@ Shell.endRequestEvent = 'decent-core-shell-end-request';
  * @type {string}
  */
 Shell.handleRouteEvent = 'decent.core.shell.handle-route';
+Shell.handleRouteEvent.payload = {
+  shell: 'Shell',
+  request: 'IncomingMessage',
+  response: 'ServerResponse'
+};
 
 /**
  * @description
@@ -388,6 +399,16 @@ Shell.handleRouteEvent = 'decent.core.shell.handle-route';
  * @type {string}
  */
 Shell.fetchContentEvent = 'decent.core.shell.fetch-content';
+Shell.fetchContentEvent.payload = {
+  shell: 'Shell',
+  request: 'IncomingMessage',
+  response: 'ServerResponse',
+  /**
+   * @description
+   * A callback with signature (err, data).
+   */
+  callback: 'Function'
+};
 
 /**
  * @description
@@ -395,6 +416,11 @@ Shell.fetchContentEvent = 'decent.core.shell.fetch-content';
  * @type {string}
  */
 Shell.renderPageEvent = 'decent.core.shell.render-page';
+Shell.renderPageEvent.payload = {
+  shell: 'Shell',
+  request: 'IncomingMessage',
+  response: 'ServerResponse'
+};
 
 /**
  * @description
@@ -402,5 +428,10 @@ Shell.renderPageEvent = 'decent.core.shell.render-page';
  * @type {string}
  */
 Shell.renderErrorPage = 'decent.core.shell.render-error';
+/**
+ * @description
+ * The payload is the error object.
+ */
+Shell.renderErrorPage.payload = {};
 
 module.exports = Shell;
