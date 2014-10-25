@@ -12,27 +12,36 @@ function ContentManager(shell) {
 
 ContentManager.on = {
   'decent-core-shell-start-request': function(shell, payload) {
-    var contentManager =
-          payload.req.contentManager =
-            new ContentManager(shell);
-    shell.on(shell.fetchContentEvent,
-      contentManager._fetchContentHandler = function(payload) {
-        contentManager.fetchItems(payload);
-      }
-    );
-    shell.on(shell.renderPageEvent,
-      contentManager._renderPageHandler = function(payload) {
-        contentManager.buildRenderedPage(payload);
-      }
-    );
+    // Create a content manager for the duration of the request.
+    payload.req.contentManager = new ContentManager(shell);
+  },
+  'decent.core.shell.fetch-content': function(shell, payload) {
+    if (!payload.req) return;
+    // Find the content manager for the current request
+    var contentManager = payload.req.contentManager;
+    if (!contentManager) return;
+    // Use it to fetch items from the content store
+    contentManager.fetchItems(payload);
+  },
+  'decent.core.shell.render-page': function(shell, payload) {
+    if (!payload.req) return;
+    // Find the content manager for the current request
+    var contentManager = payload.req.contentManager;
+    if (!contentManager) return;
+    // Use it to build the rendered page
+    contentManager.buildRenderedPage(payload);
   },
   'decent-core-shell-end-request': function(shell, payload) {
-    var contentManager = payload.req.contentManager;
-    shell
-      .removeListener(shell.fetchContentEvent, contentManager._fetchContentHandler)
-      .removeListener(shell.renderPageEvent, contentManager._renderPageHandler);
-    delete payload.req.contentManager;
-    delete payload.req.layout;
+    var request = payload.req;
+    if (!request) return;
+    var contentManager = request.contentManager;
+    if (contentManager) {
+      delete contentManager.items;
+      delete contentManager.itemsToFetch;
+      delete contentManager.shapes;
+    }
+    delete request.contentManager;
+    delete request.layout;
   }
 };
 
@@ -154,7 +163,6 @@ ContentManager.prototype.buildRenderedPage = function(payload) {
   });
   // Tear down
   renderStream.end();
-  res.end();
   console.log(t('%s handled %s in %s ms.', this.shell.name, req.url, new Date() - req.startTime));
 };
 

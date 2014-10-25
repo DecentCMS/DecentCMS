@@ -315,23 +315,25 @@ Shell.prototype.getServices = function(service, options) {
  * @description
  * Handles the request for the tenant
  * 
- * @param {http.IncomingMessage} req Request
- * @param {http.ServerResponse}  res Response
+ * @param {http.IncomingMessage} request Request
+ * @param {http.ServerResponse}  response Response
  */
-Shell.prototype.handleRequest = function(req, res) {
+Shell.prototype.handleRequest = function(request, response) {
   var self = this;
-  req.startTime = new Date();
+  request.startTime = new Date();
   var payload = {
     shell: self,
-    req: req,
-    res: res,
-    handled: false
+    req: request,
+    res: response
   };
   // Let services register themselves with the request
   self.emit(Shell.startRequestEvent, payload);
   // Does anyone want to handle this?
   self.emit(Shell.handleRouteEvent, payload);
   self.emit(Shell.fetchContentEvent, {
+    shell: self,
+    req: request,
+    res: response,
     callback: function(err, data) {
       if (err) {
         self.emit(Shell.renderErrorPage, err);
@@ -344,10 +346,7 @@ Shell.prototype.handleRequest = function(req, res) {
       });
       // Tear down
       self.emit(Shell.endRequestEvent, payload);
-      // TODO: re-think that.
-      self
-        .removeAllListeners(Shell.endRequestEvent)
-        .removeAllListeners(Shell.renderPageEvent);
+      response.end('');
     }
   });
 };
