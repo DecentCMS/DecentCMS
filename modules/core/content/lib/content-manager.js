@@ -3,6 +3,14 @@
 
 var t = require('decent-core-localization').t;
 
+/**
+ * @description
+ * The ContentManager is responsible for the content retrieval and rendering lifecycle.
+ * It also exposes APIs that facilitate the usage of content items, content parts, and
+ * content types.
+ * @param {Shell} shell
+ * @constructor
+ */
 function ContentManager(shell) {
   this.shell = shell;
   this.items = {};
@@ -45,7 +53,15 @@ ContentManager.on = {
   }
 };
 
-ContentManager.prototype.get = function(id, callback) {
+/**
+ * @description
+ * Promises to get one or several content items.
+ * @param {string|Array} id the id or ids of the items to fetch.
+ * @param {Function} callback A function with signature (err, item)
+ *                            that will get called once per item once
+ *                            the item has been loaded.
+ */
+ContentManager.prototype.promiseToGet = function(id, callback) {
   var self = this;
   var itemsToFetch = self.itemsToFetch;
   // id can be an array of ids
@@ -62,13 +78,32 @@ ContentManager.prototype.get = function(id, callback) {
   });
 };
 
+/**
+ * @description
+ * Gets an item from the collection of items that the content
+ * manager has already fetched. If not found, null, is returned.
+ * @param {string} id The id of the item to fetch.
+ * @returns {object} The content item, or null if not found.
+ */
 ContentManager.prototype.getAvailableItem = function(id) {
   var item = this.items[id];
   if (item) return item;
   return null;
 };
 
+/**
+ * @description
+ * Triggers the asynchronous fetching of the items whose
+ * ids can be found in the content manager's itemsToFetch
+ * array, anf their transfer into the items array.
+ * @param payload
+ * @param {Function} [payload.callback] a callback that gets
+ * called when all items have been fetched, or when an error
+ * occurs.
+ */
 ContentManager.prototype.fetchItems = function(payload) {
+  // TODO: refactor this to use the async library.
+  // TODO: make callback a parameter, not an option of payload.
   var self = this;
   var callback = payload.callback;
   for (var id in self.itemsToFetch) {
@@ -79,7 +114,7 @@ ContentManager.prototype.fetchItems = function(payload) {
       // and remove the item from the list to fetch.
       for (var i = 0; i < self.itemsToFetch[id].length; i++) {
         var callback = self.itemsToFetch[id][i];
-        if (callback) callback(self.items[id]);
+        if (callback) callback(null, self.items[id]);
       }
       delete self.itemsToFetch[id];
     }
@@ -101,6 +136,8 @@ ContentManager.prototype.fetchItems = function(payload) {
   }
 };
 
+// This will disappear once the item fetching uses async:
+// this is the last callback after all items have come back from storage.
 ContentManager.prototype.itemsFetchedCallback = function(err, data) {
   if (err) {
     if (data.callback) data.callback(err);
@@ -113,12 +150,23 @@ ContentManager.prototype.itemsFetchedCallback = function(err, data) {
   }
 };
 
+/**
+ * @description
+ * Adds a shape or a content item to the list of shapes for the request.
+ * @param options
+ * @param {string} [options.id]          The id of an item to fetch and add
+ *                                       as a shape.
+ * @param {object} [options.shape]       A shape to add to the list of shapes
+ *                                       to render.
+ * @param {string} [options.displayType] The display type to use when
+ * rendering the shape.
+ */
 ContentManager.prototype.promiseToRender = function(options) {
   if (!options.req.shapes) {
     options.req.shapes = [];
   }
   if (options.id) {
-    this.get(options.id);
+    this.promiseToGet(options.id);
     options.req.shapes.push({
       meta: {
         type: 'shape-item-promise'
@@ -134,13 +182,26 @@ ContentManager.prototype.promiseToRender = function(options) {
   }
 };
 
+/**
+ * @description
+ * Builds the rendered page from the list of shapes that was prepared
+ * so far. This method defines the rendering lifecycle, by emitting
+ * events:
+ * * decent.core.shape.placement
+ * * decent.core.handle-item
+ * * decent.core.shape.render
+ * @param payload
+ * @param {IncomingMessage} [payload.req] The request.
+ * @param {ServerResponse}  [payload.res] The response.
+ */
 ContentManager.prototype.buildRenderedPage = function(payload) {
+  // TODO: use request and response everywhere instead of req, res
   var req = payload.req;
   var res = payload.res;
   var shapes = req.shapes;
   var layout = req.layout = {meta: {type: 'layout'}};
   // Build the shape tree through placement strategies
-  this.shell.emit('decent.core.shape.placement', {
+  this.shell.emit(ContentManager.placementEvent, {
     shape: layout,
     shapes: shapes
   });
@@ -157,7 +218,7 @@ ContentManager.prototype.buildRenderedPage = function(payload) {
     renderStream: renderStream
   });
   // Render
-  this.shell.emit('decent.core.shape.render', {
+  this.shell.emit(ContentManager.renderShapeEvent, {
     shape: layout,
     renderStream: renderStream
   });
@@ -170,7 +231,7 @@ ContentManager.prototype.buildRenderedPage = function(payload) {
  * @description
  * Finds the type definition of an item if it exists on the tenant configuration.
  * @param {object} item The content item.
- * @returns {*} The content type, or null if it can't be found.
+ * @returns {object} The content type, or null if it can't be found.
  */
 ContentManager.prototype.getType = function(item) {
   var typeName, type;
@@ -208,24 +269,24 @@ ContentManager.prototype.getParts = function(item, partTypeName) {
  * @description
  * This event is emitted when content items should be fetched from stores.
  */
-ContentManager.loadItemsEvent = ContentManager.prototype.loadItemsEvent = 'decent.core.load-items';
+ContentManager.loadItemsEvent = 'decent.core.load-items';
 ContentManager.loadItemsEvent.payload = {
   /**
    * @description
    * The current map of id to item that we already have. The handlers add to this map.
    */
-  items: Object,
+  items: 'Object',
   /**
    * @description
    * The list of item ids to fetch from the stores.
    * Handlers must remove from this list what they were able to successfully fetch.
    */
-  itemsToFetch: Array,
+  itemsToFetch: 'Array',
   /**
    * @description
    * A function that handlers must call after they are done. This should be done asynchronously.
    */
-  callback: Function
+  callback: 'Function'
 };
 
 /**
@@ -241,12 +302,37 @@ ContentManager.handleItemEvent.payload = {
    * @description
    * The content item shape
    */
-  item: Object,
+  item: 'Object',
   /**
    * @description
    * The shell
    */
-  shell: Object
+  shell: 'Object'
+};
+
+/**
+ * @description
+ * Asks for a list of shapes to be placed under a root shape.
+ * @type {string}
+ */
+ContentManager.placementEvent = 'decent.core.shape.placement';
+ContentManager.placementEvent.payload = {
+  /**
+   * @description
+   * The root shape under which to place the shapes in the list.
+   */
+  shape: 'Object',
+  /**
+   * @description
+   * The list of shapes to place.
+   */
+  shapes: 'Array'
+};
+
+ContentManager.renderShapeEvent = 'decent.core.shape.render';
+ContentManager.renderShapeEvent.payload = {
+  shape: 'Object',
+  renderStream: 'RenderStream'
 };
 
 module.exports = ContentManager;
