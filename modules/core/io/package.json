@@ -23,7 +23,6 @@
   "devDependencies": {
     "chai": "*",
     "decent-core-localization": "*",
-    "decent-core-multi-tenancy": "*",
     "moka": "*",
     "proxyquire": "*"
   }

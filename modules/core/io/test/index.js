@@ -2,7 +2,7 @@
 'use strict';
 var expect = require('chai').expect;
 var proxyquire = require('proxyquire');
-var Shell = require('decent-core-multi-tenancy').Shell;
+var Shell = function() {};
 var path = require('path');
 
 describe('file-resolution', function() {

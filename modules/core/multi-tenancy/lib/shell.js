@@ -314,7 +314,14 @@ Shell.prototype.getServices = function(service, options) {
 /**
  * @description
  * Handles the request for the tenant
- * 
+ * Emits the following events:
+ * * decent-core-shell-start-request
+ * * decent.core.shell.handle-route
+ * * decent.core.shell.fetch-content
+ * * decent.core.shell.render-error
+ * * decent.core.shell.render-page
+ * * decent-core-shell-end-request
+ *
  * @param {http.IncomingMessage} request Request
  * @param {http.ServerResponse}  response Response
  */
@@ -358,7 +365,7 @@ Shell.prototype.handleRequest = function(request, response) {
  * This is a good time to attach a service to the request object.
  * @type {string}
  */
-Shell.startRequestEvent = Shell.prototype.startRequestEvent = 'decent-core-shell-start-request';
+Shell.startRequestEvent = 'decent-core-shell-start-request';
 
 /**
  * @description
@@ -366,34 +373,34 @@ Shell.startRequestEvent = Shell.prototype.startRequestEvent = 'decent-core-shell
  * This is a good time to detach services and events.
  * @type {string}
  */
-Shell.endRequestEvent = Shell.prototype.endRequestEvent = 'decent-core-shell-end-request';
+Shell.endRequestEvent = 'decent-core-shell-end-request';
 
 /**
  * @description
  * The event that is broadcast when a route needs to be resolved.
  * @type {string}
  */
-Shell.handleRouteEvent = Shell.prototype.handleRouteEvent = 'decent.core.shell.handle-route';
+Shell.handleRouteEvent = 'decent.core.shell.handle-route';
 
 /**
  * @description
  * The event that is broadcast when content needs to be fetched from stores.
  * @type {string}
  */
-Shell.fetchContentEvent = Shell.prototype.fetchContentEvent = 'decent.core.shell.fetch-content';
+Shell.fetchContentEvent = 'decent.core.shell.fetch-content';
 
 /**
  * @description
  * The event that is broadcast when the page is ready to be rendered.
  * @type {string}
  */
-Shell.renderPageEvent = Shell.prototype.renderPageEvent = 'decent.core.shell.render-page';
+Shell.renderPageEvent = 'decent.core.shell.render-page';
 
 /**
  * @description
  * This event is triggered when an error has happened during the page lifecycle.
  * @type {string}
  */
-Shell.renderErrorPage = Shell.prototype.renderErrorPage = 'decent.core.shell.render-error';
+Shell.renderErrorPage = 'decent.core.shell.render-error';
 
 module.exports = Shell;
