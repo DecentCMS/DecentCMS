@@ -346,7 +346,6 @@ Shell.prototype.handleRequest = function(request, response) {
       });
       // Tear down
       self.emit(Shell.endRequestEvent, payload);
-      response.end('');
     }
   });
 };

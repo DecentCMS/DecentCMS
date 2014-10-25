@@ -96,6 +96,7 @@ ContentManager.prototype.getAvailableItem = function(id) {
  * Triggers the asynchronous fetching of the items whose
  * ids can be found in the content manager's itemsToFetch
  * array, anf their transfer into the items array.
+ * This method emits the decent.core.load-items event.
  * @param payload
  * @param {Function} [payload.callback] a callback that gets
  * called when all items have been fetched, or when an error
@@ -120,7 +121,7 @@ ContentManager.prototype.fetchItems = function(payload) {
     }
   }
   // Now broadcast the list for content stores to do their job
-  self.shell.emit(self.loadItemsEvent, {
+  self.shell.emit(ContentManager.loadItemsEvent, {
     items: self.items,
     itemsToFetch: self.itemsToFetch,
     callback: function() {
@@ -331,7 +332,14 @@ ContentManager.placementEvent.payload = {
 
 ContentManager.renderShapeEvent = 'decent.core.shape.render';
 ContentManager.renderShapeEvent.payload = {
+  /**
+   * @description
+   * The shape to render
+   */
   shape: 'Object',
+  /**
+   * The render stream that handles the html to render.
+   */
   renderStream: 'RenderStream'
 };
 
