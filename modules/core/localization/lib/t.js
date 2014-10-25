@@ -1,11 +1,10 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-// TODO:
-// * resolve culture dynamically
-// * format strings have positional placeholders
-// * handling plurals
-// * handling completely custom string selection logic
-// * persist default strings as they are used to the default translation files
+// TODO: resolve culture dynamically
+// TODO: format strings have positional placeholders
+// TODO: handling plurals
+// TODO: handling completely custom string selection logic
+// TODO: persist default strings as they are used to the default translation files
 var format = require('util').format;
 
 /**
