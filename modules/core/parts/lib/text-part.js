@@ -2,9 +2,15 @@
 'use strict';
 var path = require('path');
 
-function TextPart(shell, options) {
+/**
+ * The text part handler creates text shapes. The flavor
+ * of the text can be inferred from the extension on a path
+ * property on the part if it exist.
+ * @param shell
+ * @constructor
+ */
+function TextPart(shell) {
   this.shell = shell;
-  this.item = options.item;
 }
 
 TextPart.on = {

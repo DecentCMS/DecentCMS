@@ -1,9 +1,17 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-function TitlePart(shell, options) {
+/**
+ * @description
+ * The title part handler looks for a title property on the content
+ * item. It renders a title shape, and also sets the title on the
+ * renderer if the display type is 'main' (which means this is the
+ * main content item on the page).
+ * @param shell
+ * @constructor
+ */
+function TitlePart(shell) {
   this.shell = shell;
-  this.item = options.item;
 }
 
 TitlePart.on = {

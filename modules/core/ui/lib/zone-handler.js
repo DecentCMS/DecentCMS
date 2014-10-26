@@ -1,9 +1,16 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-function ZoneHandler(shell, options) {
+/**
+ * @description
+ * The zone handler will render the child shapes found under
+ * temp.items and temp.zones of any shape (not just zones).
+ * @param shell
+ * @param options
+ * @constructor
+ */
+function ZoneHandler(shell) {
   this.shell = shell;
-  this.item = options.item;
 }
 
 ZoneHandler.on = {
