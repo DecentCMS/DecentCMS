@@ -7,21 +7,17 @@
  * @param {Shell} shell The shell.
  * @constructor
  */
-var CodeViewEngine = function(shell) {
-  this.shell = shell;
-};
-CodeViewEngine.isShellSingleton = true;
-
-CodeViewEngine.extension = CodeViewEngine.prototype.extension = "js";
-
-/**
- * @description
- * Loads the rendering function from the provided path.
- * @param {string} templatePath The path to the JavaScript file.
- * @returns {function} The template function.
- */
-CodeViewEngine.prototype.load = function(templatePath) {
-  return require(templatePath);
+var CodeViewEngine = {
+  extension: "js",
+  /**
+   * @description
+   * Loads the rendering function from the provided path.
+   * @param {string} templatePath The path to the JavaScript file.
+   * @returns {function} The template function.
+   */
+  load: function (templatePath) {
+    return require(templatePath);
+  }
 };
 
 module.exports = CodeViewEngine;

@@ -9,36 +9,34 @@ var path = require('path');
  * @param shell
  * @constructor
  */
-function TextPart(shell) {
-  this.shell = shell;
-}
-
-TextPart.on = {
-  'decent.core.handle-item': function(shell, options) {
-    var content = options.shape;
-    if (!content.meta
-      || content.meta.type !== 'content'
-      || !content.temp) return;
-    var temp = content.temp;
-    var item = temp.item;
-    var renderer = options.renderStream;
-    var contentManager = renderer.contentManager;
-    var textParts = contentManager.getParts(item, 'text');
-    for (var i = 0; i < textParts.length; i++) {
-      var partName = textParts[i];
-      var part = item[partName];
-      var text = part.text;
-      if (!text && part._data) {
-        text = part._data;
+var TextPart = {
+  on: {
+    'decent.core.handle-item': function(shell, options) {
+      var content = options.shape;
+      if (!content.meta
+        || content.meta.type !== 'content'
+        || !content.temp) return;
+      var temp = content.temp;
+      var item = temp.item;
+      var renderer = options.renderStream;
+      var contentManager = renderer.contentManager;
+      var textParts = contentManager.getParts(item, 'text');
+      for (var i = 0; i < textParts.length; i++) {
+        var partName = textParts[i];
+        var part = item[partName];
+        var text = part.text;
+        if (!text && part._data) {
+          text = part._data;
+        }
+        var flavor = part.flavor
+          || (part.path ? path.extname(part.path).substr(1) : 'plain-text');
+        temp.shapes.push({
+          meta: {type: 'text', name: partName},
+          temp: {displayType: temp.displayType},
+          text: text,
+          flavor: flavor
+        });
       }
-      var flavor = part.flavor
-        || (part.path ? path.extname(part.path).substr(1) : 'plain-text');
-      temp.shapes.push({
-        meta: {type: 'text', name: partName},
-        temp: {displayType: temp.displayType},
-        text: text,
-        flavor: flavor
-      });
     }
   }
 };

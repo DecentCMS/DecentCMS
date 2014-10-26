@@ -8,23 +8,21 @@
  * @param {Shell} shell The tenant.
  * @constructor
  */
-var AutorouteRouteHandler = function(shell) {
-  this.shell = shell;
-};
-
-AutorouteRouteHandler.on = {
-  'decent.express.register-middleware': function(shell, expressApp) {
-    expressApp.register(AutorouteRouteHandler.manifest.priority || 9000, function (app) {
-      app.get('*', function (req, res, next) {
-        var contentManager = req.contentManager;
-        if (!contentManager) return;
-        contentManager.promiseToRender({
-          req: req,
-          id: req.path,
-          displayType: 'main'
+var AutorouteRouteHandler = {
+  on: {
+    'decent.express.register-middleware': function(shell, expressApp) {
+      expressApp.register(AutorouteRouteHandler.manifest.priority || 9000, function (app) {
+        app.get('*', function (req, res, next) {
+          var contentManager = req.contentManager;
+          if (!contentManager) return;
+          contentManager.promiseToRender({
+            req: req,
+            id: req.path,
+            displayType: 'main'
+          });
         });
       });
-    });
+    }
   }
 };
 

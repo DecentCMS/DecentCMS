@@ -21,83 +21,80 @@
  * @param shell
  * @constructor
  */
-var FilePlacementStrategy = function(shell) {
-  this.shell = shell;
-};
-FilePlacementStrategy.isShellSingleton = true;
-
-FilePlacementStrategy.init = function(shell) {
-  var shapeHelper = shell.require('shape');
-  var placement = shell.placement = {};
-  var placementHandlers = shell.placementHandlers = [];
-  var fileResolution = shell.require('file-resolution');
-  var placementFiles = fileResolution.all(/placement\.(json|js)/);
-  placementFiles.reverse();
-  for (var i = 0; i < placementFiles.length; i++) {
-    var placementObject = require(placementFiles[i]);
-    if (placementFiles[i].substr(-3) === '.js') {
-      placementHandlers.push(placementObject);
-    }
-    else {
-      for (var shape in placementObject) {
-        if (shape === 'matches') {
-          for (var j = 0; j < placementObject.matches.length; j++) {
-            var match = placementObject.matches[j];
-            (function (idExpression, shapeTypeExpression, displayTypeExpression, path, order) {
-              placementHandlers.push(function (shell, rootShape, shapes) {
-                for (var k = 0; k < shapes.length; k++) {
-                  var shapeToPlace = shapes[k];
-                  if (idExpression
-                    && (!shapeToPlace.id || !idExpression.test(shapeToPlace.id))) {
-                    continue;
+var FilePlacementStrategy = {
+  init: function(shell) {
+    var shapeHelper = shell.require('shape');
+    var placement = shell.placement = {};
+    var placementHandlers = shell.placementHandlers = [];
+    var fileResolution = shell.require('file-resolution');
+    var placementFiles = fileResolution.all(/placement\.(json|js)/);
+    placementFiles.reverse();
+    for (var i = 0; i < placementFiles.length; i++) {
+      var placementObject = require(placementFiles[i]);
+      if (placementFiles[i].substr(-3) === '.js') {
+        placementHandlers.push(placementObject);
+      }
+      else {
+        for (var shape in placementObject) {
+          if (shape === 'matches') {
+            for (var j = 0; j < placementObject.matches.length; j++) {
+              var match = placementObject.matches[j];
+              (function (idExpression, shapeTypeExpression, displayTypeExpression, path, order) {
+                placementHandlers.push(function (shell, rootShape, shapes) {
+                  for (var k = 0; k < shapes.length; k++) {
+                    var shapeToPlace = shapes[k];
+                    if (idExpression
+                      && (!shapeToPlace.id || !idExpression.test(shapeToPlace.id))) {
+                      continue;
+                    }
+                    if (shapeTypeExpression
+                      && (!shapeToPlace.meta
+                        || !shapeToPlace.meta.type
+                        || !shapeTypeExpression.test(shapeToPlace.meta.type))) {
+                      continue;
+                    }
+                    if (displayTypeExpression
+                      && (!shapeToPlace.temp
+                        || !shapeToPlace.temp.displayType
+                        || !displayTypeExpression.test(shapeToPlace.temp.displayType))) {
+                      continue;
+                    }
+                    // We have a match. Place the shape, and remove it from the list.
+                    shapeHelper.place(rootShape, path, shapeToPlace, order);
+                    shapes.splice(k--, 1);
                   }
-                  if (shapeTypeExpression
-                    && (!shapeToPlace.meta
-                      || !shapeToPlace.meta.type
-                      || !shapeTypeExpression.test(shapeToPlace.meta.type))) {
-                    continue;
-                  }
-                  if (displayTypeExpression
-                    && (!shapeToPlace.temp
-                      || !shapeToPlace.temp.displayType
-                      || !displayTypeExpression.test(shapeToPlace.temp.displayType))) {
-                    continue;
-                  }
-                  // We have a match. Place the shape, and remove it from the list.
-                  shapeHelper.place(rootShape, path, shapeToPlace, order);
-                  shapes.splice(k--, 1);
-                }
-              });
-            })(match.id ? new RegExp(match.id) : null,
-               match.type ? new RegExp(match.type) : null,
-               match.displayType ? new RegExp(match.displayType) : null,
-               match.path,
-               match.order);
+                });
+              })(match.id ? new RegExp(match.id) : null,
+                match.type ? new RegExp(match.type) : null,
+                match.displayType ? new RegExp(match.displayType) : null,
+                match.path,
+                match.order);
+            }
+          }
+          else {
+            placement[shape] = placementObject[shape];
           }
         }
-        else {
-          placement[shape] = placementObject[shape];
+      }
+    }
+
+    shell.on('decent.core.shape.placement', function (payload) {
+      var rootShape = payload.shape;
+      var shapes = payload.shapes;
+      // Handlers have the priority on placing shapes
+      for (var i = 0; i < placementHandlers.length; i++) {
+        placementHandlers[i](shell, rootShape, shapes);
+      }
+      for (i = 0; i < shapes.length; i++) {
+        var shape = shapes[i];
+        if (shape.meta && shape.meta.type && placement[shape.meta.type]) {
+          var placementItem = placement[shape.meta.type];
+          shapeHelper.place(rootShape, placementItem.path, shape, placementItem.order);
+          shapes.splice(i--, 1);
         }
       }
-    }
+    });
   }
-
-  shell.on('decent.core.shape.placement', function (payload) {
-    var rootShape = payload.shape;
-    var shapes = payload.shapes;
-    // Handlers have the priority on placing shapes
-    for (var i = 0; i < placementHandlers.length; i++) {
-      placementHandlers[i](shell, rootShape, shapes);
-    }
-    for (i = 0; i < shapes.length; i++) {
-      var shape = shapes[i];
-      if (shape.meta && shape.meta.type && placement[shape.meta.type]) {
-        var placementItem = placement[shape.meta.type];
-        shapeHelper.place(rootShape, placementItem.path, shape, placementItem.order);
-        shapes.splice(i--, 1);
-      }
-    }
-  });
 };
 
 module.exports = FilePlacementStrategy;

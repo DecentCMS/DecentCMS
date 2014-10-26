@@ -276,7 +276,7 @@ Shell.prototype.require = function(service, options) {
  * Shell singletons are classes marked with isShellSingleton = true.
  * Otherwise, a new instance is created on each call.
  * Don't call this directly, it should only be internally used by Shell.
- * @param {Function} ServiceClass The class to instantiate.
+ * @param {Function|object} ServiceClass The class to instantiate.
  *                                This constructor must always take a shell as its first argument.
  *                                It can also take an optional 'options' argument, unless it's a shell singleton.
  * @param {object} options Options to pass into the service's constructor.
@@ -284,12 +284,14 @@ Shell.prototype.require = function(service, options) {
  */
 Shell.prototype.construct = function(ServiceClass, options) {
   return ServiceClass ?
-    ServiceClass.isShellSingleton ?
-      ServiceClass.instance ?
-        ServiceClass.instance :
-        ServiceClass.instance = new ServiceClass(this)
-      : new ServiceClass(this, options)
-    : null;
+    ServiceClass.isStatic || typeof ServiceClass !== 'function' ?
+      ServiceClass :
+      ServiceClass.isShellSingleton ?
+        ServiceClass.instance ?
+          ServiceClass.instance :
+          ServiceClass.instance = new ServiceClass(this)
+        : new ServiceClass(this, options)
+      : null;
 };
 
 /**

@@ -256,7 +256,7 @@ describe('Shell', function() {
       var shell = new Shell();
       var SomeClass = function(shell) {
         this.shell = shell;
-      }
+      };
       var instance1 = shell.construct(SomeClass);
       var instance2 = shell.construct(SomeClass);
 
@@ -272,7 +272,7 @@ describe('Shell', function() {
       var shell = new Shell();
       var SomeClass = function(shell) {
         this.shell = shell;
-      }
+      };
       SomeClass.isShellSingleton = true;
       var instance1 = shell.construct(SomeClass);
       var instance2 = shell.construct(SomeClass);
@@ -281,6 +281,35 @@ describe('Shell', function() {
         .to.be.an.instanceof(SomeClass);
       expect(instance1)
         .to.equal(instance2);
+    });
+
+    it('doesn\'t instantiate static services, but returns the same object on each require', function() {
+      var shell = new Shell();
+      var called = false;
+      var SomeClass = function(shell) {
+        called = true;
+      };
+      SomeClass.isStatic = true;
+      var instance1 = shell.construct(SomeClass);
+      var instance2 = shell.construct(SomeClass);
+
+      expect(called).is.false;
+      expect(instance1)
+        .to.equal(SomeClass);
+      expect(instance2)
+        .to.equal(SomeClass);
+    });
+
+    it('considers non-functions as static services', function() {
+      var shell = new Shell();
+      var SomeStaticService = {};
+      var instance1 = shell.construct(SomeStaticService);
+      var instance2 = shell.construct(SomeStaticService);
+
+      expect(instance1)
+        .to.equal(SomeStaticService);
+      expect(instance2)
+        .to.equal(SomeStaticService);
     });
 
     it('can load a service from a module', function() {

@@ -10,35 +10,31 @@ var fs = require('fs');
  * @param {Shell} shell
  * @constructor
  */
-var MarkupViewEngine = function(shell) {
-  this.shell = shell;
-}
-MarkupViewEngine.isShellSingleton = true;
+var MarkupViewEngine = {
+  extension: "markup",
+  /**
+   * @description
+   * Loads a template from the file system.
+   * @param {string} templatePath The path to the template.
+   * @returns {function} The compiled template.
+   */
+  load: function (templatePath) {
+    return this.compile(fs.readdirSync(templatePath));
+  },
 
-MarkupViewEngine.extension = MarkupViewEngine.prototype.extension = "markup";
-
-/**
- * @description
- * Loads a template from the file system.
- * @param {string} templatePath The path to the template.
- * @returns {function} The compiled template.
- */
-MarkupViewEngine.prototype.load = function(templatePath) {
-  return this.compile(fs.readdirSync(templatePath));
-};
-
-/**
- * @description
- * Returns a function for the template that takes a shape as
- * the view model.
- * @param {string} template The template.
- * @returns {Function} The template function.
- */
-MarkupViewEngine.prototype.compile = function(template) {
-  var token = this.shell.require('token');
-  return function(shape) {
-    return token.interpolate(template, shape);
-  };
+  /**
+   * @description
+   * Returns a function for the template that takes a shape as
+   * the view model.
+   * @param {string} template The template.
+   * @returns {Function} The template function.
+   */
+  compile: function (template) {
+    var token = this.shell.require('token');
+    return function (shape) {
+      return token.interpolate(template, shape);
+    };
+  }
 };
 
 module.exports = MarkupViewEngine;

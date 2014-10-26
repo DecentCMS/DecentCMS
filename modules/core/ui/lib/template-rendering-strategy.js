@@ -10,52 +10,49 @@ var path = require('path');
  * @param shell
  * @constructor
  */
-var TemplateRenderingStrategy = function(shell) {
-  this.shell = shell;
-};
-TemplateRenderingStrategy.isShellSingleton = true;
-
-TemplateRenderingStrategy.init = function(shell) {
-  var fileResolver = shell.require('file-resolution');
-  var shapeHelper = shell.require('shape');
-  var viewEngines = shell.getServices('view-engine');
-  var extensionExpression = '(' + viewEngines
-    .map(function(viewEngine) {return viewEngine.extension;})
-    .join('|') + ')';
-  var viewEngineMap = {};
-  for (var i = 0; i < viewEngines.length; i++) {
-    viewEngineMap[viewEngines[i].extension] = viewEngines[i];
-  }
-  var shapeTemplates = shell.shapeTemplates = shell.shapeTemplates || {};
-
-  shell.on('decent.core.shape.render', function(payload) {
-    var shape = payload.shape;
-    var renderer = payload.renderStream;
-    var temp = shapeHelper.temp(shape);
-    if (temp.html) {
-      renderer.write(temp.html);
-      return;
+var TemplateRenderingStrategy = {
+  init: function(shell) {
+    var fileResolver = shell.require('file-resolution');
+    var shapeHelper = shell.require('shape');
+    var viewEngines = shell.getServices('view-engine');
+    var extensionExpression = '(' + viewEngines
+      .map(function(viewEngine) {return viewEngine.extension;})
+      .join('|') + ')';
+    var viewEngineMap = {};
+    for (var i = 0; i < viewEngines.length; i++) {
+      viewEngineMap[viewEngines[i].extension] = viewEngines[i];
     }
-    var meta = shapeHelper.meta(shape);
-    var shapeName = meta.type;
-    if (!shapeName) {
-      shapeName = meta.type = 'zone';
-    }
-    var template = shapeTemplates[shapeName];
-    if (!template) {
-      var templatePath = fileResolver.resolve(
-        'views', new RegExp(shapeName + '\\.' + extensionExpression));
-      if (templatePath) {
-        var extension = path.extname(templatePath).substr(1);
-        var viewEngine = viewEngineMap[extension];
-        template = viewEngine.load(templatePath);
+    var shapeTemplates = shell.shapeTemplates = shell.shapeTemplates || {};
+
+    shell.on('decent.core.shape.render', function(payload) {
+      var shape = payload.shape;
+      var renderer = payload.renderStream;
+      var temp = shapeHelper.temp(shape);
+      if (temp.html) {
+        renderer.write(temp.html);
+        return;
       }
-    }
-    if (template) {
-      shapeTemplates[shapeName] = template;
-      template(shape, renderer, shell);
-    }
-  });
+      var meta = shapeHelper.meta(shape);
+      var shapeName = meta.type;
+      if (!shapeName) {
+        shapeName = meta.type = 'zone';
+      }
+      var template = shapeTemplates[shapeName];
+      if (!template) {
+        var templatePath = fileResolver.resolve(
+          'views', new RegExp(shapeName + '\\.' + extensionExpression));
+        if (templatePath) {
+          var extension = path.extname(templatePath).substr(1);
+          var viewEngine = viewEngineMap[extension];
+          template = viewEngine.load(templatePath);
+        }
+      }
+      if (template) {
+        shapeTemplates[shapeName] = template;
+        template(shape, renderer, shell);
+      }
+    });
+  }
 };
 
 module.exports = TemplateRenderingStrategy;
