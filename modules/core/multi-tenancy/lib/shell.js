@@ -158,7 +158,7 @@ Shell.prototype.canHandle = function(request) {
     !this.path
     || request.url.substr(0, this.path.length) === this.path
   );
-}
+};
 
 /**
  * @description

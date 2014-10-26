@@ -166,6 +166,6 @@ FileResolution.prototype.all = function(fileName) {
   }
   resolvedFilesAll[filePath] = results;
   return results;
-}
+};
 
 module.exports = FileResolution;
