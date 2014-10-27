@@ -16,6 +16,7 @@ var Token = function(shell) {
   this.pipes = this.Mark.pipes;
   this.shell.emit(Token.registerPipesEvent, this.pipes);
 };
+Token.feature = 'tokens';
 
 /**
  * @describe

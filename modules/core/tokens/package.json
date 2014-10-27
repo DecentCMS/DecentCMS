@@ -3,16 +3,6 @@
   "friendlyName": "Tokens",
   "version": "0.0.0",
   "description": "Token evaluation for DecentCMS",
-  "services": {
-    "token": {
-      "path": "./lib/token",
-      "feature": "tokens"
-    },
-    "view-engine": {
-      "path": "./lib/markup-view-engine",
-      "feature": "markup-view-engine"
-    }
-  },
   "features": {
     "tokens": {
       "name": "Tokens",

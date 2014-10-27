@@ -3,12 +3,6 @@
   "friendlyName": "Core Content",
   "version": "0.0.0",
   "description": "The core content management module for DecentCMS",
-  "services": {
-    "content-manager": {
-      "path": "./lib/content-manager",
-      "feature": "content-manager"
-    }
-  },
   "features": {
     "content-manager": {
       "name": "Content Manager",

@@ -35,6 +35,30 @@ function discover() {
               manifest.physicalPath = path.dirname(manifestPath);
               console.log(t('Loaded module %s from %s', moduleName, manifestPath));
               availableModules[moduleName] = manifest;
+              // Look for self-configuring services under /services
+              if (!manifest.services) manifest.services = {};
+              if (!manifest.features) manifest.features = {};
+              var servicesPath = path.join(modulePath, 'services');
+              try {
+                var servicePaths = fs.readdirSync(servicesPath);
+                for(var i = 0; i < servicePaths.length; i++) {
+                  var serviceFileName = servicePaths[i];
+                  if (path.extname(serviceFileName) === '.js') {
+                    var servicePath = path.join(servicesPath, serviceFileName).slice(0, -3);
+                    var service = require(servicePath);
+                    var serviceName = service.service || path.basename(serviceFileName, '.js');
+                    // TODO: build default feature from module name
+                    var serviceFeature = service.feature;
+                    var serviceDependencies = service.dependencies;
+                    manifest.services[serviceName] = {
+                      path: servicePath,
+                      feature: serviceFeature,
+                      dependencies: serviceDependencies
+                    };
+                  }
+                }
+              }
+              catch(dirEx) {}
             }
             catch(ex) {
               ex.path = manifestPath;

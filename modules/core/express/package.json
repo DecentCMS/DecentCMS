@@ -2,12 +2,6 @@
   "name": "decent-core-express",
   "version": "0.0.0",
   "description": "Integration of Express into DecentCMS.",
-  "services": {
-    "express": {
-      "path": "./lib/express-route-handler",
-      "feature": "express"
-    }
-  },
   "features": {
     "express": {
       "name": "Express",

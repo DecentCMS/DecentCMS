@@ -11,6 +11,7 @@ var async = require('async');
  * @constructor
  */
 var FileContentStore = {
+  feature: 'file-content-store',
   on: {
     'decent.core.load-items': function (shell, payload) {
       var shapeHelper = shell.require('shape');

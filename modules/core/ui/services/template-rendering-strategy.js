@@ -11,6 +11,9 @@ var path = require('path');
  * @constructor
  */
 var TemplateRenderingStrategy = {
+  service: 'rendering-strategy',
+  feature: 'template-rendering-strategy',
+  dependencies: ['decent-core-io'],
   init: function(shell) {
     var fileResolver = shell.require('file-resolution');
     var shapeHelper = shell.require('shape');

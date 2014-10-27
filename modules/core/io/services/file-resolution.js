@@ -20,7 +20,7 @@ var FileResolution = function(shell) {
   this.shell.resolvedFiles = this.shell.resolvedFiles || {};
   this.shell.resolvedFilesAll = this.shell.resolvedFilesAll || {};
 };
-
+FileResolution.feature = "file-resolution";
 FileResolution.isShellSingleton = true;
 
 /**

@@ -9,9 +9,12 @@
  * @constructor
  */
 var AutorouteRouteHandler = {
+  feature: 'autoroute',
+  dependencies: ['decent-core-express'],
+  priority: 9000,
   on: {
     'decent.express.register-middleware': function(shell, expressApp) {
-      expressApp.register(AutorouteRouteHandler.manifest.priority || 9000, function (app) {
+      expressApp.register(AutorouteRouteHandler.priority, function (app) {
         app.get('*', function (req, res, next) {
           var contentManager = req.contentManager;
           if (!contentManager) return;

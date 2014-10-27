@@ -206,6 +206,7 @@ Shell.prototype.loadModule = function(moduleName) {
   var features = self.features;
   var services = manifest.services;
   var anyEnabledService;
+  var moduleServiceClasses = {};
   for (var serviceName in services) {
     var service = services[serviceName];
     var serviceFeature = service.feature;
@@ -214,11 +215,11 @@ Shell.prototype.loadModule = function(moduleName) {
     if (self.serviceManifests[servicePath]) continue;
     var dependencies = service.dependencies;
     if (dependencies) {
-      dependencies.forEach(function(dependencyPath) {
+      dependencies.forEach(function (dependencyPath) {
         self.loadModule(dependencyPath);
       });
     }
-    var ServiceClass = require(servicePath);
+    var ServiceClass = moduleServiceClasses[serviceName] = require(servicePath);
     if (!self.services[serviceName]) {
       self.services[serviceName] = [ServiceClass];
     }
@@ -227,24 +228,40 @@ Shell.prototype.loadModule = function(moduleName) {
     }
     ServiceClass.manifest = service;
     self.serviceManifests[servicePath] = service;
-    if (ServiceClass.init) {
-      ServiceClass.init(self);
-    }
-    // Wire up declared static event handlers
-    if (ServiceClass.on) {
-      for (var eventName in ServiceClass.on) {
-        (function(ServiceClass, eventName) {
-          self.on(eventName, function (payload) {
-            ServiceClass.on[eventName](self, payload);
-          });
-        })(ServiceClass, eventName);
-      }
-    }
+  }
+  for (serviceName in services) {
+    ServiceClass = moduleServiceClasses[serviceName];
+    if (!ServiceClass) continue;
+    self.initializeService(ServiceClass);
     anyEnabledService = true;
     console.log(t('Loaded service %s from %s', serviceName, servicePath));
   }
   if (anyEnabledService) {
     self.modules.push(moduleName);
+  }
+};
+
+/**
+ * @description
+ * Initializes a service by calling its init method, and wiring up
+ * its static events.
+ * @param ServiceClass
+ */
+Shell.prototype.initializeService = function(ServiceClass) {
+  if (!ServiceClass) return;
+  var self = this;
+  if (ServiceClass.init) {
+    ServiceClass.init(self);
+  }
+  // Wire up declared static event handlers
+  if (ServiceClass.on) {
+    for (var eventName in ServiceClass.on) {
+      (function(ServiceClass, eventName) {
+        self.on(eventName, function (payload) {
+          ServiceClass.on[eventName](self, payload);
+        });
+      })(ServiceClass, eventName);
+    }
   }
 };
 

@@ -22,6 +22,9 @@
  * @constructor
  */
 var FilePlacementStrategy = {
+  service: 'placement-strategy',
+  feature: 'file-placement-strategy',
+  dependencies: ['decent-core-io'],
   init: function(shell) {
     var shapeHelper = shell.require('shape');
     var placement = shell.placement = {};

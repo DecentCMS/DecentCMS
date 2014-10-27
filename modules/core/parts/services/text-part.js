@@ -10,6 +10,7 @@ var path = require('path');
  * @constructor
  */
 var TextPart = {
+  feature: 'core-parts',
   on: {
     'decent.core.handle-item': function(shell, options) {
       var content = options.shape;

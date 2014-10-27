@@ -3,11 +3,10 @@
 var expect = require('chai').expect;
 var proxyquire = require('proxyquire');
 var EventEmitter = require('events').EventEmitter;
-var Shape = require('../lib/shape');
+var shapeHelper = require('../services/shape');
 
 describe('Shape', function() {
   var shell = new EventEmitter();
-  var shapeHelper = new Shape(shell);
 
   it('can get and create meta', function() {
     var shape = {};
@@ -147,7 +146,6 @@ describe('Shape', function() {
 describe('File Placement Strategy', function() {
   // Set-up some mocked services
   var shell = new EventEmitter();
-  var shapeHelper = new Shape(shell);
   shell.require = function(service) {
     switch(service) {
       case 'shape': return shapeHelper;
@@ -203,7 +201,7 @@ describe('File Placement Strategy', function() {
 
   it('places shapes according to placement.json file contents and placement.js', function() {
     var FilePlacementStrategy =
-          proxyquire('../lib/file-placement-strategy.js', stubs);
+          proxyquire('../services/file-placement-strategy.js', stubs);
     FilePlacementStrategy.init(shell);
     var layout = {};
     var homePage, pageBaz, pageFooBar, post, htmlWidget1, htmlWidget2, tagCloudWidget, shape11, shape12, shape2, shape3, custom1, custom2;
@@ -262,7 +260,6 @@ describe('File Placement Strategy', function() {
 describe('Zone template', function() {
   var zoneTemplate = require('../views/zone');
   var shell = new EventEmitter();
-  var shapeHelper = new Shape(shell);
   shell.require = function(service) {
     if (service === 'shape') return shapeHelper;
   };
@@ -303,8 +300,7 @@ describe('Code View Engine', function() {
     };
     shapeTemplate['@noCallThru'] = true;
     var stubs = {'shape': shapeTemplate};
-    var CodeViewEngine = proxyquire('../lib/code-view-engine', stubs);
-    var codeViewEngine = new CodeViewEngine({});
+    var codeViewEngine = proxyquire('../services/code-view-engine', stubs);
     var html = [];
     var renderer = new require('stream').PassThrough();
     renderer.on('data', function(chunk) {
@@ -321,7 +317,6 @@ describe('Code View Engine', function() {
 describe('Template Rendering Strategy', function() {
   var buildShell = function() {
     var shell = new EventEmitter();
-    var shapeHelper = new Shape(shell);
     shell.require = function(service) {
       switch(service) {
         case 'file-resolution': return fileResolver;
@@ -356,7 +351,7 @@ describe('Template Rendering Strategy', function() {
     }
   };
   var TemplateRenderingStrategy =
-        require('../lib/template-rendering-strategy');
+        require('../services/template-rendering-strategy');
 
   it('selects a view engine based on the template it finds', function() {
     var shell = buildShell();

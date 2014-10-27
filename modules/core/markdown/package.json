@@ -2,12 +2,6 @@
   "name": "decent-core-markdown",
   "version": "0.0.0",
   "description": "Markdown for DecentCMS",
-  "services": {
-    "text-flavor": {
-      "path": "./lib/markdown-flavor",
-      "feature": "markdown"
-    }
-  },
   "features": {
     "markdown": {
       "name": "Markdown",

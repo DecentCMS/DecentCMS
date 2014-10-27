@@ -20,6 +20,8 @@ function MarkdownFlavor(shell, options) {
   this.marked = require('marked');
   this.marked.setOptions(options);
 }
+MarkdownFlavor.service = 'text-flavor';
+MarkdownFlavor.feature = 'markdown';
 
 /**
  * Matches if the flavor is 'md' or 'markdown'.

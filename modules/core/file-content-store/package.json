@@ -3,12 +3,6 @@
   "friendlyName": "File Content Store",
   "version": "0.0.0",
   "description": "A content store for DecentCMS that relies on JSON files in the file system.",
-  "services": {
-    "content-store": {
-      "path": "./lib/file-content-store",
-      "feature": "file-content-store"
-    }
-  },
   "features": {
     "file-content-store": {
       "name": "File Content Store",

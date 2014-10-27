@@ -1,7 +1,7 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-var ExpressApp = require('./express-app');
+var ExpressApp = require('../lib/express-app');
 
 /**
  * @description
@@ -10,6 +10,7 @@ var ExpressApp = require('./express-app');
  * @constructor
  */
 var ExpressRouteHandler = {
+  feature: 'express',
   init: function (shell) {
     var express = require('express');
     var app = express();

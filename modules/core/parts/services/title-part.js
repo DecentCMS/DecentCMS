@@ -11,6 +11,7 @@
  * @constructor
  */
 var TitlePart = {
+  feature: 'core-parts',
   on: {
     'decent.core.handle-item': function(shell, options) {
       var content = options.shape;

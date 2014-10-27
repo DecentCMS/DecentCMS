@@ -28,6 +28,7 @@ function RenderStream(shell, options) {
   this.title = options.title || '';
   this.contentManager = options.contentManager;
 };
+RenderStream.feature = 'render-stream';
 
 RenderStream.prototype._transform = function(chunk, encoding, next) {
   this.push(chunk);

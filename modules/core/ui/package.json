@@ -2,42 +2,6 @@
   "name": "decent-core-ui",
   "version": "0.0.0",
   "description": "Core UI composition API for DecentCMS",
-  "services": {
-    "shape": {
-      "path": "./lib/shape",
-      "feature": "shape"
-    },
-    "shape-item-promise-handler": {
-      "path": "./lib/shape-item-promise-handler",
-      "feature": "shape"
-    },
-    "render-stream": {
-      "path": "./lib/render-stream",
-      "feature": "render-stream"
-    },
-    "placement-strategy": {
-      "path": "./lib/file-placement-strategy",
-      "feature": "file-placement-strategy",
-      "dependencies": [
-        "decent-core-io"
-      ]
-    },
-    "zone-handler": {
-      "path": "./lib/zone-handler",
-      "feature": "zone-handler"
-    },
-    "view-engine": {
-      "path": "./lib/code-view-engine",
-      "feature": "code-view-engine"
-    },
-    "rendering-strategy": {
-      "path": "./lib/template-rendering-strategy",
-      "feature": "template-rendering-strategy",
-      "dependencies": [
-        "decent-core-io"
-      ]
-    }
-  },
   "features": {
     "shape": {
       "name": "Shape",

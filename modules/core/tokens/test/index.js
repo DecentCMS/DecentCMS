@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var EventEmitter = require('events').EventEmitter;
 var shell = new EventEmitter();
-var Token = require('../lib/token');
+var Token = require('../services/token');
 
 describe('Token', function() {
   it('will leave literal strings alone', function() {
@@ -38,7 +38,7 @@ describe('Markup View Engine', function() {
   shell.require = function(service) {
     return service === 'token' ? new Token(shell) : null;
   };
-  var ViewEngine = require('../lib/markup-view-engine');
+  var ViewEngine = require('../services/markup-view-engine');
   var viewEngine = new ViewEngine(shell);
 
   it('compiles templates', function() {

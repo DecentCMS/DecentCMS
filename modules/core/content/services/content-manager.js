@@ -17,6 +17,7 @@ function ContentManager(shell) {
   this.itemsToFetch = {};
   this.shapes = [];
 }
+ContentManager.feature = 'content-manager';
 
 ContentManager.on = {
   'decent-core-shell-start-request': function(shell, payload) {

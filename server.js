@@ -25,6 +25,7 @@ if (runInCluster && cluster.isMaster) {
 } else {
   var bootDomain = domain.create();
   bootDomain.run(function() {
+    // TODO: make even booting the shells asynchronous. Incoming requests can be queued until it's done.
     // Discover all modules in the system
     moduleDiscovery.discover();
     // Discover all tenants

@@ -19,7 +19,7 @@ describe('file-resolution', function() {
         }
       }
     };
-    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var FileResolver = proxyquire('../services/file-resolution', stubs);
     var fileResolver = new FileResolver(shell);
     var resolvedPath = fileResolver.resolve('foo/bar.baz');
 
@@ -46,7 +46,7 @@ describe('file-resolution', function() {
         }
       }
     };
-    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var FileResolver = proxyquire('../services/file-resolution', stubs);
     var fileResolver = new FileResolver(shell);
     var resolvedPath = fileResolver.resolve('foo/bar.baz');
 
@@ -72,7 +72,7 @@ describe('file-resolution', function() {
         }
       }
     };
-    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var FileResolver = proxyquire('../services/file-resolution', stubs);
     var fileResolver = new FileResolver(shell);
     var resolvedPath = fileResolver.resolve('foo/bar.baz');
 
@@ -98,7 +98,7 @@ describe('file-resolution', function() {
         }
       }
     };
-    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var FileResolver = proxyquire('../services/file-resolution', stubs);
     var fileResolver = new FileResolver(shell);
     var resolvedPaths = fileResolver.all('foo/bar.baz');
 
@@ -120,7 +120,7 @@ describe('file-resolution', function() {
         }
       }
     };
-    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var FileResolver = proxyquire('../services/file-resolution', stubs);
     var fileResolver = new FileResolver(shell);
     var resolvedPath = fileResolver.resolve('foo', 'bar.baz');
 
@@ -144,7 +144,7 @@ describe('file-resolution', function() {
         }
       }
     };
-    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var FileResolver = proxyquire('../services/file-resolution', stubs);
     var fileResolver = new FileResolver(shell);
     var resolvedPath = fileResolver.resolve(/^foo.*$/i, /^baz\.js.*$/i);
 
@@ -173,7 +173,7 @@ describe('file-resolution', function() {
         }
       }
     };
-    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var FileResolver = proxyquire('../services/file-resolution', stubs);
     var fileResolver = new FileResolver(shell);
     var resolvedPaths = fileResolver.all(/^foo.*$/i, /^baz\.js.*$/i);
 
@@ -200,7 +200,7 @@ describe('file-resolution', function() {
         }
       }
     };
-    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var FileResolver = proxyquire('../services/file-resolution', stubs);
     var fileResolver = new FileResolver(shell);
     var resolvedPath = fileResolver.resolve(/^foo.*$/i, 'baz.js');
     var resolvedPaths = fileResolver.all(/^foo.*$/i, 'baz.js');
@@ -230,7 +230,7 @@ describe('file-resolution', function() {
         }
       }
     };
-    var FileResolver = proxyquire('../lib/file-resolution', stubs);
+    var FileResolver = proxyquire('../services/file-resolution', stubs);
     var fileResolver = new FileResolver(shell);
     var cacheKey = fileResolver.getCacheKey([/^foo.*$/i, 'baz.js']);
     var resolvedPath = fileResolver.resolve(/^foo.*$/i, 'baz.js');

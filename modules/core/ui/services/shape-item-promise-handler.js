@@ -13,6 +13,7 @@
  * @param shell            The shell.
  */
 var ShapeItemPromiseHandler = {
+  feature: 'shape',
   on: {
     'decent.core.handle-item': function (shell, options) {
       var itemShape = options.shape;

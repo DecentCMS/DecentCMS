@@ -9,6 +9,7 @@
  * @constructor
  */
 var Shape = {
+  feature: 'shape',
   /**
    * @description
    * Places a shape into the shape tree above a root shape.

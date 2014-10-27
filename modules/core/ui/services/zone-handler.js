@@ -10,6 +10,7 @@
  * @constructor
  */
 var ZoneHandler = {
+  feature: 'zone-handler',
   on: {
     'decent.core.handle-item': function(shell, options) {
       var zone = options.shape;
