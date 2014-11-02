@@ -6,6 +6,7 @@ var proxyquire = require('proxyquire');
 var EventEmitter = require('events').EventEmitter;
 var path = require('path');
 var IncomingMessage = require('http').IncomingMessage;
+var scope = require('decent-core-dependency-injection').scope;
 
 var Shell = require('../lib/shell');
 
@@ -253,12 +254,14 @@ describe('Shell', function() {
     });
 
     it('can construct new instances of classes', function() {
-      var shell = new Shell();
       var SomeClass = function(shell) {
         this.shell = shell;
       };
-      var instance1 = shell.construct(SomeClass);
-      var instance2 = shell.construct(SomeClass);
+      var shell = scope(new Shell(), {
+        service: [SomeClass]
+      });
+      var instance1 = shell.require('service');
+      var instance2 = shell.require('service');
 
       expect(instance1)
         .to.be.an.instanceof(SomeClass);
@@ -269,13 +272,15 @@ describe('Shell', function() {
     });
 
     it('always constructs the same shell singletons', function() {
-      var shell = new Shell();
       var SomeClass = function(shell) {
         this.shell = shell;
       };
-      SomeClass.isShellSingleton = true;
-      var instance1 = shell.construct(SomeClass);
-      var instance2 = shell.construct(SomeClass);
+      SomeClass.isScopeSingleton = true;
+      var shell = scope(new Shell(), {
+        service: [SomeClass]
+      });
+      var instance1 = shell.require('service');
+      var instance2 = shell.require('service');
 
       expect(instance1)
         .to.be.an.instanceof(SomeClass);
@@ -283,15 +288,31 @@ describe('Shell', function() {
         .to.equal(instance2);
     });
 
+    it('constructs one shell singleton instance per scope', function() {
+      var SomeClass = function(shell) {
+        this.shell = shell;
+      };
+      SomeClass.isScopeSingleton = true;
+      var shell1 = scope(new Shell(), {service: [SomeClass]});
+      var shell2 = scope(new Shell(), {service: [SomeClass]});
+      var instance1 = shell1.require('service');
+      var instance2 = shell2.require('service');
+
+      expect(instance1)
+        .to.be.an.instanceof(SomeClass);
+      expect(instance1)
+        .to.not.equal(instance2);
+    });
+
     it('doesn\'t instantiate static services, but returns the same object on each require', function() {
-      var shell = new Shell();
       var called = false;
       var SomeClass = function(shell) {
         called = true;
       };
       SomeClass.isStatic = true;
-      var instance1 = shell.construct(SomeClass);
-      var instance2 = shell.construct(SomeClass);
+      var shell = scope(new Shell(), {service: [SomeClass]});
+      var instance1 = shell.require('service');
+      var instance2 = shell.require('service');
 
       expect(called).is.false;
       expect(instance1)
@@ -301,10 +322,10 @@ describe('Shell', function() {
     });
 
     it('considers non-functions as static services', function() {
-      var shell = new Shell();
       var SomeStaticService = {};
-      var instance1 = shell.construct(SomeStaticService);
-      var instance2 = shell.construct(SomeStaticService);
+      var shell = scope(new Shell(), {service: [SomeStaticService]});
+      var instance1 = shell.require('service');
+      var instance2 = shell.require('service');
 
       expect(instance1)
         .to.equal(SomeStaticService);
@@ -333,6 +354,7 @@ describe('Shell', function() {
           }
         }
       });
+      scope(shell);
       shell.loadModule('module 1');
 
       expect(shell.services)
@@ -405,6 +427,7 @@ describe('Shell', function() {
           }
         }
       });
+      scope(shell);
       shell.loadModule('module 1');
 
       var serviceInstance1 = shell.require('service1');
@@ -635,8 +658,8 @@ describe('Shell', function() {
       var ServiceClass = function(shell, options) {
         this.options = options;
       }
-      var shell = new Shell({});
-      var instance = shell.construct(ServiceClass, options);
+      var shell = scope(new Shell(), {service: [ServiceClass]});
+      var instance = shell.require('service', options);
 
       expect(instance.options)
         .to.equal(options);
@@ -647,7 +670,7 @@ describe('Shell', function() {
       var ServiceClass = function(shell, options) {
         this.options = options;
       }
-      var shell = new Shell({services: {service: [ServiceClass]}});
+      var shell = scope(new Shell({services: {service: [ServiceClass]}}));
       var instance = shell.require('service', options);
 
       expect(instance.options)
@@ -659,7 +682,7 @@ describe('Shell', function() {
       var ServiceClass = function(shell, options) {
         this.options = options;
       }
-      var shell = new Shell({services: {service: [ServiceClass]}});
+      var shell = scope(new Shell({services: {service: [ServiceClass]}}));
       var instances = shell.getServices('service', options);
 
       expect(instances[0].options)
@@ -667,7 +690,7 @@ describe('Shell', function() {
     });
 
     it('will return an empty array when getting a service that doesn\'t exist', function() {
-      var shell = new Shell({services: {}});
+      var shell = scope(new Shell({services: {}}));
       var instances = shell.getServices('service');
 
       expect(instances)

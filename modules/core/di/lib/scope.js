@@ -54,7 +54,9 @@ function getSingleton(scope, service, index, options) {
  */
 function scope(objectToScope, services) {
   // TODO: expose hook for object init
-  objectToScope.services = services;
+  if (!objectToScope.services && services) {
+    objectToScope.services = services;
+  }
   objectToScope.instances = {};
 
   /**

@@ -2,13 +2,13 @@
 'use strict';
 
 // TODO: Enable shells to be restarted.
-// TODO: allow for purely static services.
 // TODO: Build file monitoring events so code that caches parsed files can expire and re-parse entries on-the-fly. Make sure that this can be done as an optional feature.
 
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 var path = require('path');
 var fs = require('fs');
+var scope = require('decent-core-dependency-injection').scope;
 var t = require('decent-core-localization').t;
 
 /**
@@ -180,10 +180,11 @@ Shell.prototype.disable = function() {
 
 /**
  * @description
- * Loads all enabled services in each module.
+ * Scopes the shell, then loads all enabled services in each module.
  */
 Shell.prototype.load = function() {
   if (this.loaded || !this.availableModules) return;
+  scope(this);
   for (var moduleName in this.availableModules) {
     this.loadModule(moduleName);
   }
@@ -263,71 +264,6 @@ Shell.prototype.initializeService = function(ServiceClass) {
       })(ServiceClass, eventName);
     }
   }
-};
-
-/**
- * @description
- * Returns an instance of a service implementing the named contract passed as a parameter.
- * If more than one service exists in the tenant for that contract, one instance that
- * has dependencies on any other service for that contract is returned. Do not
- * count on any particular service being returned if that is the case among the ones
- * that have the most dependencies.
- * A new instance is returned every time the function is called.
- * 
- * @param {String} service  The name of the contract for which a service instance is required.
- * @param {object} options Options to pass into the service's constructor.
- * @returns {object} An instance of the service, or null if it wasn't found.
- */
-Shell.prototype.require = function(service, options) {
-  var services = this.services[service];
-  var ServiceClass = Array.isArray(services)
-    ? (services.length > 0 ? services[services.length - 1] : null) : null;
-  return this.construct(ServiceClass, options);
-};
-
-/**
- * @description
- * Constructs an instance of the class passed in.
- * If the class is a shell singleton, the same instance
- * is always returned for any given shell.
- * Shell singletons are classes marked with isShellSingleton = true.
- * Otherwise, a new instance is created on each call.
- * Don't call this directly, it should only be internally used by Shell.
- * @param {Function|object} ServiceClass The class to instantiate.
- *                                This constructor must always take a shell as its first argument.
- *                                It can also take an optional 'options' argument, unless it's a shell singleton.
- * @param {object} options Options to pass into the service's constructor.
- * @returns {object} An instance of the service, or null if it wasn't found.
- */
-Shell.prototype.construct = function(ServiceClass, options) {
-  return ServiceClass ?
-    ServiceClass.isStatic || typeof ServiceClass !== 'function' ?
-      ServiceClass :
-      ServiceClass.isShellSingleton ?
-        ServiceClass.instance ?
-          ServiceClass.instance :
-          ServiceClass.instance = new ServiceClass(this)
-        : new ServiceClass(this, options)
-      : null;
-};
-
-/**
- * @description
- * Returns a list of service instances that are implementing the named contract passed as a parameter.
- * The services are returned in order of dependency: if service A has a dependency
- * on service B, B is guaranteed to appear earlier in the list.
- * New instances are returned every time the function is called.
- * 
- * @param {String} service The name of the contract for which service instances are required.
- * @param {object} options Options to pass into the services' constructors.
- * @returns {Array} An array of instances of the service.
- */
-Shell.prototype.getServices = function(service, options) {
-  var self = this;
-  if (!(service in self.services)) return [];
-  return self.services[service].map(function(service) {
-    return self.construct(service, options);
-  });
 };
 
 /**

@@ -15,6 +15,7 @@
     "proxyquire": "*"
   },
   "dependencies": {
+    "decent-core-dependency-injection": "*",
     "decent-core-localization": "*"
   }
 }

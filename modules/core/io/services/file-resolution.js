@@ -21,7 +21,7 @@ var FileResolution = function(shell) {
   this.shell.resolvedFilesAll = this.shell.resolvedFilesAll || {};
 };
 FileResolution.feature = "file-resolution";
-FileResolution.isShellSingleton = true;
+FileResolution.isScopeSingleton = true;
 
 /**
  * @description
