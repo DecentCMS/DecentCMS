@@ -1,0 +1,19 @@
+{
+  "name": "decent-core-dependency-injection",
+  "friendlyName": "Dependency Injection",
+  "version": "0.0.0",
+  "description": "Dependency injection library for DecentCMS, with scope management",
+  "main": "./index",
+  "scripts": {
+    "test": "./test/index"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "dependencies": {
+    "decent-core-localization": "*"
+  },
+  "devDependencies": {
+    "chai": "^1.9.2",
+    "mocha": "^2.0.1"
+  }
+}
