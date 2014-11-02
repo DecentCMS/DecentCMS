@@ -2,6 +2,7 @@
 'use strict';
 
 // TODO: Enable shells to be restarted.
+// TODO: Move module loading and service discovery into a separate service, so that shell can deal purely with handling requests.
 // TODO: Build file monitoring events so code that caches parsed files can expire and re-parse entries on-the-fly. Make sure that this can be done as an optional feature.
 
 var EventEmitter = require('events').EventEmitter;
