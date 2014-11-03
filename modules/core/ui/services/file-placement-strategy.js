@@ -25,11 +25,11 @@ var FilePlacementStrategy = {
   service: 'placement-strategy',
   feature: 'file-placement-strategy',
   dependencies: ['decent-core-io'],
-  init: function(shell) {
-    var shapeHelper = shell.require('shape');
-    var placement = shell.placement = {};
-    var placementHandlers = shell.placementHandlers = [];
-    var fileResolution = shell.require('file-resolution');
+  init: function(scope) {
+    var shapeHelper = scope.require('shape');
+    var placement = scope.placement = {};
+    var placementHandlers = scope.placementHandlers = [];
+    var fileResolution = scope.require('file-resolution');
     var placementFiles = fileResolution.all(/placement\.(json|js)/);
     placementFiles.reverse();
     for (var i = 0; i < placementFiles.length; i++) {
@@ -81,12 +81,12 @@ var FilePlacementStrategy = {
       }
     }
 
-    shell.on('decent.core.shape.placement', function (payload) {
+    scope.on('decent.core.shape.placement', function (payload) {
       var rootShape = payload.shape;
       var shapes = payload.shapes;
       // Handlers have the priority on placing shapes
       for (var i = 0; i < placementHandlers.length; i++) {
-        placementHandlers[i](shell, rootShape, shapes);
+        placementHandlers[i](scope, rootShape, shapes);
       }
       for (i = 0; i < shapes.length; i++) {
         var shape = shapes[i];

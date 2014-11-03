@@ -15,7 +15,7 @@
 var ShapeItemPromiseHandler = {
   feature: 'shape',
   on: {
-    'decent.core.handle-item': function (shell, options) {
+    'decent.core.handle-item': function (scope, options) {
       var itemShape = options.shape;
       var shapeMeta = itemShape.meta;
       if (!shapeMeta || shapeMeta.type !== 'shape-item-promise') return;
@@ -29,14 +29,14 @@ var ShapeItemPromiseHandler = {
       shapeTemp.item = item;
       shapeTemp.shapes = [];
       // Part handlers will fill the shapes array
-      shell.emit('decent.core.handle-item', {
+      scope.emit('decent.core.handle-item', {
         shape: itemShape,
         renderStream: renderer
       });
       var shapes = shapeTemp.shapes;
       delete shapeTemp.shapes;
       // Dispatch the shapes array using placement
-      shell.emit('decent.core.shape.placement', {
+      scope.emit('decent.core.shape.placement', {
         shape: itemShape,
         shapes: shapes
       });

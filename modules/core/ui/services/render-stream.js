@@ -13,15 +13,15 @@ util.inherits(RenderStream, Transform);
 /**
  * @description
  * A transform stream for rendering shapes.
- * @param shell
+ * @param scope
  * @param [options.contentManager]
  * @constructor
  */
-function RenderStream(shell, options) {
+function RenderStream(scope, options) {
   Transform.call(this, {
     objectMode: true
   });
-  this.shell = shell;
+  this.scope = scope;
   this.scripts = [];
   this.stylesheets = [];
   this.meta = [];

@@ -12,14 +12,14 @@
 var ZoneHandler = {
   feature: 'zone-handler',
   on: {
-    'decent.core.handle-item': function(shell, options) {
+    'decent.core.handle-item': function(scope, options) {
       var zone = options.shape;
       if (!zone.meta || !zone.temp) return;
 
       var items = zone.temp.items;
       if (items) {
         for (var i = 0; i < items.length; i++) {
-          shell.emit('decent.core.handle-item', {
+          scope.emit('decent.core.handle-item', {
             shape: items[i],
             renderStream: options.renderStream
           });
@@ -28,7 +28,7 @@ var ZoneHandler = {
       var zones = zone.temp.zones;
       if (zones) {
         for (var zoneName in zones) {
-          shell.emit('decent.core.handle-item', {
+          scope.emit('decent.core.handle-item', {
             shape: zones[zoneName],
             renderStream: options.renderStream
           });
