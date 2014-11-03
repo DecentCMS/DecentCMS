@@ -2,12 +2,14 @@
 'use strict';
 
 module.exports = function layoutTemplate(layout, renderer, shell) {
+  renderer.addMeta('generator', 'DecentCMS');
   renderer.writeLine('<!DOCTYPE html>');
   renderer.writeLine('<html>');
   renderer.writeLine('<head>');
   renderer.write('  <title>');
   renderer.writeEncoded(renderer.title);
   renderer.writeLine('</title>');
+  renderer.renderMeta();
   // TODO: render scripts and stylesheets
   renderer.writeLine('</head><body>');
   if (layout.main) {
