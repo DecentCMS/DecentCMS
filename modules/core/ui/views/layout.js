@@ -2,11 +2,14 @@
 'use strict';
 
 module.exports = function layoutTemplate(layout, renderer, shell) {
-  renderer.write('<html><head><title>');
+  renderer.writeLine('<!DOCTYPE html>');
+  renderer.writeLine('<html>');
+  renderer.writeLine('<head>');
+  renderer.write('  <title>');
   renderer.writeEncoded(renderer.title);
-  renderer.write('</title>');
+  renderer.writeLine('</title>');
   // TODO: render scripts and stylesheets
-  renderer.write('</head><body>');
+  renderer.writeLine('</head><body>');
   if (layout.main) {
     shell.emit('decent.core.shape.render', {
       shape: layout.main,

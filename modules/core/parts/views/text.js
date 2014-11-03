@@ -5,7 +5,7 @@ var html = require('htmlencode');
 module.exports = function textTemplate(textPart, renderer, shell) {
   switch(textPart.flavor) {
     case 'plain-text':
-      var html = html.htmlEncode(textPart.text).replace('\n', '<br/>\n');
+      var html = html.htmlEncode(textPart.text).replace('\r\n', '<br/>\r\n');
       renderer.write(html);
       break;
     case 'html':

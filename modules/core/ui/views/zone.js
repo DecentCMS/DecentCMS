@@ -10,7 +10,7 @@ module.exports = function zoneTemplate(zone, renderer, shell) {
         shape: items[i],
         renderStream: renderer
       });
-      renderer.write('\n');
+      renderer.writeLine();
     }
   }
   var zones = zone.temp.zones;
@@ -20,7 +20,7 @@ module.exports = function zoneTemplate(zone, renderer, shell) {
         shape: zones[zoneName],
         renderStream: renderer
       });
-      renderer.write('\n');
+      renderer.writeLine();
     }
   }
 };

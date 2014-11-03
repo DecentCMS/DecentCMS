@@ -4,5 +4,5 @@
 module.exports = function titleTemplate(title, renderer, shell) {
   renderer.write('<h1>');
   renderer.writeEncoded(title.text);
-  renderer.write('</h1>');
+  renderer.writeLine('</h1>');
 };

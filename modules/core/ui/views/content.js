@@ -10,7 +10,7 @@ module.exports = function layoutTemplate(content, renderer, shell) {
       shape: content.header,
       renderStream: renderer
     });
-    renderer.write('</header>');
+    renderer.writeLine('</header>');
   }
   if (content.main) {
     shell.emit('decent.core.shape.render', {
@@ -24,7 +24,7 @@ module.exports = function layoutTemplate(content, renderer, shell) {
       shape: content.footer,
       renderStream: renderer
     });
-    renderer.write('</footer>');
+    renderer.writeLine('</footer>');
   }
-  renderer.write('</article>');
+  renderer.writeLine('</article>');
 };

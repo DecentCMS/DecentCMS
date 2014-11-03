@@ -40,6 +40,16 @@ RenderStream.prototype.writeEncoded = function(text) {
   this.write(html.htmlEncode(text));
 };
 
+RenderStream.prototype.writeLine = function(text) {
+  if (text) {this.write(text);}
+  this.write('\r\n');
+}
+
+RenderStream.prototype.writeEncodedLine = function(text) {
+  if (text) {this.writeEncoded(text);}
+  this.write('\r\n');
+}
+
 // TODO: script, stylesheet registering API
 
 // TODO: add API to render a shape, that internally triggers the rendering event
