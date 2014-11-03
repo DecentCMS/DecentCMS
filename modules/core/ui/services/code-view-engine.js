@@ -10,7 +10,7 @@
 var CodeViewEngine = {
   service: 'view-engine',
   feature: 'code-view-engine',
-  extension: "js",
+  extension: 'js',
   /**
    * @description
    * Loads the rendering function from the provided path.
