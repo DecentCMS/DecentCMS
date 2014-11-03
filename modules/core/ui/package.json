@@ -26,6 +26,10 @@
     "template-rendering-strategy": {
       "name": "Template Rendering Strategy",
       "description": "Renders shapes using template files."
+    },
+    "default-theme-selector": {
+      "name": "Default Theme Selector",
+      "description": "Selects the theme that is configured in the tenant settings"
     }
   },
   "main": "./index.js",

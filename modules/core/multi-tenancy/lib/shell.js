@@ -31,6 +31,7 @@ var t = require('decent-core-localization').t;
  * @param {Array}   [options.features]     The list of enabled feature names on this tenant.
  * @param {Object}  [options.services]     The enabled services keyed by service name.
  * @param {Object}  [options.types]        The list of content types for this tenant.
+ * @param {string}  [options.theme]        The theme to use on this tenant.
  * @param {Boolean} [options.active]       True if the tenant is active.
  */
 function Shell(options) {
@@ -48,6 +49,7 @@ function Shell(options) {
   this.availableModules = options.availableModules || {};
   this.services = options.services || {};
   this.types = options.types || {};
+  this.theme = options.theme;
   this.active = !(options.active === false);
   this.serviceManifests = {};
   this.moduleManifests = {};
@@ -246,7 +248,7 @@ Shell.prototype.loadModule = function(moduleName) {
     console.log(t('Loaded service %s from %s', serviceName, servicePath));
   }
   // Only add to the modules collection if it has enabled services
-  if (anyEnabledService) {
+  if (anyEnabledService || manifest.theme) {
     self.modules.push(moduleName);
   }
 };

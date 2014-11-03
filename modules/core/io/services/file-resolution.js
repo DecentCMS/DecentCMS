@@ -12,15 +12,35 @@ var path = require('path');
  * have the file, but a service in module 2 depends on module 1,
  * then the path of the file in module 2 is returned.
  *
- * @param {Shell} shell the shell
+ * @param {object} scope the scope
  * @constructor
  */
-var FileResolution = function(shell) {
-  this.shell = shell;
-  this.shell.resolvedFiles = this.shell.resolvedFiles || {};
-  this.shell.resolvedFilesAll = this.shell.resolvedFilesAll || {};
+function FileResolution(scope) {
+  this.scope = scope;
+  var parent = this.shell = (scope.require ? scope.require('shell') : scope) || scope;
+  parent.resolvedFiles = parent.resolvedFiles || {};
+  parent.resolvedFilesAll = parent.resolvedFilesAll || {};
+  // Determine up-front what themes should be active in this scope,
+  // and build the list of module paths.
+  var modules = parent.modules;
+  var modulePaths = this.modulePaths = [];
+  if (modules.length !== 0) {
+    var moduleManifests = parent.moduleManifests;
+    var themeSelectors = scope.getServices ? scope.getServices('theme-selector') : [];
+    modules.forEach(function isThemeActive(p) {
+      var moduleManifest = moduleManifests[p];
+      // If this is a theme, check that it should be active
+      if (!moduleManifest.theme
+        || themeSelectors.some(function checkThemeSelector(themeSelector) {
+          return themeSelector.isThemeActive(moduleManifest);
+        })) {
+        modulePaths.push(moduleManifest.physicalPath);
+      }
+    });
+    modulePaths.reverse();
+  }
 };
-FileResolution.feature = "file-resolution";
+FileResolution.feature = 'file-resolution';
 FileResolution.isScopeSingleton = true;
 
 /**
@@ -57,18 +77,16 @@ FileResolution.prototype.getCacheKey = function(pathTokens) {
  */
 FileResolution.prototype.resolve = function(fileName) {
   // TODO: make this async
+  var shell = this.shell;
   // Lookup the cache
   var filePath = this.getCacheKey(Array.prototype.slice.call(arguments, 0));
-  var resolvedFiles = this.shell.resolvedFiles;
+  var resolvedFiles = shell.resolvedFiles;
   if (filePath in resolvedFiles) {
     return resolvedFiles[filePath];
   }
   // No hit, loop over the path tokens
-  var modules = this.shell.modules;
-  var moduleManifests = this.shell.moduleManifests;
-  if (modules.length === 0) return resolvedFiles[filePath] = null;
-  var paths = modules.map(function(p) {return moduleManifests[p].physicalPath;});
-  paths.reverse();
+  var paths = this.modulePaths;
+  if (paths.length === 0) return resolvedFiles[filePath] = null;
   for (var i = 0; i < arguments.length; i++) {
     if (paths.length == 0) return resolvedFiles[filePath] = null;
     var nextPaths = [];
@@ -121,15 +139,10 @@ FileResolution.prototype.all = function(fileName) {
   }
   // No hit, loop over the path tokens
   var results = [];
-  var shell = this.shell;
-  var modules = shell.modules;
-  if (modules.length === 0) return resolvedFiles[filePath] = null;
-  var paths = modules.map(function(p) {
-    return shell.moduleManifests[p].physicalPath;
-  });
-  paths.reverse();
+  var paths = this.modulePaths;
+  if (paths.length === 0) return resolvedFilesAll[filePath] = null;
   for (var i = 0; i < arguments.length; i++) {
-    if (paths.length == 0) return resolvedFiles[filePath] = null;
+    if (paths.length == 0) return resolvedFilesAll[filePath] = null;
     var nextPaths = [];
     var pathToken = arguments[i];
     if (pathToken instanceof RegExp) {
