@@ -1,5 +1,5 @@
 {
-  "name": "file-content-store",
+  "name": "decent-core-file-content-store",
   "friendlyName": "File Content Store",
   "version": "0.0.0",
   "description": "A content store for DecentCMS that relies on JSON files in the file system.",
