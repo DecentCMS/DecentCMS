@@ -4,7 +4,7 @@
 /**
  * @description
  * Markdown text field flavor
- * @param shell
+ * @param scope
  * @param options
  * @param {boolean} [options.gfm] Enable GitHub-flavored Markdown.
  * @param {boolean} [options.tables] Enable GFM tables.
@@ -15,8 +15,8 @@
  * @param {boolean} [options.smartyPants] Use smart typographic punctuation.
  * @constructor
  */
-function MarkdownFlavor(shell, options) {
-  this.shell = shell;
+function MarkdownFlavor(scope, options) {
+  this.scope = scope;
   this.marked = require('marked');
   this.marked.setOptions(options);
 }
