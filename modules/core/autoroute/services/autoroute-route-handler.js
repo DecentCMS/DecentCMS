@@ -15,12 +15,12 @@ var AutorouteRouteHandler = {
   on: {
     'decent.express.register-middleware': function(shell, expressApp) {
       expressApp.register(AutorouteRouteHandler.priority, function (app) {
-        app.get('*', function (req, res, next) {
-          var contentManager = req.contentManager;
+        app.get('*', function (request) {
+          var contentManager = request.contentManager;
           if (!contentManager) return;
           contentManager.promiseToRender({
-            req: req,
-            id: req.path,
+            req: request,
+            id: request.path,
             displayType: 'main'
           });
         });
