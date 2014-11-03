@@ -7,14 +7,14 @@
  * @description
  * String token interpolation service for DecentCMS.
  *
- * @param {Shell} shell The DecentCMS shell.
+ * @param {Shell} scope
  * @constructor
  */
-var Token = function(shell) {
-  this.shell = shell;
+var Token = function(scope) {
+  this.scope = scope;
   this.Mark = require('markup-js');
   this.pipes = this.Mark.pipes;
-  this.shell.emit(Token.registerPipesEvent, this.pipes);
+  scope.emit(Token.registerPipesEvent, this.pipes);
 };
 Token.feature = 'tokens';
 

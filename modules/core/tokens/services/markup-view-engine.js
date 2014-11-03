@@ -7,11 +7,11 @@ var fs = require('fs');
  * A view engine using the Token API, which uses Markup.js.
  * See https://github.com/adammark/Markup.js/ for details about
  * Markup.js.
- * @param {Shell} shell
+ * @param {Shell} scope
  * @constructor
  */
-var MarkupViewEngine = function(shell) {
-  this.shell = shell;
+var MarkupViewEngine = function(scope) {
+  this.scope = scope;
 };
 MarkupViewEngine.service = 'view-engine';
 MarkupViewEngine.feature = 'markup-view-engine';
@@ -36,7 +36,7 @@ MarkupViewEngine.prototype.load = function (templatePath) {
  * @returns {Function} The template function.
  */
 MarkupViewEngine.prototype.compile = function (template) {
-  var token = this.shell.require('token');
+  var token = this.scope.require('token');
   return function (shape) {
     return token.interpolate(template, shape);
   };
