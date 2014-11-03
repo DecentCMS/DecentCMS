@@ -185,10 +185,15 @@ Shell.prototype.disable = function() {
  */
 Shell.prototype.load = function() {
   if (this.loaded || !this.availableModules) return;
-  scope(this);
+  // Load services from each available module
   for (var moduleName in this.availableModules) {
     this.loadModule(moduleName);
   }
+  // The shell exposes itself as a service
+  this.services.shell = [this];
+  // Make this a scope
+  scope('shell', this);
+  // Mark the shell as loaded
   this.loaded = true;
 };
 
@@ -203,7 +208,9 @@ Shell.prototype.load = function() {
 Shell.prototype.loadModule = function(moduleName) {
   var self = this;
   var manifest = self.availableModules[moduleName];
+  // Skip if the module is already loaded
   if (self.moduleManifests[moduleName]) return;
+  // Store the manifest, which also flags this module as loaded
   self.moduleManifests[moduleName] = manifest;
   var features = self.features;
   var services = manifest.services;
@@ -212,15 +219,19 @@ Shell.prototype.loadModule = function(moduleName) {
   for (var serviceName in services) {
     var service = services[serviceName];
     var serviceFeature = service.feature;
+    // Skip if that service is not enabled
     if (serviceFeature && features.indexOf(serviceFeature) === -1) continue;
     var servicePath = path.resolve(manifest.physicalPath, service.path + ".js");
+    // Skip if that service is already loaded
     if (self.serviceManifests[servicePath]) continue;
+    // Dependencies must be loaded first
     var dependencies = service.dependencies;
     if (dependencies) {
       dependencies.forEach(function (dependencyPath) {
         self.loadModule(dependencyPath);
       });
     }
+    // Services are obtained through require
     var ServiceClass = moduleServiceClasses[serviceName] = require(servicePath);
     if (!self.services[serviceName]) {
       self.services[serviceName] = [ServiceClass];
@@ -228,42 +239,15 @@ Shell.prototype.loadModule = function(moduleName) {
     else {
       self.services[serviceName].push(ServiceClass);
     }
+    // Store the manifest on the service class, for reflection, and easy reading of settings
     ServiceClass.manifest = service;
     self.serviceManifests[servicePath] = service;
-  }
-  for (serviceName in services) {
-    ServiceClass = moduleServiceClasses[serviceName];
-    if (!ServiceClass) continue;
-    self.initializeService(ServiceClass);
     anyEnabledService = true;
     console.log(t('Loaded service %s from %s', serviceName, servicePath));
   }
+  // Only add to the modules collection if it has enabled services
   if (anyEnabledService) {
     self.modules.push(moduleName);
-  }
-};
-
-/**
- * @description
- * Initializes a service by calling its init method, and wiring up
- * its static events.
- * @param ServiceClass
- */
-Shell.prototype.initializeService = function(ServiceClass) {
-  if (!ServiceClass) return;
-  var self = this;
-  if (ServiceClass.init) {
-    ServiceClass.init(self);
-  }
-  // Wire up declared static event handlers
-  if (ServiceClass.on) {
-    for (var eventName in ServiceClass.on) {
-      (function(ServiceClass, eventName) {
-        self.on(eventName, function (payload) {
-          ServiceClass.on[eventName](self, payload);
-        });
-      })(ServiceClass, eventName);
-    }
   }
 };
 
@@ -284,11 +268,14 @@ Shell.prototype.initializeService = function(ServiceClass) {
 Shell.prototype.handleRequest = function(request, response) {
   var self = this;
   request.startTime = new Date();
+  // Most events use the same payload structure
   var payload = {
     shell: self,
     request: request,
     response: response
   };
+  // Mix-in scope into request
+  scope('request', request, self.services);
   // Let services register themselves with the request
   self.emit(Shell.startRequestEvent, payload);
   // Does anyone want to handle this?
@@ -306,6 +293,7 @@ Shell.prototype.handleRequest = function(request, response) {
       self.emit(Shell.renderPageEvent, payload);
       // Tear down
       self.emit(Shell.endRequestEvent, payload);
+      request.tearDown();
       response.end('');
     }
   });

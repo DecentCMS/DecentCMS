@@ -8,23 +8,25 @@ var t = require('decent-core-localization').t;
  * The ContentManager is responsible for the content retrieval and rendering lifecycle.
  * It also exposes APIs that facilitate the usage of content items, content parts, and
  * content types.
- * @param {Shell} shell
+ * @param {object} scope
  * @constructor
  */
-function ContentManager(shell) {
-  this.shell = shell;
+function ContentManager(scope) {
+  this.scope = scope;
   this.items = {};
   this.itemsToFetch = {};
   this.shapes = [];
 }
 ContentManager.feature = 'content-manager';
+ContentManager.scope = 'shell';
+ContentManager.isStatic = true;
 
 ContentManager.on = {
-  'decent-core-shell-start-request': function(shell, payload) {
+  'decent-core-shell-start-request': function(scope, payload) {
     // Create a content manager for the duration of the request.
-    payload.request.contentManager = new ContentManager(shell);
+    payload.request.contentManager = new ContentManager(scope);
   },
-  'decent.core.shell.fetch-content': function(shell, payload) {
+  'decent.core.shell.fetch-content': function(scope, payload) {
     if (!payload.request) return;
     // Find the content manager for the current request
     var contentManager = payload.request.contentManager;
@@ -32,7 +34,7 @@ ContentManager.on = {
     // Use it to fetch items from the content store
     contentManager.fetchItems(payload);
   },
-  'decent.core.shell.render-page': function(shell, payload) {
+  'decent.core.shell.render-page': function(scope, payload) {
     if (!payload.request) return;
     // Find the content manager for the current request
     var contentManager = payload.request.contentManager;
@@ -40,7 +42,7 @@ ContentManager.on = {
     // Use it to build the rendered page
     contentManager.buildRenderedPage(payload);
   },
-  'decent-core-shell-end-request': function(shell, payload) {
+  'decent-core-shell-end-request': function(scope, payload) {
     var request = payload.request;
     if (!request) return;
     var contentManager = request.contentManager;
@@ -122,7 +124,7 @@ ContentManager.prototype.fetchItems = function(payload) {
     }
   }
   // Now broadcast the list for content stores to do their job
-  self.shell.emit(ContentManager.loadItemsEvent, {
+  payload.request.emit(ContentManager.loadItemsEvent, {
     items: self.items,
     itemsToFetch: self.itemsToFetch,
     callback: function() {
@@ -203,30 +205,30 @@ ContentManager.prototype.buildRenderedPage = function(payload) {
   var shapes = request.shapes;
   var layout = request.layout = {meta: {type: 'layout'}};
   // Build the shape tree through placement strategies
-  this.shell.emit(ContentManager.placementEvent, {
+  request.emit(ContentManager.placementEvent, {
     shape: layout,
     shapes: shapes
   });
   // Render the shape tree
-  var renderStream = this.shell.require('render-stream', {contentManager: this});
+  var renderStream = request.require('render-stream', {contentManager: this});
   // TODO: add filters, that are just additional pipes before res.
   renderStream.on('data', function(data) {
     response.write(data);
   });
   // TODO: enable handlers to do async
   // Let handlers manipulate items and shapes
-  this.shell.emit(ContentManager.handleItemEvent, {
+  request.emit(ContentManager.handleItemEvent, {
     shape: layout,
     renderStream: renderStream
   });
   // Render
-  this.shell.emit(ContentManager.renderShapeEvent, {
+  request.emit(ContentManager.renderShapeEvent, {
     shape: layout,
     renderStream: renderStream
   });
   // Tear down
   renderStream.end();
-  console.log(t('%s handled %s in %s ms.', this.shell.name, request.url, new Date() - request.startTime));
+  console.log(t('%s handled %s in %s ms.', this.scope.name, request.url, new Date() - request.startTime));
 };
 
 /**
@@ -239,8 +241,8 @@ ContentManager.prototype.getType = function(item) {
   var typeName, type;
   if (!item.meta
     || !(typeName = item.meta.type)
-    || !this.shell.types
-    || !(type = this.shell.types[typeName])) return null;
+    || !this.scope.types
+    || !(type = this.scope.types[typeName])) return null;
   return type;
 };
 
@@ -264,7 +266,6 @@ ContentManager.prototype.getParts = function(item, partTypeName) {
 }
 
 // TODO: make event names consistent everywhere
-// TODO: don't use the shell as a universal event bus. Instead, make ContentManager and others EventEmitters
 // TODO: finish documenting emitted events
 
 /**

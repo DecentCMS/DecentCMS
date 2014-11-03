@@ -23,6 +23,7 @@
  */
 var FilePlacementStrategy = {
   service: 'placement-strategy',
+  scope: 'request',
   feature: 'file-placement-strategy',
   dependencies: ['decent-core-io'],
   init: function(scope) {

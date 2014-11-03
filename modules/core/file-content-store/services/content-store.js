@@ -12,9 +12,11 @@ var async = require('async');
  */
 var FileContentStore = {
   feature: 'file-content-store',
+  scope: 'request',
   on: {
-    'decent.core.load-items': function (shell, payload) {
-      var shapeHelper = shell.require('shape');
+    'decent.core.load-items': function (scope, payload) {
+      var shapeHelper = scope.require('shape');
+      var shell = scope.require('shell');
 
       var items = payload.items;
       var itemsToFetch = payload.itemsToFetch;

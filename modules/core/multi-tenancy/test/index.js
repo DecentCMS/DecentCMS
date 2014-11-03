@@ -13,7 +13,7 @@ var Shell = require('../lib/shell');
 var serviceClassFactory = function(index) {
   var i = index;
   var ctor = function(shell) {
-    this.shell = shell;
+    this.scope = shell;
     this.what = 'instance of service ' + i;
   };
   ctor['@noCallThru'] = true;
@@ -255,9 +255,9 @@ describe('Shell', function() {
 
     it('can construct new instances of classes', function() {
       var SomeClass = function(shell) {
-        this.shell = shell;
+        this.scope = shell;
       };
-      var shell = scope(new Shell(), {
+      var shell = scope('', new Shell(), {
         service: [SomeClass]
       });
       var instance1 = shell.require('service');
@@ -273,10 +273,10 @@ describe('Shell', function() {
 
     it('always constructs the same shell singletons', function() {
       var SomeClass = function(shell) {
-        this.shell = shell;
+        this.scope = shell;
       };
       SomeClass.isScopeSingleton = true;
-      var shell = scope(new Shell(), {
+      var shell = scope('', new Shell(), {
         service: [SomeClass]
       });
       var instance1 = shell.require('service');
@@ -290,11 +290,11 @@ describe('Shell', function() {
 
     it('constructs one shell singleton instance per scope', function() {
       var SomeClass = function(shell) {
-        this.shell = shell;
+        this.scope = shell;
       };
       SomeClass.isScopeSingleton = true;
-      var shell1 = scope(new Shell(), {service: [SomeClass]});
-      var shell2 = scope(new Shell(), {service: [SomeClass]});
+      var shell1 = scope('', new Shell(), {service: [SomeClass]});
+      var shell2 = scope('', new Shell(), {service: [SomeClass]});
       var instance1 = shell1.require('service');
       var instance2 = shell2.require('service');
 
@@ -310,7 +310,7 @@ describe('Shell', function() {
         called = true;
       };
       SomeClass.isStatic = true;
-      var shell = scope(new Shell(), {service: [SomeClass]});
+      var shell = scope('', new Shell(), {service: [SomeClass]});
       var instance1 = shell.require('service');
       var instance2 = shell.require('service');
 
@@ -323,7 +323,7 @@ describe('Shell', function() {
 
     it('considers non-functions as static services', function() {
       var SomeStaticService = {};
-      var shell = scope(new Shell(), {service: [SomeStaticService]});
+      var shell = scope('', new Shell(), {service: [SomeStaticService]});
       var instance1 = shell.require('service');
       var instance2 = shell.require('service');
 
@@ -354,7 +354,7 @@ describe('Shell', function() {
           }
         }
       });
-      scope(shell);
+      scope('', shell);
       shell.loadModule('module 1');
 
       expect(shell.services)
@@ -427,7 +427,7 @@ describe('Shell', function() {
           }
         }
       });
-      scope(shell);
+      scope('', shell);
       shell.loadModule('module 1');
 
       var serviceInstance1 = shell.require('service1');
@@ -612,12 +612,13 @@ describe('Shell', function() {
         }
       });
       shell.loadModule('module 1');
+      scope('', shell);
 
       expect(initialized).to.be.ok;
     });
 
     it('will wire up static service events', function() {
-      var ServiceClass = function(shell) {this.shell = shell;};
+      var ServiceClass = function(shell) {this.scope = shell;};
       var log = [];
       ServiceClass.on = {
         'an-event': function(shell, payload) {
@@ -645,6 +646,7 @@ describe('Shell', function() {
         }
       });
       shell.loadModule('module');
+      scope('', shell);
 
       var payload = 'emitting event...';
       shell.emit('an-event', payload);
@@ -658,7 +660,7 @@ describe('Shell', function() {
       var ServiceClass = function(shell, options) {
         this.options = options;
       }
-      var shell = scope(new Shell(), {service: [ServiceClass]});
+      var shell = scope('', new Shell(), {service: [ServiceClass]});
       var instance = shell.require('service', options);
 
       expect(instance.options)
@@ -670,7 +672,7 @@ describe('Shell', function() {
       var ServiceClass = function(shell, options) {
         this.options = options;
       }
-      var shell = scope(new Shell({services: {service: [ServiceClass]}}));
+      var shell = scope('', new Shell({services: {service: [ServiceClass]}}));
       var instance = shell.require('service', options);
 
       expect(instance.options)
@@ -682,7 +684,7 @@ describe('Shell', function() {
       var ServiceClass = function(shell, options) {
         this.options = options;
       }
-      var shell = scope(new Shell({services: {service: [ServiceClass]}}));
+      var shell = scope('', new Shell({services: {service: [ServiceClass]}}));
       var instances = shell.getServices('service', options);
 
       expect(instances[0].options)
@@ -690,7 +692,7 @@ describe('Shell', function() {
     });
 
     it('will return an empty array when getting a service that doesn\'t exist', function() {
-      var shell = scope(new Shell({services: {}}));
+      var shell = scope('', new Shell({services: {}}));
       var instances = shell.getServices('service');
 
       expect(instances)

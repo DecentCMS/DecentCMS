@@ -14,6 +14,7 @@
  */
 var ShapeItemPromiseHandler = {
   feature: 'shape',
+  scope: 'request',
   on: {
     'decent.core.handle-item': function (scope, options) {
       var itemShape = options.shape;

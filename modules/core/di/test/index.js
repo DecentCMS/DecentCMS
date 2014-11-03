@@ -6,7 +6,7 @@ var scope = require('../lib/scope');
 describe('scope', function() {
   it('adds require and getServices methods', function() {
     var scoped = {};
-    scope(scoped);
+    scope('', scoped);
 
     expect(scoped)
       .to.respondTo('require')
@@ -15,14 +15,14 @@ describe('scope', function() {
 
   it('returns the scoped object', function() {
     var theObject = {};
-    var scoped = scope(theObject);
+    var scoped = scope('', theObject);
 
     expect(theObject).to.equal(scoped);
   });
 
   it('retrieves service instances', function() {
     function ServiceClass() {}
-    var scoped = scope({}, {
+    var scoped = scope('', {}, {
       service: [ServiceClass]
     });
 
@@ -34,7 +34,7 @@ describe('scope', function() {
 
   it('retrieves a different instance every time require is called', function() {
     function ServiceClass() {}
-    var scoped = scope({}, {
+    var scoped = scope('', {}, {
       service: [ServiceClass]
     });
 
@@ -52,7 +52,7 @@ describe('scope', function() {
   it('retrieves the same singleton instance every time require is called', function() {
     function ServiceClass() {}
     ServiceClass.isScopeSingleton = true;
-    var scoped = scope({}, {
+    var scoped = scope('', {}, {
       service: [ServiceClass]
     });
 
@@ -67,10 +67,10 @@ describe('scope', function() {
   it('retrieves different singleton instances from different scopes', function() {
     function ServiceClass() {}
     ServiceClass.isScopeSingleton = true;
-    var scoped1 = scope({}, {
+    var scoped1 = scope('', {}, {
       service: [ServiceClass]
     });
-    var scoped2 = scope({}, {
+    var scoped2 = scope('', {}, {
       service: [ServiceClass]
     });
 
@@ -84,7 +84,7 @@ describe('scope', function() {
   it('returns the last service from require', function() {
     function ServiceClass1() {}
     function ServiceClass2() {}
-    var scoped = scope({}, {
+    var scoped = scope('', {}, {
       service: [ServiceClass1, ServiceClass2]
     });
 
@@ -97,7 +97,7 @@ describe('scope', function() {
   it('returns all services from getServices', function() {
     function ServiceClass1() {}
     function ServiceClass2() {}
-    var scoped = scope({}, {
+    var scoped = scope('', {}, {
       service: [ServiceClass1, ServiceClass2]
     });
 
@@ -113,7 +113,7 @@ describe('scope', function() {
   it('returns new instances of services every time from getServices', function() {
     function ServiceClass1() {}
     function ServiceClass2() {}
-    var scoped = scope({}, {
+    var scoped = scope('', {}, {
       service: [ServiceClass1, ServiceClass2]
     });
 
@@ -131,7 +131,7 @@ describe('scope', function() {
     ServiceClass1.isScopeSingleton = true;
     function ServiceClass2() {}
     ServiceClass2.isScopeSingleton = true;
-    var scoped = scope({}, {
+    var scoped = scope('', {}, {
       service: [ServiceClass1, ServiceClass2]
     });
 
@@ -150,7 +150,7 @@ describe('scope', function() {
     var StaticService1 = function() {};
     StaticService1.isStatic = true;
     var StaticService2 = {};
-    var scoped = scope({}, {
+    var scoped = scope('', {}, {
       service: [StaticService1, StaticService2]
     });
 
@@ -170,7 +170,7 @@ describe('scope', function() {
       this.options = options;
     }
     SingletonClass.isScopeSingleton = true;
-    var scoped = scope({}, {
+    var scoped = scope('', {}, {
       service: [ServiceClass],
       singleton: [SingletonClass],
       both: [ServiceClass, SingletonClass]

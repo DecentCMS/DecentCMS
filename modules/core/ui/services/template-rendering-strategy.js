@@ -12,6 +12,7 @@ var path = require('path');
  */
 var TemplateRenderingStrategy = {
   service: 'rendering-strategy',
+  scope: 'request',
   feature: 'template-rendering-strategy',
   dependencies: ['decent-core-io'],
   init: function(scope) {

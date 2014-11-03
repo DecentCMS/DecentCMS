@@ -12,6 +12,7 @@
  */
 var TitlePart = {
   feature: 'core-parts',
+  scope: 'request',
   on: {
     'decent.core.handle-item': function(shell, options) {
       var content = options.shape;

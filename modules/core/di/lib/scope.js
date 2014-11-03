@@ -19,7 +19,7 @@ var t = require('decent-core-localization').t;
 function construct(scope, ServiceClass, options) {
   return ServiceClass ?
       ServiceClass.isStatic || typeof ServiceClass !== 'function' ?
-        ServiceClass : new ServiceClass(scope, options)
+    ServiceClass : new ServiceClass(scope, options)
     : null;
 };
 
@@ -46,18 +46,41 @@ function getSingleton(scope, service, index, options) {
 
 /**
  * @description
+ * Initializes a service by calling its init method, and wiring up
+ * its static events.
+ * @param ServiceClass
+ */
+function initializeService(scope, ServiceClass) {
+  if (!ServiceClass) return;
+  if (ServiceClass.init) {
+    ServiceClass.init(scope);
+  }
+  // Wire up declared static event handlers
+  if (ServiceClass.on) {
+    for (var eventName in ServiceClass.on) {
+      (function(ServiceClass, eventName) {
+        scope.on(eventName, function (payload) {
+          ServiceClass.on[eventName](scope, payload);
+        });
+      })(ServiceClass, eventName);
+    }
+  }
+}
+
+/**
+ * @description
  * Transforms an object into a scope. The role of a scope is to manage the lifecycle
  * of required services. This mixin adds require and getServices method that can be
  * used to get service instances that are scoped to the object, live and die with it.
+ * @param {string} name          The name of the scope.
  * @param {object} objectToScope The object that must be made a scope.
- * @param {object} services A map of the services to be made available from require.
+ * @param {object} services      A map of the services to be made available from require.
  */
-function scope(objectToScope, services) {
-  // TODO: expose hook for object init
-  if (!objectToScope.services && services) {
+function scope(name, objectToScope, services) {
+  // TODO: test object init
+  if (services) {
     objectToScope.services = services;
   }
-  objectToScope.instances = {};
 
   /**
    * @description
@@ -73,9 +96,9 @@ function scope(objectToScope, services) {
    * @param {object} options Options to pass into the service's constructor.
    * @returns {object} An instance of the service, or null if it wasn't found.
    */
-  objectToScope.require = function(service, options) {
+  objectToScope.require = function require(service, options) {
     var services = this.services[service];
-    var ServiceClass = services.length > 0 ?
+    var ServiceClass = services && services.length > 0 ?
       services[services.length - 1] : null;
     if (!ServiceClass) return null;
     if (ServiceClass.isScopeSingleton) {
@@ -95,7 +118,7 @@ function scope(objectToScope, services) {
    * @param {object} options Options to pass into the services' constructors.
    * @returns {Array} An array of instances of the service.
    */
-  objectToScope.getServices = function(service, options) {
+  objectToScope.getServices = function getServices(service, options) {
     var self = this;
     if (!(service in self.services)) return [];
     return self.services[service].map(function(ServiceClass, index) {
@@ -105,6 +128,34 @@ function scope(objectToScope, services) {
       return construct(self, ServiceClass, options);
     });
   };
+
+  /**
+   * @description
+   * Removes all the members that were mixed-in by the original call to scope.
+   */
+  objectToScope.tearDown = function tearDown() {
+    delete this.services;
+    delete this.instances;
+    delete this.require;
+    delete this.getServices;
+    delete this.tearDown;
+  };
+
+  // Initialize services for this scope.
+  if (objectToScope.services) {
+    // Initialize all services except those that are scoped to some other scope
+    for (var serviceName in objectToScope.services) {
+      var serviceClasses = objectToScope.services[serviceName];
+      if (!serviceClasses) continue;
+      for (var i = 0; i < serviceClasses.length; i++) {
+        var ServiceClass = serviceClasses[i];
+        if (!ServiceClass.scope || ServiceClass.scope === name) {
+          initializeService(objectToScope, ServiceClass);
+        }
+      }
+    }
+  }
+  objectToScope.instances = {};
 
   return objectToScope;
 }

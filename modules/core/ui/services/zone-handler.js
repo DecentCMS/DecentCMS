@@ -11,6 +11,7 @@
  */
 var ZoneHandler = {
   feature: 'zone-handler',
+  scope: 'request',
   on: {
     'decent.core.handle-item': function(scope, options) {
       var zone = options.shape;

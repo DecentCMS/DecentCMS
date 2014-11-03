@@ -11,6 +11,7 @@ var ExpressApp = require('../lib/express-app');
  */
 var ExpressRouteHandler = {
   feature: 'express',
+  scope: 'shell',
   init: function (shell) {
     var express = require('express');
     var app = express();

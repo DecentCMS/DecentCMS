@@ -11,10 +11,11 @@
 var AutorouteRouteHandler = {
   feature: 'autoroute',
   dependencies: ['decent-core-express'],
-  priority: 9000,
+  routePriority: 9000,
+  scope: 'shell',
   on: {
     'decent.express.register-middleware': function(shell, expressApp) {
-      expressApp.register(AutorouteRouteHandler.priority, function (app) {
+      expressApp.register(AutorouteRouteHandler.routePriority, function (app) {
         app.get('*', function (request) {
           var contentManager = request.contentManager;
           if (!contentManager) return;

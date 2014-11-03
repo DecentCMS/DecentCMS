@@ -25,7 +25,7 @@ var ExpressApp = function(app) {
  */
 ExpressApp.prototype.register = function(priority, registration) {
   if (this.locked) throw new Error(t('Can\'t register middleware on a locked application.'));
-  registration.priority = priority;
+  registration.routePriority = priority;
   this.registrations.push(registration);
 };
 
@@ -38,7 +38,7 @@ ExpressApp.prototype.lock = function() {
   var self = this;
   self.registrations
     .sort(function (registration) {
-      return registration.priority;
+      return registration.routePriority;
     })
     .forEach(function (registration) {
       registration(self.app);
