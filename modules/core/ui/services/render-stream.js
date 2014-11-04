@@ -2,6 +2,7 @@
 'use strict';
 
 // TODO: morph this so this enables sequential rendering while maintaining asynchronicity.
+// TODO: make this fluent.
 
 var stream = require('stream');
 var Transform = stream.Transform;
@@ -64,6 +65,14 @@ RenderStream.prototype.writeLine = function writeLine(text) {
 RenderStream.prototype.writeEncodedLine = function writeEncodedLine(text) {
   if (text) {this.writeEncoded(text);}
   this.write('\r\n');
+};
+
+/**
+ * @description
+ * Renders a <br/> tag.
+ */
+RenderStream.prototype.br = function br() {
+  this.write('<br/>\r\n');
 };
 
 /**
