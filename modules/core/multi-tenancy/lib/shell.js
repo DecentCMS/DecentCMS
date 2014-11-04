@@ -9,6 +9,7 @@ var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 var path = require('path');
 var fs = require('fs');
+var async = require('async');
 var scope = require('decent-core-dependency-injection').scope;
 var t = require('decent-core-localization').t;
 
@@ -20,19 +21,20 @@ var t = require('decent-core-localization').t;
  * 
  * @constructor
  * @param {Object}  options
- * @param {String}  [options.name]         The name of the tenant.
- * @param {String}  [options.rootPath]     The path to the site's folder.
- * @param {String}  [options.settingsPath] The path to the settings file for this tenant.
- * @param {String}  [options.host]         The host name under which the tenant answers.
- * @param {Number}  [options.port]         The port to which the tenant answers.
- * @param {String}  [options.cert]         The path to the SSL certificate to use with this tenant.
- * @param {String}  [options.key]          The path to the SSL key to use with this tenant.
- * @param {String}  [options.pfx]          The path to the pfx SSL certificate to use with this tenant.
- * @param {Array}   [options.features]     The list of enabled feature names on this tenant.
- * @param {Object}  [options.services]     The enabled services keyed by service name.
- * @param {Object}  [options.types]        The list of content types for this tenant.
- * @param {string}  [options.theme]        The theme to use on this tenant.
- * @param {Boolean} [options.active]       True if the tenant is active.
+ * @param {String}  [options.name]          The name of the tenant.
+ * @param {String}  [options.rootPath]      The path to the site's folder.
+ * @param {String}  [options.settingsPath]  The path to the settings file for this tenant.
+ * @param {String}  [options.host]          The host name under which the tenant answers.
+ * @param {Number}  [options.port]          The port to which the tenant answers.
+ * @param {String}  [options.cert]          The path to the SSL certificate to use with this tenant.
+ * @param {String}  [options.key]           The path to the SSL key to use with this tenant.
+ * @param {String}  [options.pfx]           The path to the pfx SSL certificate to use with this tenant.
+ * @param {Array}   [options.features]      The list of enabled feature names on this tenant.
+ * @param {Object}  [options.services]      The enabled services keyed by service name.
+ * @param {Object}  [options.types]         The list of content types for this tenant.
+ * @param {string}  [options.theme]         The theme to use on this tenant.
+ * @param {Array}   [options.staticFolders] The folder names that can serve static contents.
+ * @param {Boolean} [options.active]        True if the tenant is active.
  */
 function Shell(options) {
   options = options || {};
@@ -50,6 +52,7 @@ function Shell(options) {
   this.services = options.services || {};
   this.types = options.types || {};
   this.theme = options.theme;
+  this.staticFolders = options.staticFolders || [];
   this.active = !(options.active === false);
   this.serviceManifests = {};
   this.moduleManifests = {};
@@ -219,33 +222,39 @@ Shell.prototype.loadModule = function(moduleName) {
   var anyEnabledService;
   var moduleServiceClasses = {};
   for (var serviceName in services) {
-    var service = services[serviceName];
-    var serviceFeature = service.feature;
-    // Skip if that service is not enabled
-    if (serviceFeature && features.indexOf(serviceFeature) === -1) continue;
-    var servicePath = path.resolve(manifest.physicalPath, service.path + ".js");
-    // Skip if that service is already loaded
-    if (self.serviceManifests[servicePath]) continue;
-    // Dependencies must be loaded first
-    var dependencies = service.dependencies;
-    if (dependencies) {
-      dependencies.forEach(function (dependencyPath) {
-        self.loadModule(dependencyPath);
-      });
+    var serviceList = services[serviceName];
+    if (!Array.isArray(serviceList)) {
+      serviceList = [serviceList];
     }
-    // Services are obtained through require
-    var ServiceClass = moduleServiceClasses[serviceName] = require(servicePath);
-    if (!self.services[serviceName]) {
-      self.services[serviceName] = [ServiceClass];
+    for (var i = 0; i < serviceList.length ; i++) {
+      var service = serviceList[i];
+      var serviceFeature = service.feature;
+      // Skip if that service is not enabled
+      if (serviceFeature && features.indexOf(serviceFeature) === -1) continue;
+      var servicePath = path.resolve(manifest.physicalPath, service.path + ".js");
+      // Skip if that service is already loaded
+      if (self.serviceManifests[servicePath]) continue;
+      // Dependencies must be loaded first
+      var dependencies = service.dependencies;
+      if (dependencies) {
+        dependencies.forEach(function (dependencyPath) {
+          self.loadModule(dependencyPath);
+        });
+      }
+      // Services are obtained through require
+      var ServiceClass = moduleServiceClasses[serviceName] = require(servicePath);
+      if (!self.services[serviceName]) {
+        self.services[serviceName] = [ServiceClass];
+      }
+      else {
+        self.services[serviceName].push(ServiceClass);
+      }
+      // Store the manifest on the service class, for reflection, and easy reading of settings
+      ServiceClass.manifest = service;
+      self.serviceManifests[servicePath] = service;
+      anyEnabledService = true;
+      console.log(t('Loaded service %s from %s', serviceName, servicePath));
     }
-    else {
-      self.services[serviceName].push(ServiceClass);
-    }
-    // Store the manifest on the service class, for reflection, and easy reading of settings
-    ServiceClass.manifest = service;
-    self.serviceManifests[servicePath] = service;
-    anyEnabledService = true;
-    console.log(t('Loaded service %s from %s', serviceName, servicePath));
   }
   // Only add to the modules collection if it has enabled services
   if (anyEnabledService || manifest.theme) {
@@ -281,24 +290,38 @@ Shell.prototype.handleRequest = function(request, response) {
   // Let services register themselves with the request
   self.emit(Shell.startRequestEvent, payload);
   // Does anyone want to handle this?
-  self.emit(Shell.handleRouteEvent, payload);
-  self.emit(Shell.fetchContentEvent, {
-    shell: self,
-    request: request,
-    response: response,
-    callback: function(err) {
-      if (err) {
-        self.emit(Shell.renderErrorPage, err);
-        return;
+  var routeHandlers = this.getServices('route-handler')
+    .map(function mapRouteHandlers(routeHandler) {
+      return function(callback) {
+        routeHandler.handle(payload, callback);
       }
-      // Let's render stuff
-      self.emit(Shell.renderPageEvent, payload);
-      // Tear down
-      self.emit(Shell.endRequestEvent, payload);
-      request.tearDown();
-      response.end('');
+    });
+  async.waterfall(
+    routeHandlers,
+    function routeHandledCallback() {
+      // All route handlers have called back, carry on
+      // console.log(t('Route handlers called for %s', request.url));
+      self.emit(Shell.fetchContentEvent, {
+        shell: self,
+        request: request,
+        response: response,
+        callback: function fetchContentDone(err) {
+          // console.log(t('Contents fetched for %s', request.url));
+          if (err) {
+            self.emit(Shell.renderErrorPage, err);
+            return;
+          }
+          // Let's render stuff
+          self.emit(Shell.renderPageEvent, payload);
+          // console.log(t('Page rendered for %s', request.url));
+          // Tear down
+          self.emit(Shell.endRequestEvent, payload);
+          request.tearDown();
+          response.end('');
+        }
+      });
     }
-  });
+  );
 };
 
 /**

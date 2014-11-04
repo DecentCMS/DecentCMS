@@ -43,6 +43,7 @@ ExpressApp.prototype.lock = function() {
     .forEach(function (registration) {
       registration(self.app);
     });
+  console.log(t('Registered Express middleware.'));
   self.locked = true;
 };
 

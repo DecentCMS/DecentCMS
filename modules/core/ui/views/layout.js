@@ -10,7 +10,7 @@ module.exports = function layoutTemplate(layout, renderer, shell) {
   renderer.writeEncoded(renderer.title);
   renderer.writeLine('</title>');
   renderer.renderMeta();
-  // TODO: render scripts and stylesheets
+  renderer.renderStyleSheets();
   renderer.writeLine('</head><body>');
   if (layout.main) {
     shell.emit('decent.core.shape.render', {

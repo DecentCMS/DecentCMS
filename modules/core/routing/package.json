@@ -1,0 +1,31 @@
+{
+  "name": "decent-core-routing",
+  "friendlyName": "Routing",
+  "version": "0.0.0",
+  "description": "Core routes for DecentCMS content items",
+  "features": {
+    "content-route-handler": {
+      "name": "Content Routes",
+      "description": "Token-based route generation for DecentCMS content items",
+      "dependencies": [
+        "decent-core-express"
+      ]
+    },
+    "static-route-handler": {
+      "name": "Static Routes",
+      "description": "Serves static files from a set of folders configured in site settings.",
+      "dependencies": [
+        "decent-core-express"
+      ]
+    }
+  },
+  "main": "./index",
+  "scripts": {
+    "test": "./lib/index"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "dependencies": {
+    "decent-core-localization": "*"
+  }
+}

@@ -134,7 +134,7 @@ ContentManager.prototype.fetchItems = function(payload) {
     }
   });
   // Each handler should have synchronously removed the items it can take care of.
-  if (Object.getOwnPropertyNames(self.items).length > 0) {
+  if (self.items && Object.getOwnPropertyNames(self.items).length > 0) {
     var error = new Error(t('Couldn\'t load items %s', require('util').inspect(self.items)));
     if (callback) callback(error,  self.items);
   }
@@ -166,12 +166,12 @@ ContentManager.prototype.itemsFetchedCallback = function(err, data) {
  * rendering the shape.
  */
 ContentManager.prototype.promiseToRender = function(options) {
-  if (!options.req.shapes) {
-    options.req.shapes = [];
+  if (!options.request.shapes) {
+    options.request.shapes = [];
   }
   if (options.id) {
     this.promiseToGet(options.id);
-    options.req.shapes.push({
+    options.request.shapes.push({
       meta: {
         type: 'shape-item-promise'
       },
@@ -180,9 +180,10 @@ ContentManager.prototype.promiseToRender = function(options) {
       },
       id: options.id
     });
+    // console.log(t('Promised to fetch and render %s', options.id));
   }
   else if (options.shape) {
-    options.req.shapes.push(options.shape);
+    options.request.shapes.push(options.shape);
   }
 };
 

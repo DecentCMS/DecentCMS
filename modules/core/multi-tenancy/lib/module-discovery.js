@@ -60,11 +60,14 @@ function discover() {
                   // TODO: build default feature from module name
                   var serviceFeature = service.feature;
                   var serviceDependencies = service.dependencies;
-                  manifest.services[serviceName] = {
+                  if (!manifest.services[serviceName]) {
+                    manifest.services[serviceName] = [];
+                  }
+                  manifest.services[serviceName].push({
                     path: servicePath,
                     feature: serviceFeature,
                     dependencies: serviceDependencies
-                  };
+                  });
                 }
               }
             }

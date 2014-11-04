@@ -3,7 +3,9 @@
 var expect = require('chai').expect;
 var proxyquire = require('proxyquire');
 var EventEmitter = require('events').EventEmitter;
+var Stream = require('stream');
 var shapeHelper = require('../services/shape');
+var RenderStream = require('../services/render-stream');
 
 describe('Shape', function() {
   var shell = new EventEmitter();
@@ -282,14 +284,14 @@ describe('Zone template', function() {
       }
     };
     var html = [];
-    var renderer = new require('stream').PassThrough();
+    var renderer = new RenderStream({});
     renderer.on('data', function(chunk) {
       html.push(chunk);
     });
     zoneTemplate(zone, renderer, shell);
 
     expect(html.join(''))
-      .to.equal('[shape1]\n[shape2]\n[shape3]\n[shape4]\n');
+      .to.equal('[shape1]\r\n[shape2]\r\n[shape3]\r\n[shape4]\r\n');
   });
 });
 

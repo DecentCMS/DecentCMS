@@ -5,6 +5,7 @@
 // TODO: handling plurals
 // TODO: handling completely custom string selection logic
 // TODO: persist default strings as they are used to the default translation files
+// TODO: make that a service, in order to reduce coupling for all modules that currently require t.
 var format = require('util').format;
 
 /**

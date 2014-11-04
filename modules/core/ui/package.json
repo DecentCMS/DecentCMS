@@ -29,7 +29,7 @@
     },
     "default-theme-selector": {
       "name": "Default Theme Selector",
-      "description": "Selects the theme that is configured in the tenant settings"
+      "description": "Selects the theme that is configured in the tenant settings."
     }
   },
   "main": "./index.js",
@@ -44,6 +44,7 @@
     "proxyquire": "*"
   },
   "dependencies": {
+    "decent-core-localization": "*",
     "htmlencode": "*"
   }
 }

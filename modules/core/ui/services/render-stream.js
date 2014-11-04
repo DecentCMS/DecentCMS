@@ -21,6 +21,7 @@ function RenderStream(scope, options) {
   Transform.call(this, {
     objectMode: true
   });
+  options = options || {};
   this.scope = scope;
   this.scripts = [];
   this.stylesheets = [];
@@ -35,8 +36,6 @@ RenderStream.prototype._transform = function transform(chunk, encoding, next) {
   this.push(chunk);
   next();
 };
-
-// TODO: more html rendering API
 
 /**
  * @description
@@ -123,7 +122,50 @@ RenderStream.prototype.endTag = function endTag() {
   this.write('</' + tagName + '>');
 };
 
-// TODO: script, stylesheet registering API
+// TODO: handle minimized files
+
+/**
+ * @description
+ * Adds a style sheet to the list of style sheets.
+ * The style sheet name will resolve to a file in the theme, or in
+ * modules, under a css folder.
+ * @param {string} name The name of a local style sheet file.
+ */
+RenderStream.prototype.addStyleSheet = function addStyleSheet(name) {
+  var fileResolver = this.scope.require('file-resolution');
+  var fileName = name + '.css';
+  var filePath = fileResolver.resolve('css', fileName);
+  var url = '/css/' + fileName;
+  this.addExternalStyleSheet(url);
+};
+
+/**
+ * @description
+ * Adds an external style sheet to the list of style sheets.
+ * @param {string} url The URL of an external style sheet file.
+ */
+RenderStream.prototype.addExternalStyleSheet = function addExternalStyleSheet(url) {
+  if (!(url in this.stylesheets)) {
+    this.stylesheets.push(url);
+  }
+};
+
+/**
+ * @description
+ * Renders all style sheets that have been registered so far using
+ * addStyleSheet and addExternalStyleSheet.
+ */
+RenderStream.prototype.renderStyleSheets = function renderStyleSheets() {
+  for (var i = 0; i < this.stylesheets.length; i++) {
+    this.write('  ');
+    this.tag('link', {
+      href: this.stylesheets[i],
+      rel: 'stylesheet',
+      type: 'text/css'
+    });
+    this.writeLine();
+  }
+};
 
 /**
  * @description

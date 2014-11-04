@@ -85,6 +85,7 @@ var FilePlacementStrategy = {
     scope.on('decent.core.shape.placement', function (payload) {
       var rootShape = payload.shape;
       var shapes = payload.shapes;
+      if (!shapes) return;
       // Handlers have the priority on placing shapes
       for (var i = 0; i < placementHandlers.length; i++) {
         placementHandlers[i](scope, rootShape, shapes);

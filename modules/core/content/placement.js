@@ -4,6 +4,7 @@
 // By default, display type main goes to the main zone.
 module.exports = function(shell, rootShape, shapes) {
   var shapeHelper = shell.require('shape');
+  if (!shapes) return;
   for (var i = 0; i < shapes.length; i++) {
     var shape = shapes[i];
     var temp = shapeHelper.temp(shape);
