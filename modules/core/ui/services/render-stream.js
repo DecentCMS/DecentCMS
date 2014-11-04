@@ -74,7 +74,7 @@ RenderStream.prototype.writeEncodedLine = function writeEncodedLine(text) {
  * @param {string} [content]    Text content of the tag.
  */
 RenderStream.prototype.tag = function tag(tagName, attributes, content) {
-  if (content) {
+  if (typeof content === 'string') {
     this.startTag(tagName, attributes);
     this.writeEncoded(content);
     this.endTag();
@@ -132,10 +132,7 @@ RenderStream.prototype.endTag = function endTag() {
  * @param {string} name The name of a local style sheet file.
  */
 RenderStream.prototype.addStyleSheet = function addStyleSheet(name) {
-  var fileResolver = this.scope.require('file-resolution');
-  var fileName = name + '.css';
-  var filePath = fileResolver.resolve('css', fileName);
-  var url = '/css/' + fileName;
+  var url = '/css/' + name + '.css';
   this.addExternalStyleSheet(url);
 };
 
@@ -163,6 +160,45 @@ RenderStream.prototype.renderStyleSheets = function renderStyleSheets() {
       rel: 'stylesheet',
       type: 'text/css'
     });
+    this.writeLine();
+  }
+};
+
+/**
+ * @description
+ * Adds a script to the list of scripts.
+ * The script name will resolve to a file in the theme, or in
+ * modules, under a js folder.
+ * @param {string} name The name of a local script file.
+ */
+RenderStream.prototype.addScript = function addScript(name) {
+  var url = '/js/' + name + '.js';
+  this.addExternalScript(url);
+};
+
+/**
+ * @description
+ * Adds an external script to the list of scripts.
+ * @param {string} url The URL of an external script file.
+ */
+RenderStream.prototype.addExternalScript = function addExternalScript(url) {
+  if (!(url in this.scripts)) {
+    this.scripts.push(url);
+  }
+};
+
+/**
+ * @description
+ * Renders all scripts that have been registered so far using
+ * addScript and addExternalScript.
+ */
+RenderStream.prototype.renderScripts = function renderScripts() {
+  for (var i = 0; i < this.scripts.length; i++) {
+    this.write('  ');
+    this.tag('script', {
+      src: this.scripts[i],
+      type: 'text/javascript'
+    }, '');
     this.writeLine();
   }
 };

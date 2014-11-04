@@ -18,5 +18,6 @@ module.exports = function layoutTemplate(layout, renderer, shell) {
       renderStream: renderer
     });
   }
+  renderer.renderScripts();
   renderer.write('</body>');
 };

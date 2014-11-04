@@ -4,6 +4,7 @@
 module.exports = function layoutTemplate(layout, renderer, shell) {
   renderer.addMeta('generator', 'DecentCMS');
   renderer.addStyleSheet('bootstrap');
+  renderer.addScript('bootstrap');
 
   renderer.writeLine('<!DOCTYPE html>');
   renderer.writeLine('<html>');
@@ -21,5 +22,6 @@ module.exports = function layoutTemplate(layout, renderer, shell) {
     });
   }
   renderer.writeLine('<br/>This is the default theme.');
+  renderer.renderScripts();
   renderer.write('</body>');
 };
