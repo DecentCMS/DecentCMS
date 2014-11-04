@@ -2,34 +2,43 @@
 'use strict';
 
 module.exports = function layoutTemplate(layout, renderer, shell) {
-  renderer.addMeta('generator', 'DecentCMS');
-  renderer.addStyleSheet('bootstrap');
-  renderer.addScript('bootstrap');
+  // TODO: use tag API
+  renderer
+    .addMeta('generator', 'DecentCMS')
+    .addStyleSheet('bootstrap')
+    .addScript('bootstrap')
 
-  renderer.writeLine('<!DOCTYPE html>');
-  renderer.writeLine('<html>');
-  renderer.writeLine('<head>');
-  renderer.write('  <title>');
-  renderer.writeEncoded(renderer.title);
-  renderer.writeLine('</title>');
-  renderer.renderMeta();
-  renderer.renderStyleSheets();
-  renderer.writeLine('</head><body>');
+    .writeLine('<!DOCTYPE html>')
+    .writeLine('<html>')
+    .writeLine('<head>')
+
+    .write('  <title>')
+    .writeEncoded(renderer.title)
+    .writeLine('</title>')
+
+    .renderMeta()
+    .renderStyleSheets()
+
+    .writeLine('</head><body>');
+
   if (layout.main) {
     shell.emit('decent.core.shape.render', {
       shape: layout.main,
       renderStream: renderer
     });
   }
-  renderer.br();
-  renderer.writeEncodedLine('This is the default theme.');
-  renderer.br();
-  renderer.tag('img', {
-    src: '/img/glyphicons-halflings.png',
-    alt: 'Glyphs'
-  });
-  renderer.writeLine();
 
-  renderer.renderScripts();
-  renderer.write('</body>');
+  renderer
+    .br()
+    .writeEncodedLine('This is the default theme.')
+    .br()
+    .tag('img', {
+      src: '/img/glyphicons-halflings.png',
+      alt: 'Glyphs'
+    })
+    .writeLine()
+
+    .renderScripts()
+
+    .write('</body>');
 };

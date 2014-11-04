@@ -2,7 +2,6 @@
 'use strict';
 
 // TODO: morph this so this enables sequential rendering while maintaining asynchronicity.
-// TODO: make this fluent.
 
 var stream = require('stream');
 var Transform = stream.Transform;
@@ -38,6 +37,11 @@ RenderStream.prototype._transform = function transform(chunk, encoding, next) {
   next();
 };
 
+RenderStream.prototype.write = function write(text) {
+  this.push(text);
+  return this;
+};
+
 /**
  * @description
  * Writes the string after HTML-encoding it.
@@ -45,6 +49,7 @@ RenderStream.prototype._transform = function transform(chunk, encoding, next) {
  */
 RenderStream.prototype.writeEncoded = function writeEncoded(text) {
   this.write(html.htmlEncode(text));
+  return this;
 };
 
 /**
@@ -55,6 +60,7 @@ RenderStream.prototype.writeEncoded = function writeEncoded(text) {
 RenderStream.prototype.writeLine = function writeLine(text) {
   if (text) {this.write(text);}
   this.write('\r\n');
+  return this;
 }
 
 /**
@@ -65,6 +71,7 @@ RenderStream.prototype.writeLine = function writeLine(text) {
 RenderStream.prototype.writeEncodedLine = function writeEncodedLine(text) {
   if (text) {this.writeEncoded(text);}
   this.write('\r\n');
+  return this;
 };
 
 /**
@@ -73,6 +80,7 @@ RenderStream.prototype.writeEncodedLine = function writeEncodedLine(text) {
  */
 RenderStream.prototype.br = function br() {
   this.write('<br/>\r\n');
+  return this;
 };
 
 /**
@@ -93,6 +101,7 @@ RenderStream.prototype.tag = function tag(tagName, attributes, content) {
     this.renderAttributes(attributes);
     this.write('/>');
   }
+  return this;
 };
 
 /**
@@ -106,6 +115,7 @@ RenderStream.prototype.renderAttributes = function renderAttributes(attributes) 
     this.writeEncoded(attributes[attributeName]);
     this.write('"');
   }
+  return this;
 };
 
 /**
@@ -120,6 +130,7 @@ RenderStream.prototype.startTag = function startTag(tagName, attributes) {
   this.renderAttributes(attributes);
   this.write('>');
   this.tags.push(tagName);
+  return this;
 };
 
 /**
@@ -129,6 +140,7 @@ RenderStream.prototype.startTag = function startTag(tagName, attributes) {
 RenderStream.prototype.endTag = function endTag() {
   var tagName = this.tags.pop();
   this.write('</' + tagName + '>');
+  return this;
 };
 
 // TODO: handle minimized files
@@ -143,6 +155,7 @@ RenderStream.prototype.endTag = function endTag() {
 RenderStream.prototype.addStyleSheet = function addStyleSheet(name) {
   var url = '/css/' + name + '.css';
   this.addExternalStyleSheet(url);
+  return this;
 };
 
 /**
@@ -154,6 +167,7 @@ RenderStream.prototype.addExternalStyleSheet = function addExternalStyleSheet(ur
   if (!(url in this.stylesheets)) {
     this.stylesheets.push(url);
   }
+  return this;
 };
 
 /**
@@ -171,6 +185,7 @@ RenderStream.prototype.renderStyleSheets = function renderStyleSheets() {
     });
     this.writeLine();
   }
+  return this;
 };
 
 /**
@@ -183,6 +198,7 @@ RenderStream.prototype.renderStyleSheets = function renderStyleSheets() {
 RenderStream.prototype.addScript = function addScript(name) {
   var url = '/js/' + name + '.js';
   this.addExternalScript(url);
+  return this;
 };
 
 /**
@@ -194,6 +210,7 @@ RenderStream.prototype.addExternalScript = function addExternalScript(url) {
   if (!(url in this.scripts)) {
     this.scripts.push(url);
   }
+  return this;
 };
 
 /**
@@ -210,6 +227,7 @@ RenderStream.prototype.renderScripts = function renderScripts() {
     }, '');
     this.writeLine();
   }
+  return this;
 };
 
 /**
@@ -226,6 +244,7 @@ RenderStream.prototype.addMeta = function addMeta(name, value, attributes) {
     value: value,
     attributes: attributes
   };
+  return this;
 };
 
 /**
@@ -242,6 +261,7 @@ RenderStream.prototype.renderMeta = function renderMeta() {
     this.tag('meta', attributes);
     this.writeLine();
   }
+  return this;
 };
 
 // TODO: add API to render a shape, that internally triggers the rendering event

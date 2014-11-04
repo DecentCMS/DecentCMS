@@ -2,22 +2,33 @@
 'use strict';
 
 module.exports = function layoutTemplate(layout, renderer, shell) {
-  renderer.addMeta('generator', 'DecentCMS');
-  renderer.writeLine('<!DOCTYPE html>');
-  renderer.writeLine('<html>');
-  renderer.writeLine('<head>');
-  renderer.write('  <title>');
-  renderer.writeEncoded(renderer.title);
-  renderer.writeLine('</title>');
-  renderer.renderMeta();
-  renderer.renderStyleSheets();
-  renderer.writeLine('</head><body>');
+  renderer
+    .addMeta('generator', 'DecentCMS')
+    .addStyleSheet('bootstrap')
+    .addScript('bootstrap')
+
+    .writeLine('<!DOCTYPE html>')
+    .writeLine('<html>')
+    .writeLine('<head>')
+
+    .write('  <title>')
+    .writeEncoded(renderer.title)
+    .writeLine('</title>')
+
+    .renderMeta()
+    .renderStyleSheets()
+
+    .writeLine('</head><body>');
+
   if (layout.main) {
     shell.emit('decent.core.shape.render', {
       shape: layout.main,
       renderStream: renderer
     });
   }
-  renderer.renderScripts();
-  renderer.write('</body>');
+
+  renderer
+    .renderScripts()
+
+    .write('</body>');
 };
