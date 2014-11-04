@@ -7,18 +7,18 @@ module.exports = function layoutTemplate(layout, renderer, shell) {
     .addStyleSheet('bootstrap')
     .addScript('bootstrap')
 
-    .writeLine('<!DOCTYPE html>')
-    .writeLine('<html>')
-    .writeLine('<head>')
+    .doctype()
+    .startTag('html')
+    .startTag('head')
 
-    .write('  <title>')
-    .writeEncoded(renderer.title)
-    .writeLine('</title>')
+    .write('  ')
+    .tag('title', {}, renderer.title)
 
     .renderMeta()
     .renderStyleSheets()
 
-    .writeLine('</head><body>');
+    .endTag()
+    .startTag('body');
 
   if (layout.main) {
     shell.emit('decent.core.shape.render', {
@@ -28,7 +28,9 @@ module.exports = function layoutTemplate(layout, renderer, shell) {
   }
 
   renderer
+    .writeLine()
+
     .renderScripts()
 
-    .write('</body>');
+    .endAllTags();
 };

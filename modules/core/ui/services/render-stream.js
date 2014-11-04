@@ -37,6 +37,11 @@ RenderStream.prototype._transform = function transform(chunk, encoding, next) {
   next();
 };
 
+/**
+ * @description
+ * Writes a string, unencoded.
+ * @param {string} text The text to write.
+ */
 RenderStream.prototype.write = function write(text) {
   this.push(text);
   return this;
@@ -141,6 +146,26 @@ RenderStream.prototype.endTag = function endTag() {
   var tagName = this.tags.pop();
   this.write('</' + tagName + '>');
   return this;
+};
+
+/**
+ * @description
+ * Closes all pending tags.
+ */
+RenderStream.prototype.endAllTags = function endAllTags() {
+  while (this.tags.length) {
+    this.endTag();
+  }
+  return this;
+};
+
+/**
+ * @description
+ * Renders a doctype.
+ * @param {string} [type] The doctype. 'html' if not specified.
+ */
+RenderStream.prototype.doctype = function doctype(type) {
+  this.write('<!DOCTYPE ' + (type || 'html') + '>');
 };
 
 // TODO: handle minimized files
