@@ -21,7 +21,15 @@ module.exports = function layoutTemplate(layout, renderer, shell) {
       renderStream: renderer
     });
   }
-  renderer.writeLine('<br/>This is the default theme.');
+  renderer.br();
+  renderer.writeEncodedLine('This is the default theme.');
+  renderer.br();
+  renderer.tag('img', {
+    src: '/img/glyphicons-halflings.png',
+    alt: 'Glyphs'
+  });
+  renderer.writeLine();
+
   renderer.renderScripts();
   renderer.write('</body>');
 };
