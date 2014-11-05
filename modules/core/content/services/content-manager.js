@@ -308,14 +308,14 @@ ContentManager.handleItemEvent = 'decent.core.handle-item';
 ContentManager.handleItemEvent.payload = {
   /**
    * @description
-   * The content item shape
+   * The root shape
    */
-  item: 'Object',
+  shape: 'object',
   /**
    * @description
-   * The shell
+   * The renderer
    */
-  shell: 'Object'
+  renderStream: 'RenderStream'
 };
 
 /**

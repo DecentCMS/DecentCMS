@@ -7,7 +7,7 @@
  * @description
  * String token interpolation service for DecentCMS.
  *
- * @param {Shell} scope
+ * @param {object} scope
  * @constructor
  */
 var Token = function(scope) {
@@ -20,7 +20,7 @@ Token.feature = 'tokens';
 
 /**
  * @describe
- * The name of the shell event triggered when a token service
+ * The name of the scope event triggered when a token service
  * calls for pipe extensions to register themselves.
  * @type {String}
  */

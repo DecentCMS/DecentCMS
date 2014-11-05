@@ -2,8 +2,8 @@
 'use strict';
 
 // By default, display type main goes to the main zone.
-module.exports = function(shell, rootShape, shapes) {
-  var shapeHelper = shell.require('shape');
+module.exports = function(scope, rootShape, shapes) {
+  var shapeHelper = scope.require('shape');
   if (!shapes) return;
   for (var i = 0; i < shapes.length; i++) {
     var shape = shapes[i];

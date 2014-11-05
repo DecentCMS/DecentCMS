@@ -7,7 +7,7 @@ var fs = require('fs');
  * A view engine using the Token API, which uses Markup.js.
  * See https://github.com/adammark/Markup.js/ for details about
  * Markup.js.
- * @param {Shell} scope
+ * @param {object} scope
  * @constructor
  */
 var MarkupViewEngine = function(scope) {

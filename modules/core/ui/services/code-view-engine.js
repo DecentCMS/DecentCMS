@@ -4,10 +4,8 @@
 /**
  * @description
  * A view engine where templates are JavaScript functions.
- * @param {Shell} shell The shell.
- * @constructor
  */
-var CodeViewEngine = {
+var codeViewEngine = {
   service: 'view-engine',
   feature: 'code-view-engine',
   extension: 'js',
@@ -22,4 +20,4 @@ var CodeViewEngine = {
   }
 };
 
-module.exports = CodeViewEngine;
+module.exports = codeViewEngine;

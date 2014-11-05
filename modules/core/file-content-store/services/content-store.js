@@ -7,10 +7,8 @@ var async = require('async');
 /**
  * @description
  * A content store that uses JSON files.
- * @param shell
- * @constructor
  */
-var FileContentStore = {
+var fileContentStore = {
   feature: 'file-content-store',
   scope: 'request',
   on: {
@@ -101,4 +99,4 @@ var FileContentStore = {
   }
 };
 
-module.exports = FileContentStore;
+module.exports = fileContentStore;
