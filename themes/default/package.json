@@ -3,8 +3,6 @@
   "version": "0.0.0",
   "description": "Default theme for DecentCMS",
   "theme": true,
-  "css": ["./css/default"],
-  "js": ["./js/default"],
   "author": "Bertrand Le Roy",
   "license": "MIT"
 }
