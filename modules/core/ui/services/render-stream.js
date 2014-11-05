@@ -166,6 +166,7 @@ RenderStream.prototype.endAllTags = function endAllTags() {
  */
 RenderStream.prototype.doctype = function doctype(type) {
   this.write('<!DOCTYPE ' + (type || 'html') + '>');
+  return this;
 };
 
 // TODO: handle minimized files
