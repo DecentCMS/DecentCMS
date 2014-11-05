@@ -37,7 +37,7 @@ var t = require('decent-core-localization').t;
  * @param {Boolean} [options.active]        True if the tenant is active.
  */
 function Shell(options) {
-  options = options || {};
+  this.settings = options = options || {};
   this.name = options.name;
   this.rootPath = options.rootPath;
   this.settingsPath = options.settingsPath;
