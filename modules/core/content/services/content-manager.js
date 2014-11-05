@@ -222,6 +222,10 @@ ContentManager.prototype.buildRenderedPage = function(payload) {
     shape: layout,
     renderStream: renderStream
   });
+  // Call for meta, script, and style sheet registration
+  request.emit(ContentManager.registerMetaEvent, {renderStream: renderStream});
+  request.emit(ContentManager.registerStyleEvent, {renderStream: renderStream});
+  request.emit(ContentManager.registerScriptEvent, {renderStream: renderStream});
   // Render
   request.emit(ContentManager.renderShapeEvent, {
     shape: layout,
@@ -317,7 +321,6 @@ ContentManager.handleItemEvent.payload = {
 /**
  * @description
  * Asks for a list of shapes to be placed under a root shape.
- * @type {string}
  */
 ContentManager.placementEvent = 'decent.core.shape.placement';
 ContentManager.placementEvent.payload = {
@@ -333,6 +336,42 @@ ContentManager.placementEvent.payload = {
   shapes: 'Array'
 };
 
+/**
+ * Calls for meta tag registering.
+ */
+ContentManager.registerMeta = 'decent.core.register-meta';
+ContentManager.registerMeta.payload = {
+  /**
+   * The render stream that handles the html to render.
+   */
+  renderStream: 'RenderStream'
+};
+
+/**
+ * Calls for style sheet registering.
+ */
+ContentManager.registerStyle = 'decent.core.register-style';
+ContentManager.registerStyle.payload = {
+  /**
+   * The render stream that handles the html to render.
+   */
+  renderStream: 'RenderStream'
+};
+
+/**
+ * Calls for script registering.
+ */
+ContentManager.registerScript = 'decent.core.register-script';
+ContentManager.registerScript.payload = {
+  /**
+   * The render stream that handles the html to render.
+   */
+  renderStream: 'RenderStream'
+};
+
+/**
+ * Calls for shape rendering.
+ */
 ContentManager.renderShapeEvent = 'decent.core.shape.render';
 ContentManager.renderShapeEvent.payload = {
   /**
