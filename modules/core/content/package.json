@@ -16,7 +16,9 @@
   "dependencies": {
     "decent-core-localization": "*"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "*"
+  },
   "author": "Bertrand Le Roy",
   "license": "MIT"
 }
