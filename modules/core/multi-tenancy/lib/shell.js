@@ -1,6 +1,7 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
+// TODO: Make Shell a middleware (usable in an Express app)
 // TODO: Enable shells to be restarted.
 // TODO: Move module loading and service discovery into a separate service, so that shell can deal purely with handling requests.
 // TODO: Build file monitoring events so code that caches parsed files can expire and re-parse entries on-the-fly. Make sure that this can be done as an optional feature.
@@ -190,14 +191,15 @@ Shell.prototype.disable = function() {
  */
 Shell.prototype.load = function() {
   if (this.loaded || !this.availableModules) return;
+  // Make this a scope
+  scope('shell', this);
   // Load services from each available module
   for (var moduleName in this.availableModules) {
     this.loadModule(moduleName);
   }
+  this.initialize();
   // The shell exposes itself as a service
-  this.services.shell = [this];
-  // Make this a scope
-  scope('shell', this);
+  this.register('shell', this);
   // Mark the shell as loaded
   this.loaded = true;
 };
@@ -243,12 +245,7 @@ Shell.prototype.loadModule = function(moduleName) {
       }
       // Services are obtained through require
       var ServiceClass = moduleServiceClasses[serviceName] = require(servicePath);
-      if (!self.services[serviceName]) {
-        self.services[serviceName] = [ServiceClass];
-      }
-      else {
-        self.services[serviceName].push(ServiceClass);
-      }
+      self.register(serviceName, ServiceClass);
       // Store the manifest on the service class, for reflection, and easy reading of settings
       ServiceClass.manifest = service;
       self.serviceManifests[servicePath] = service;

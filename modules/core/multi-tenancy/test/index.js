@@ -611,8 +611,9 @@ describe('Shell', function() {
           }
         }
       });
-      shell.loadModule('module 1');
       scope('', shell);
+      shell.loadModule('module 1');
+      shell.initialize();
 
       expect(initialized).to.be.ok;
     });
@@ -645,8 +646,9 @@ describe('Shell', function() {
           }
         }
       });
-      shell.loadModule('module');
       scope('', shell);
+      shell.loadModule('module');
+      shell.initialize();
 
       var payload = 'emitting event...';
       shell.emit('an-event', payload);

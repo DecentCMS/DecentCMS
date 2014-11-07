@@ -70,8 +70,9 @@ function initializeService(scope, ServiceClass) {
 /**
  * @description
  * Transforms an object into a scope. The role of a scope is to manage the lifecycle
- * of required services. This mixin adds require and getServices method that can be
- * used to get service instances that are scoped to the object, live and die with it.
+ * of required services. This mixin adds initialize, register, require, getServices,
+ * and tearDown methods that can be used to get service instances that are scoped
+ * to the object, live and die with it.
  * @param {string} name          The name of the scope.
  * @param {object} objectToScope The object that must be made a scope.
  * @param {object} services      A map of the services to be made available from require.
@@ -81,6 +82,53 @@ function scope(name, objectToScope, services) {
   if (services) {
     objectToScope.services = services;
   }
+  objectToScope.scopeName = name;
+
+  /**
+   * @description
+   * Initialize services for this scope. This is called automatically if the scope was built
+   * with a set of services. Otherwise, it must be called manually.
+   */
+  objectToScope.initialize = function() {
+    if (this.services) {
+      // Initialize all services except those that are scoped to some other scope
+      for (var serviceName in this.services) {
+        var serviceClasses = this.services[serviceName];
+        if (!serviceClasses) continue;
+        for (var i = 0; i < serviceClasses.length; i++) {
+          var ServiceClass = serviceClasses[i];
+          if (!ServiceClass.scope || ServiceClass.scope === this.scopeName) {
+            initializeService(this, ServiceClass);
+          }
+        }
+      }
+      this._scopeInitialized = true;
+    }
+  };
+
+  /**
+   * @description
+   * Registers a service into the scope's registry, making it available for require and
+   * getServices. This will initialize the service if the scope is already initialized.
+   * @param {string} name     The service name implemented by ServiceClass.
+   * @param {Function|object} ServiceClass The service constructor,
+   *                          or the static service object to register.
+   */
+  objectToScope.register = function(name, ServiceClass) {
+    if (!this.services[name]) {
+      this.services[name] = [ServiceClass];
+    }
+    else {
+      this.services[name].push(ServiceClass);
+    }
+    if (this._scopeInitialized) {
+      // Scope has already initialized its services, so any new one that gets added
+      // must also be initialized.
+      if (!ServiceClass.scope || ServiceClass.scope === objectToScope.scopeName) {
+        initializeService(objectToScope, ServiceClass);
+      }
+    }
+  };
 
   /**
    * @description
@@ -139,23 +187,13 @@ function scope(name, objectToScope, services) {
     delete this.require;
     delete this.getServices;
     delete this.tearDown;
+    delete this._scopeInitialized;
   };
 
-  // Initialize services for this scope.
-  if (objectToScope.services) {
-    // Initialize all services except those that are scoped to some other scope
-    for (var serviceName in objectToScope.services) {
-      var serviceClasses = objectToScope.services[serviceName];
-      if (!serviceClasses) continue;
-      for (var i = 0; i < serviceClasses.length; i++) {
-        var ServiceClass = serviceClasses[i];
-        if (!ServiceClass.scope || ServiceClass.scope === name) {
-          initializeService(objectToScope, ServiceClass);
-        }
-      }
-    }
-  }
   objectToScope.instances = {};
+  if (services) {
+    objectToScope.initialize();
+  }
 
   return objectToScope;
 }

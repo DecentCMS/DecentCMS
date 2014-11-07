@@ -13,8 +13,8 @@ var ExpressApp = require('../lib/express-app');
 function ExpressRouteHandler(scope) {
   var app = this.app = express();
   var expressApp = this.expressApp = new ExpressApp(app);
-  scope.services['express-app'] = [expressApp];
-  scope.services['express'] = [express];
+  scope.register('express-app', expressApp);
+  scope.register('express', express);
   if (!expressApp.locked) {
     // Register middleware now.
     var middleware = scope.getServices('middleware');
