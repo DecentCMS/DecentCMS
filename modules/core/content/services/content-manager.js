@@ -123,16 +123,18 @@ ContentManager.prototype.fetchItems = function(payload) {
       delete self.itemsToFetch[id];
     }
   }
-  // Now broadcast the list for content stores to do their job
-  payload.request.emit(ContentManager.loadItemsEvent, {
-    items: self.items,
-    itemsToFetch: self.itemsToFetch,
-    callback: function() {
-      self.itemsFetchedCallback(null, {
-        callback: callback
-      });
-    }
-  });
+  if (payload.request && Object.getOwnPropertyNames(self.itemsToFetch).length > 0) {
+    // Now broadcast the list for content stores to do their job
+    payload.request.emit(ContentManager.loadItemsEvent, {
+      items: self.items,
+      itemsToFetch: self.itemsToFetch,
+      callback: function () {
+        self.itemsFetchedCallback(null, {
+          callback: callback
+        });
+      }
+    });
+  }
   // Each handler should have synchronously removed the items it can take care of.
   if (self.items && Object.getOwnPropertyNames(self.items).length > 0) {
     var error = new Error(t('Couldn\'t load items %s', require('util').inspect(self.items)));

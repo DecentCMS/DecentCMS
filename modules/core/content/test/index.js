@@ -5,7 +5,7 @@ var ContentManager = require('../services/content-manager');
 
 describe('Content Manager', function() {
   it('can promise to get single ids', function() {
-    var cm = new ContentManager({});
+    var cm = new ContentManager();
     cm.promiseToGet('foo');
     expect(cm.itemsToFetch)
       .to.contain.key('foo');
@@ -16,7 +16,7 @@ describe('Content Manager', function() {
   });
 
   it('can promise to get arrays of ids', function() {
-    var cm = new ContentManager({});
+    var cm = new ContentManager();
     cm.promiseToGet(['foo', 'bar']);
     expect(cm.itemsToFetch)
       .to.contain.key('foo')
@@ -26,5 +26,17 @@ describe('Content Manager', function() {
       .to.contain.key('foo')
       .and.to.contain.key('bar')
       .and.to.contain.key('baz');
+  });
+
+  it('immediately calls back when an item is already available', function() {
+    var cm = new ContentManager();
+    cm.items = {foo: {}};
+    var fetchedItem = null;
+    cm.promiseToGet('foo', function(err, item) {
+      fetchedItem = item;
+    });
+    cm.fetchItems({});
+
+    expect(fetchedItem).to.be.ok;
   });
 });
