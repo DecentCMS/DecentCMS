@@ -9,6 +9,7 @@ var async = require('async');
  * A content store that uses JSON files.
  */
 var fileContentStore = {
+  service: 'content-store',
   feature: 'file-content-store',
   scope: 'request',
   on: {
@@ -60,7 +61,7 @@ var fileContentStore = {
             // Call all the item-specific callbacks
             if (Array.isArray(itemsToFetch[id])) {
               for (var j = 0; j < itemsToFetch[id].length; j++) {
-                itemsToFetch[id](null, item);
+                itemsToFetch[id][j](null, item);
               }
             }
             // Remove from the list of remaining items to fetch
