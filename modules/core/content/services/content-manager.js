@@ -22,11 +22,11 @@ ContentManager.scope = 'shell';
 ContentManager.isStatic = true;
 
 ContentManager.on = {
-  'decent-core-shell-start-request': function(scope, payload) {
+  'decent-core-shell-start-request': function onStartRequest(scope, payload) {
     // Create a content manager for the duration of the request.
     payload.request.contentManager = new ContentManager(scope);
   },
-  'decent.core.shell.fetch-content': function(scope, payload) {
+  'decent.core.shell.fetch-content': function onFetchContent(scope, payload) {
     if (!payload.request) return;
     // Find the content manager for the current request
     var contentManager = payload.request.contentManager;
@@ -34,7 +34,7 @@ ContentManager.on = {
     // Use it to fetch items from the content store
     contentManager.fetchItems(payload);
   },
-  'decent.core.shell.render-page': function(scope, payload) {
+  'decent.core.shell.render-page': function onRenderPage(scope, payload) {
     if (!payload.request) return;
     // Find the content manager for the current request
     var contentManager = payload.request.contentManager;
@@ -42,7 +42,7 @@ ContentManager.on = {
     // Use it to build the rendered page
     contentManager.buildRenderedPage(payload);
   },
-  'decent-core-shell-end-request': function(scope, payload) {
+  'decent-core-shell-end-request': function onEndRequest(scope, payload) {
     var request = payload.request;
     if (!request) return;
     var contentManager = request.contentManager;
@@ -64,12 +64,12 @@ ContentManager.on = {
  *                              that will get called once per item once
  *                              the item has been loaded.
  */
-ContentManager.prototype.promiseToGet = function(id, callback) {
+ContentManager.prototype.promiseToGet = function promiseToGet(id, callback) {
   var self = this;
   var itemsToFetch = self.itemsToFetch;
   // id can be an array of ids
   id = Array.isArray(id) ? id : [id];
-  id.forEach(function(itemId) {
+  id.forEach(function forEachId(itemId) {
     if (itemsToFetch.hasOwnProperty(itemId)) {
       if (callback) {
         itemsToFetch[itemId].push(callback);
@@ -88,7 +88,7 @@ ContentManager.prototype.promiseToGet = function(id, callback) {
  * @param {string} id The id of the item to fetch.
  * @returns {object} The content item, or null if not found.
  */
-ContentManager.prototype.getAvailableItem = function(id) {
+ContentManager.prototype.getAvailableItem = function getAvailableItem(id) {
   var item = this.items[id];
   if (item) return item;
   return null;
@@ -105,7 +105,7 @@ ContentManager.prototype.getAvailableItem = function(id) {
  * called when all items have been fetched, or when an error
  * occurs.
  */
-ContentManager.prototype.fetchItems = function(payload) {
+ContentManager.prototype.fetchItems = function fetchItems(payload) {
   // TODO: refactor this to use the async library.
   // TODO: make callback a parameter, not an option of payload.
   var self = this;
@@ -136,7 +136,7 @@ ContentManager.prototype.fetchItems = function(payload) {
     });
   }
   // Each handler should have synchronously removed the items it can take care of.
-  if (self.items && Object.getOwnPropertyNames(self.items).length > 0) {
+  if (self.itemsToFetch && Object.getOwnPropertyNames(self.itemsToFetch).length > 0) {
     var error = new Error(t('Couldn\'t load items %s', require('util').inspect(self.items)));
     if (callback) callback(error,  self.items);
   }
@@ -144,7 +144,7 @@ ContentManager.prototype.fetchItems = function(payload) {
 
 // This will disappear once the item fetching uses async:
 // this is the last callback after all items have come back from storage.
-ContentManager.prototype.itemsFetchedCallback = function(err, data) {
+ContentManager.prototype.itemsFetchedCallback = function itemsFetchedCallback(err, data) {
   if (err) {
     if (data.callback) data.callback(err);
     return;
@@ -167,7 +167,7 @@ ContentManager.prototype.itemsFetchedCallback = function(err, data) {
  * @param {string} [options.displayType] The display type to use when
  * rendering the shape.
  */
-ContentManager.prototype.promiseToRender = function(options) {
+ContentManager.prototype.promiseToRender = function promiseToRender(options) {
   if (!options.request.shapes) {
     options.request.shapes = [];
   }
@@ -201,7 +201,7 @@ ContentManager.prototype.promiseToRender = function(options) {
  * @param {IncomingMessage} [payload.request] The request.
  * @param {ServerResponse}  [payload.response] The response.
  */
-ContentManager.prototype.buildRenderedPage = function(payload) {
+ContentManager.prototype.buildRenderedPage = function buildRenderedPage(payload) {
   // TODO: use request and response everywhere instead of req, res
   var request = payload.request;
   var response = payload.response;
@@ -235,7 +235,7 @@ ContentManager.prototype.buildRenderedPage = function(payload) {
   });
   // Tear down
   renderStream.end();
-  console.log(t('%s handled %s in %s ms.', this.scope.name, request.url, new Date() - request.startTime));
+  console.log(t('Request handled %s in %s ms.', request.url, new Date() - request.startTime));
 };
 
 /**
@@ -244,7 +244,7 @@ ContentManager.prototype.buildRenderedPage = function(payload) {
  * @param {object} item The content item.
  * @returns {object} The content type, or null if it can't be found.
  */
-ContentManager.prototype.getType = function(item) {
+ContentManager.prototype.getType = function getType(item) {
   var typeName, type;
   if (!item.meta
     || !(typeName = item.meta.type)
@@ -260,7 +260,7 @@ ContentManager.prototype.getType = function(item) {
  * @param {string} partTypeName The name of the part type to look for.
  * @returns {Array} An array of part names.
  */
-ContentManager.prototype.getParts = function(item, partTypeName) {
+ContentManager.prototype.getParts = function getParts(item, partTypeName) {
   var type = this.getType(item);
   if (!type) return [];
   var parts = [];
@@ -341,8 +341,8 @@ ContentManager.placementEvent.payload = {
 /**
  * Calls for meta tag registering.
  */
-ContentManager.registerMeta = 'decent.core.register-meta';
-ContentManager.registerMeta.payload = {
+ContentManager.registerMetaEvent = 'decent.core.register-meta';
+ContentManager.registerMetaEvent.payload = {
   /**
    * The render stream that handles the html to render.
    */
@@ -352,8 +352,8 @@ ContentManager.registerMeta.payload = {
 /**
  * Calls for style sheet registering.
  */
-ContentManager.registerStyle = 'decent.core.register-style';
-ContentManager.registerStyle.payload = {
+ContentManager.registerStyleEvent = 'decent.core.register-style';
+ContentManager.registerStyleEvent.payload = {
   /**
    * The render stream that handles the html to render.
    */
@@ -363,8 +363,8 @@ ContentManager.registerStyle.payload = {
 /**
  * Calls for script registering.
  */
-ContentManager.registerScript = 'decent.core.register-script';
-ContentManager.registerScript.payload = {
+ContentManager.registerScriptEvent = 'decent.core.register-script';
+ContentManager.registerScriptEvent.payload = {
   /**
    * The render stream that handles the html to render.
    */

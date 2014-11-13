@@ -1,6 +1,8 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 var expect = require('chai').expect;
+var EventEmitter = require('events').EventEmitter;
+var stream = require('stream');
 var ContentManager = require('../services/content-manager');
 
 describe('Content Manager', function() {
@@ -38,5 +40,165 @@ describe('Content Manager', function() {
     cm.fetchItems({});
 
     expect(fetchedItem).to.be.ok;
+  });
+
+  it('calls into content stores to fetch items', function() {
+    var cm = new ContentManager();
+    var got = [];
+    var itemCallback = function(err, item) {
+      got.push(item.data);
+    };
+    cm.itemsToFetch = {
+      foo: [itemCallback],
+      bar: [itemCallback, itemCallback]
+    };
+    var request = new EventEmitter();
+    request.on(ContentManager.loadItemsEvent, function(payload) {
+      var itemsToFetch = payload.itemsToFetch;
+      for (var id in itemsToFetch) {
+        var item = {id: id, data: 'fetched ' + id};
+        payload.items[id] = item;
+        for (var i = 0; i < itemsToFetch[id].length; i++) {
+          itemsToFetch[id][i](null, item);
+        }
+        delete payload.itemsToFetch[id];
+        payload.callback();
+      }
+    });
+
+    cm.fetchItems({
+      request: request,
+      callback: function(err) {
+        if (err) {
+          got.push(err.message);
+          return;
+        }
+        got.push('done');
+    }});
+
+    expect(got)
+      .to.deep.equal([
+        'fetched foo',
+        'fetched bar',
+        'fetched bar',
+        'done']);
+  });
+
+  it('promises to render shapes by adding them to its list', function() {
+    var cm = new ContentManager();
+    var request = {};
+    var shape1 = {};
+    var shape2 = {};
+
+    cm.promiseToRender({request: request, shape: shape1});
+    cm.promiseToRender({request: request, shape: shape2});
+
+    expect(request.shapes)
+      .to.deep.equal([shape1, shape2]);
+  });
+
+  it('promises to render ids by adding promise shapes to its list', function() {
+    var cm = new ContentManager();
+    var request = {};
+
+    cm.promiseToRender({request: request, id: 'foo', displayType: 'main'});
+
+    expect(request.shapes[0].meta.type)
+      .to.equal('shape-item-promise');
+    expect(request.shapes[0].temp.displayType)
+      .to.equal('main');
+    expect(request.shapes[0].id)
+      .to.equal('foo');
+  });
+
+  it('renders the page from a list of shapes', function() {
+    var request = new EventEmitter();
+    request.shapes = [
+      {meta: {type: 'shape-type-1'}},
+      {meta: {type: 'shape-type-2'}}
+    ];
+    request.require = function(serviceName) {
+      return new stream.PassThrough();
+    };
+    var response = new stream.PassThrough();
+    var html = [];
+    response.on('data', function(data) {
+      html.push(data);
+    });
+    request.on(ContentManager.placementEvent, function(payload) {
+      payload.shape.one = payload.shapes[0];
+      payload.shape.two = payload.shapes[1];
+    });
+    request.on(ContentManager.handleItemEvent, function(payload) {
+      payload.shape.handled = true;
+      payload.renderStream.write('handlers')
+    });
+    request.on(ContentManager.registerMetaEvent, function(payload) {
+      payload.renderStream.write('meta');
+    });
+    request.on(ContentManager.registerStyleEvent, function(payload) {
+      payload.renderStream.write('style');
+    });
+    request.on(ContentManager.registerScriptEvent, function(payload) {
+      payload.renderStream.write('script');
+    });
+    request.on(ContentManager.renderShapeEvent, function(payload) {
+      payload.shape.rendered = true;
+      payload.renderStream.write('rendered');
+    });
+    var cm = new ContentManager();
+
+    cm.buildRenderedPage({
+      request: request,
+      response: response
+    });
+
+    expect(html.join('|'))
+      .to.equal('handlers|meta|style|script|rendered');
+    expect(request.layout.one.meta.type)
+      .to.equal('shape-type-1');
+    expect(request.layout.two.meta.type)
+      .to.equal('shape-type-2');
+    expect(request.layout.handled).to.be.ok;
+    expect(request.layout.rendered).to.be.ok;
+  });
+
+  it('can infer the type definition for a shape', function() {
+    var cm = new ContentManager();
+    var fooDefinition = {};
+    cm.scope = {
+      types: {
+        foo: fooDefinition
+      }
+    };
+
+    var typeDefinition = cm.getType({
+      meta: {type: 'foo'}
+    });
+
+    expect(typeDefinition)
+      .to.equal(fooDefinition);
+  });
+
+  it('can find the parts that are of a specific type', function() {
+    var cm = new ContentManager();
+    cm.scope = {
+      types: {
+        foo: {
+          parts: {
+            bar1: {type: 'part-bar'},
+            bar2: {type: 'part-bar'},
+            baz: {type: 'part-baz'}
+          }
+        }
+      }
+    };
+    var foo = {meta: {type: 'foo'}};
+
+    var barParts = cm.getParts(foo, 'part-bar');
+
+    expect(barParts.indexOf('bar1')).to.not.equal(-1);
+    expect(barParts.indexOf('bar2')).to.not.equal(-1);
+    expect(barParts.indexOf('baz')).to.equal(-1);
   });
 });
