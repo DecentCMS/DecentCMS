@@ -8,16 +8,21 @@ module.exports = function layoutTemplate(layout, renderer, scope) {
     .addScript('bootstrap')
 
     .doctype()
+    .writeLine()
     .startTag('html')
+    .writeLine()
     .startTag('head')
+    .writeLine()
 
     .write('  ')
     .tag('title', {}, renderer.title)
+    .writeLine()
 
     .renderMeta()
     .renderStyleSheets()
 
     .endTag()
+    .writeLine()
     .startTag('body');
 
   if (layout.main) {
