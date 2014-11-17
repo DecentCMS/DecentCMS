@@ -57,13 +57,11 @@ function initializeService(scope, ServiceClass) {
   }
   // Wire up declared static event handlers
   if (ServiceClass.on) {
-    for (var eventName in ServiceClass.on) {
-      (function(ServiceClass, eventName) {
-        scope.on(eventName, function (payload) {
-          ServiceClass.on[eventName](scope, payload);
-        });
-      })(ServiceClass, eventName);
-    }
+    Object.keys(ServiceClass.on).forEach(function forEachEvent(eventName) {
+      scope.on(eventName, function(payload) {
+        ServiceClass.on[eventName](scope, payload);
+      })
+    });
   }
 }
 

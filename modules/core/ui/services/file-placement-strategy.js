@@ -41,39 +41,38 @@ var FilePlacementStrategy = {
       else {
         for (var shape in placementObject) {
           if (shape === 'matches') {
-            for (var j = 0; j < placementObject.matches.length; j++) {
-              var match = placementObject.matches[j];
-              (function (idExpression, shapeTypeExpression, displayTypeExpression, path, order) {
-                placementHandlers.push(function (shell, rootShape, shapes) {
-                  for (var k = 0; k < shapes.length; k++) {
-                    var shapeToPlace = shapes[k];
-                    if (idExpression
-                      && (!shapeToPlace.id || !idExpression.test(shapeToPlace.id))) {
-                      continue;
-                    }
-                    if (shapeTypeExpression
-                      && (!shapeToPlace.meta
-                        || !shapeToPlace.meta.type
-                        || !shapeTypeExpression.test(shapeToPlace.meta.type))) {
-                      continue;
-                    }
-                    if (displayTypeExpression
-                      && (!shapeToPlace.temp
-                        || !shapeToPlace.temp.displayType
-                        || !displayTypeExpression.test(shapeToPlace.temp.displayType))) {
-                      continue;
-                    }
-                    // We have a match. Place the shape, and remove it from the list.
-                    shapeHelper.place(rootShape, path, shapeToPlace, order);
-                    shapes.splice(k--, 1);
+            placementObject.matches.forEach(function forEachMatch(match) {
+              var idExpression = match.id ? new RegExp(match.id) : null;
+              var shapeTypeExpression = match.type ? new RegExp(match.type) : null;
+              var displayTypeExpression = match.displayType ? new RegExp(match.displayType) : null;
+              var path = match.path;
+              var order = match.order;
+
+              placementHandlers.push(function (shell, rootShape, shapes) {
+                for (var k = 0; k < shapes.length; k++) {
+                  var shapeToPlace = shapes[k];
+                  if (idExpression
+                    && (!shapeToPlace.id || !idExpression.test(shapeToPlace.id))) {
+                    continue;
                   }
-                });
-              })(match.id ? new RegExp(match.id) : null,
-                match.type ? new RegExp(match.type) : null,
-                match.displayType ? new RegExp(match.displayType) : null,
-                match.path,
-                match.order);
-            }
+                  if (shapeTypeExpression
+                    && (!shapeToPlace.meta
+                    || !shapeToPlace.meta.type
+                    || !shapeTypeExpression.test(shapeToPlace.meta.type))) {
+                    continue;
+                  }
+                  if (displayTypeExpression
+                    && (!shapeToPlace.temp
+                    || !shapeToPlace.temp.displayType
+                    || !displayTypeExpression.test(shapeToPlace.temp.displayType))) {
+                    continue;
+                  }
+                  // We have a match. Place the shape, and remove it from the list.
+                  shapeHelper.place(rootShape, path, shapeToPlace, order);
+                  shapes.splice(k--, 1);
+                }
+              });
+            });
           }
           else {
             placement[shape] = placementObject[shape];
