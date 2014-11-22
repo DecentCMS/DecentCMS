@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "chai": "*",
+    "grunt-mocha-test": "*",
     "mocha": "*"
   }
 }

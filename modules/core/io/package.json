@@ -17,7 +17,8 @@
   "devDependencies": {
     "chai": "*",
     "decent-core-localization": "*",
-    "moka": "*",
+    "grunt-mocha-test": "*",
+    "mocha": "*",
     "proxyquire": "*"
   }
 }

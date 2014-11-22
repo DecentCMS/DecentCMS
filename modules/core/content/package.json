@@ -17,7 +17,9 @@
     "decent-core-localization": "*"
   },
   "devDependencies": {
-    "chai": "*"
+    "chai": "*",
+    "grunt": "*",
+    "grunt-mocha-test": "*"
   },
   "author": "Bertrand Le Roy",
   "license": "MIT"
