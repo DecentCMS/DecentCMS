@@ -1,6 +1,8 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
+//TODO: Separate lifetime features from content management apis
+
 var t = require('decent-core-localization').t;
 
 /**
