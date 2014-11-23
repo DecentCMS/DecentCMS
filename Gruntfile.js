@@ -13,14 +13,16 @@ module.exports = function gruntDecent(grunt) {
   grunt.loadNpmTasks('grunt-run-grunt');
   var runGruntConfig = {};
   var verbose = grunt.option('verbose');
+  var task = grunt.option('run');
 
-  function setupSubGrunt(root) {
+  function setupSubGrunt(root, task) {
     var gruntPath = path.resolve(root, 'Gruntfile.js');
     var isGrunt =fs.existsSync(gruntPath);
     if (isGrunt) {
       runGruntConfig[root] = {
         src: gruntPath,
         options: {
+          task: [task || 'default'],
           verbose: verbose,
           indentLog: ' | ',
           cwd: path.resolve(root)
@@ -35,12 +37,12 @@ module.exports = function gruntDecent(grunt) {
     moduleAreaFolders.forEach(function forEachAreaFolder(areaFolder) {
       var areaPath = path.join(moduleRoot, areaFolder);
       if (fs.statSync(areaPath).isDirectory()) {
-        if (!setupSubGrunt(areaPath)) {
+        if (!setupSubGrunt(areaPath, task)) {
           var moduleFolders = fs.readdirSync(areaPath);
           moduleFolders.forEach(function forEachModuleFolder(moduleFolder) {
             var modulePath = path.join(areaPath, moduleFolder);
             if (fs.statSync(modulePath).isDirectory()) {
-              setupSubGrunt(modulePath);
+              setupSubGrunt(modulePath, task);
             }
           });
         }
@@ -50,7 +52,10 @@ module.exports = function gruntDecent(grunt) {
   grunt.config.merge({
     run_grunt: runGruntConfig
   });
-  grunt.registerTask('modules', 'Run all tasks in all modules', 'run_grunt');
+  grunt.registerTask(
+    'modules',
+    'Run all tasks in all modules. Use --run:task-name to target a specific task in each module.',
+    'run_grunt');
 
   // Other top-level Grunt tasks
 
