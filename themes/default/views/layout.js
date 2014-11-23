@@ -33,13 +33,6 @@ module.exports = function layoutTemplate(layout, renderer, scope) {
   }
 
   renderer
-    .br()
-    .writeEncodedLine('This is the default theme.')
-    .br()
-    .tag('img', {
-      src: '/img/glyphicons-halflings.png',
-      alt: 'Glyphs'
-    })
     .writeLine()
 
     .renderScripts()
