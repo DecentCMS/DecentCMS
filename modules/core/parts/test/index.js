@@ -5,6 +5,7 @@ var expect = require('chai').expect;
 var TextPart = require('../services/text-part');
 var TitlePart = require('../services/title-part');
 var TextView = require('../views/text');
+var TitleView = require('../views/title');
 
 describe('Text Part Handler', function() {
   it('adds shapes for each text part', function() {
@@ -171,5 +172,27 @@ describe('Text Part View', function() {
     TextView({text: 'foo', flavor: 'custom'}, renderer, scope);
 
     expect(html).to.equal('foofoo');
+  });
+});
+
+describe('Title Part View', function() {
+  it('renders the encoded title in h1 tags', function() {
+    var html = '';
+    var renderer = {
+      write: function(text) {
+        html += text;
+      },
+      writeEncoded: function(text) {
+        html += '|' + text + '|';
+      },
+      writeLine: function(text) {
+        html += text + '\r\n';
+      }
+    };
+
+    TitleView({text: 'foo du fa fa'}, renderer);
+
+    expect(html)
+      .to.equal('<h1>|foo du fa fa|</h1>\r\n');
   });
 });
