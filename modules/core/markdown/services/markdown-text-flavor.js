@@ -18,7 +18,7 @@
 function MarkdownFlavor(scope, options) {
   this.scope = scope;
   this.marked = require('marked');
-  this.marked.setOptions(options);
+  this.options = options;
 }
 MarkdownFlavor.service = 'text-flavor';
 MarkdownFlavor.feature = 'markdown';
@@ -39,7 +39,7 @@ MarkdownFlavor.prototype.matches = function(flavor) {
  * @returns {string} The HTML.
  */
 MarkdownFlavor.prototype.getHtml = function(markdown) {
-  return this.marked(markdown);
+  return this.marked(markdown, this.options);
 };
 
 module.exports = MarkdownFlavor;

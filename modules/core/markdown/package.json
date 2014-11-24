@@ -16,5 +16,10 @@
   "license": "MIT",
   "dependencies": {
     "marked": "*"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "grunt-mocha-test": "*",
+    "mocha": "*"
   }
 }
