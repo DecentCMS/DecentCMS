@@ -17,7 +17,9 @@
   "license": "MIT",
   "devDependencies": {
     "chai": "*",
-    "moka": "*"
+    "grunt-mocha-test": "*",
+    "mocha": "*",
+    "proxyquire": "*"
   },
   "dependencies": {
     "async": "*"
