@@ -37,10 +37,10 @@ ExpressApp.prototype.register = function(priority, registration) {
 ExpressApp.prototype.lock = function() {
   var self = this;
   self.registrations
-    .sort(function (registration) {
-      return registration.routePriority;
+    .sort(function orderByRoutePriority(registrationA, registrationB) {
+      return registrationA.routePriority - registrationB.routePriority;
     })
-    .forEach(function (registration) {
+    .forEach(function registerWithApp(registration) {
       registration(self.app);
     });
   console.log(t('Registered Express middleware.'));

@@ -17,5 +17,10 @@
   "dependencies": {
     "decent-core-localization": "*",
     "express": "*"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "grunt-mocha-test": "*",
+    "mocha": "*"
   }
 }
