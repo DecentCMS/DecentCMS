@@ -26,7 +26,10 @@ var TextPart = {
       for (var i = 0; i < textParts.length; i++) {
         var partName = textParts[i];
         var part = item[partName];
-        var text = part.text;
+        if (!part) continue;
+        var text = typeof(part) === 'string'
+          ? part
+          : part.text;
         if (!text && part._data) {
           text = part._data;
         }
