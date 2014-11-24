@@ -3,6 +3,7 @@
 var expect = require('chai').expect;
 
 var TextPart = require('../services/text-part');
+var TitlePart = require('../services/title-part');
 
 describe('Text Part Handler', function() {
   it('adds shapes for each text part', function() {
@@ -63,5 +64,61 @@ describe('Text Part Handler', function() {
         text: 'Not my fault',
         flavor: 'strawberry'
       });
+  });
+});
+
+describe('Title Part Handler', function() {
+  it('adds a shape for the title part', function() {
+    var item = {
+      title: 'Foo'
+    };
+    var options = {
+      shape: {
+        meta: {
+          type: 'content'
+        },
+        temp: {
+          item: item,
+          displayType: 'summary',
+          shapes: []
+        }
+      }
+    };
+
+    TitlePart.on['decent.core.handle-item']({}, options);
+
+    var newShapes = options.shape.temp.shapes;
+    expect(newShapes[0])
+      .to.deep.equal({
+        meta: {type: 'title'},
+        temp: {displayType: 'summary'},
+        text: 'Foo'
+      });
+  });
+
+  it('sets the title only if the display type is main', function() {
+    var item = {
+      title: 'Foo'
+    };
+    var options = {
+      shape: {
+        meta: {
+          type: 'content'
+        },
+        temp: {
+          item: item,
+          displayType: 'summary',
+          shapes: []
+        }
+      },
+      renderStream: {}
+    };
+
+    TitlePart.on['decent.core.handle-item']({}, options);
+    expect(options.renderStream.title).to.not.be.ok;
+
+    options.shape.temp.displayType = 'main';
+    TitlePart.on['decent.core.handle-item']({}, options);
+    expect(options.renderStream.title).to.equal('Foo');
   });
 });
