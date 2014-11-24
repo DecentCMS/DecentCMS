@@ -2,6 +2,7 @@
 'use strict';
 var expect = require('chai').expect;
 
+var express = require('express');
 var ExpressApp = require('../lib/express-app');
 var ExpressRouteHandler = require('../services/express-route-handler');
 var http = require('http');
@@ -68,10 +69,15 @@ describe('Express Route Handler', function() {
     request.url = '/foo';
     request.method = 'GET';
     var response = new ServerResponse(request);
+
     expressRouteHandler.handle({
         request: request,
         response: response
       }, function() {
+        expect(scope.getServices('express')[0])
+          .to.equal(express);
+        expect(scope.getServices('express-app')[0])
+          .to.equal(expressRouteHandler.expressApp);
         expect(responses)
           .to.deep.equal(['second middleware', 'first middleware']);
       });
