@@ -33,8 +33,8 @@ var fileContentStore = {
             if (partName !== 'meta'
               && partName !== 'temp'
               && (part = item[partName])
-              && part.hasOwnProperty('path')) {
-              var extraFilePath = path.join(path.dirname(filePath), part.path);
+              && part.hasOwnProperty('src')) {
+              var extraFilePath = path.join(path.dirname(filePath), part.src);
               fs.readFile(extraFilePath, function extraFileRead(err, data) {
                 if (err) {
                   callback(err);

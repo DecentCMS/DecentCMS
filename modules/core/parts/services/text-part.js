@@ -31,7 +31,7 @@ var TextPart = {
           text = part._data;
         }
         var flavor = part.flavor
-          || (part.path ? path.extname(part.path).substr(1) : 'plain-text');
+          || (part.src ? path.extname(part.src).substr(1) : 'plain-text');
         temp.shapes.push({
           meta: {type: 'text', name: partName},
           temp: {displayType: temp.displayType},
