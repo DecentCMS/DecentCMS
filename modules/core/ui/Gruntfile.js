@@ -2,12 +2,17 @@
 'use strict';
 
 module.exports = function gruntModule(grunt) {
+  grunt.initConfig();
+
   grunt.loadNpmTasks('grunt-mocha-test');
 
-  grunt.initConfig({
+  grunt.config.merge({
     mochaTest: {
       test: {
-        src: ['test/*.js']
+        src: ['test/*.js'],
+        options: {
+          reporter: 'min'
+        }
       }
     }
   });

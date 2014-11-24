@@ -7,12 +7,17 @@
 // The root Gruntfile in the application will know how to find this file
 // and run it when you run a "grunt modules" command from the root.
 module.exports = function gruntModule(grunt) {
+  grunt.initConfig();
+
   grunt.loadNpmTasks('grunt-mocha-test');
 
-  grunt.initConfig({
+  grunt.config.merge({
     mochaTest: {
       test: {
-        src: ['test/*.js']
+        src: ['test/*.js'],
+        options: {
+          reporter: 'min'
+        }
       }
     }
   });
