@@ -86,9 +86,15 @@ var fileContentStore = {
                 return;
               }
               // This was not a folder, maybe it was already a file.
-              itemFilePath = path.join(siteDataRoot, id);
+              itemFilePath = path.join(siteDataRoot, id + '.json');
               fs.readFile(itemFilePath, function readItemFile(err, data) {
                 if (err) {
+                  if (err.code === 'ENOENT') {
+                    // If the item was not found, we skip the item,
+                    // as it may be found by another store.
+                    next();
+                    return;
+                  }
                   callback(err);
                   return;
                 }
