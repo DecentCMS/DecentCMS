@@ -163,7 +163,7 @@ describe('File Placement Strategy', function() {
     }
   };
   // And some placement using all the supported features
-  var customPlacement = function(shell, rootShape, shapes) {
+  var customPlacement = function(scope, rootShape, shapes) {
     for (var i = 0; i < shapes.length; i++) {
       if (shapeHelper.meta(shapes[i]).type === 'custom') {
         shapeHelper.place(rootShape, 'custom-zone', shapes[i], 'before');

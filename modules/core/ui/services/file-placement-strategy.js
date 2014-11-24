@@ -7,7 +7,7 @@
  * @description
  * Uses placement.js and placement.json files found at the
  * root of modules to dispatch shapes into.
- * The placement.js files should export a function(shell, rootShape, shapes)
+ * The placement.js files should export a function(scope, rootShape, shapes)
  * that should splice shapes out of the shapes array if and when it decides
  * to place them on the rootShape.
  * The placement.json files contain an object that may have one "matches"

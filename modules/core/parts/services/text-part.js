@@ -13,7 +13,7 @@ var TextPart = {
   feature: 'core-parts',
   scope: 'request',
   on: {
-    'decent.core.handle-item': function(shell, options) {
+    'decent.core.handle-item': function(scope, options) {
       var content = options.shape;
       if (!content.meta
         || content.meta.type !== 'content'
