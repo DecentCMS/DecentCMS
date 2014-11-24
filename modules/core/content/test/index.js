@@ -42,7 +42,7 @@ describe('Content Manager', function() {
     expect(fetchedItem).to.be.ok;
   });
 
-  it('calls into content stores to fetch items', function() {
+  it('calls into content stores to fetch items', function(done) {
     var cm = new ContentManager();
     var got = [];
     var itemCallback = function(err, item) {
@@ -73,15 +73,14 @@ describe('Content Manager', function() {
           got.push(err.message);
           return;
         }
-        got.push('done');
+        expect(got)
+          .to.deep.equal([
+            'fetched foo',
+            'fetched bar',
+            'fetched bar'
+          ]);
+        done();
     }});
-
-    expect(got)
-      .to.deep.equal([
-        'fetched foo',
-        'fetched bar',
-        'fetched bar',
-        'done']);
   });
 
   it('promises to render shapes by adding them to its list', function() {
