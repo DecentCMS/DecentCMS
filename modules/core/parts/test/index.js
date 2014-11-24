@@ -4,6 +4,7 @@ var expect = require('chai').expect;
 
 var TextPart = require('../services/text-part');
 var TitlePart = require('../services/title-part');
+var TextView = require('../views/text');
 
 describe('Text Part Handler', function() {
   it('adds shapes for each text part', function() {
@@ -120,5 +121,55 @@ describe('Title Part Handler', function() {
     options.shape.temp.displayType = 'main';
     TitlePart.on['decent.core.handle-item']({}, options);
     expect(options.renderStream.title).to.equal('Foo');
+  });
+});
+
+describe('Text Part View', function() {
+  it('renders plain text HTML-encoded, with br tags for carriage returns', function() {
+    var text = 'Lorem\r\n<b>ipsum</b>.';
+    var html = '';
+    var renderer = {write: function(text) {
+      html += text;
+    }};
+
+    TextView({text: text, flavor: 'plain-text'}, renderer);
+
+    expect(html).to.equal('Lorem<br/>\r\n&lt;b&gt;ipsum&lt;/b&gt;.');
+  });
+
+  it('renders html as is', function() {
+    var text = 'Lorem\r\n<b>ipsum</b>.';
+    var html = '';
+    var renderer = {write: function(text) {
+      html += text;
+    }};
+
+    TextView({text: text, flavor: 'html'}, renderer);
+
+    expect(html).to.equal(text);
+  });
+
+  it('renders custom flavors', function() {
+    var flavorHandler = {
+      matches: function(flavor) {
+        return flavor === 'custom';
+      },
+      getHtml: function(text) {
+        return text + text;
+      }
+    };
+    var scope = {
+      getServices: function() {
+        return [flavorHandler];
+      }
+    };
+    var html = '';
+    var renderer = {write: function(text) {
+      html += text;
+    }};
+
+    TextView({text: 'foo', flavor: 'custom'}, renderer, scope);
+
+    expect(html).to.equal('foofoo');
   });
 });
