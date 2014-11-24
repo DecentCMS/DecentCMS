@@ -34,7 +34,7 @@ describe('Express App', function() {
 });
 
 describe('Express Route Handler', function() {
-  it('registers and uses middleware in priority order', function() {
+  it('registers and uses middleware in priority order', function(done) {
     var responses = [];
     var services = {
       middleware: [
@@ -80,6 +80,7 @@ describe('Express Route Handler', function() {
           .to.equal(expressRouteHandler.expressApp);
         expect(responses)
           .to.deep.equal(['second middleware', 'first middleware']);
+        done();
       });
   });
 });
