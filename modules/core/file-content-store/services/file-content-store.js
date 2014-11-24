@@ -58,6 +58,8 @@ var fileContentStore = {
             temp.filePath = filePath;
             // Add to the items list
             items[id] = item;
+            // Set the id property on the item
+            item.id = id;
             // Call all the item-specific callbacks
             if (Array.isArray(itemsToFetch[id])) {
               for (var j = 0; j < itemsToFetch[id].length; j++) {
