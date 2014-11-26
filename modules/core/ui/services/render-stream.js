@@ -161,6 +161,28 @@ RenderStream.prototype.endAllTags = function endAllTags() {
 
 /**
  * @description
+ * Triggers the rendering of the provided shape.
+ * @param {object} [shape]      The shape to render.
+ * @param {string} [tag]        An optional tag name to enclose the shape in if it exists.
+ * @param {object} [attributes] An optional list of attributes to add to the enclosing tag.
+ */
+RenderStream.prototype.shape = function renderShape(shape, tag, attributes) {
+  if (!shape) return this;
+  if (tag) {
+    this.startTag(tag, attributes);
+  }
+  this.scope.emit('decent.core.shape.render', {
+    shape: shape,
+    renderStream: this
+  });
+  if (tag) {
+    this.endTag();
+  }
+  return this;
+};
+
+/**
+ * @description
  * Renders a doctype.
  * @param {string} [type] The doctype. 'html' if not specified.
  */
@@ -190,7 +212,7 @@ RenderStream.prototype.addStyleSheet = function addStyleSheet(name) {
  * @param {string} url The URL of an external style sheet file.
  */
 RenderStream.prototype.addExternalStyleSheet = function addExternalStyleSheet(url) {
-  if (!(url in this.stylesheets)) {
+  if (this.stylesheets.indexOf(url) === -1) {
     this.stylesheets.push(url);
   }
   return this;
@@ -233,7 +255,7 @@ RenderStream.prototype.addScript = function addScript(name) {
  * @param {string} url The URL of an external script file.
  */
 RenderStream.prototype.addExternalScript = function addExternalScript(url) {
-  if (!(url in this.scripts)) {
+  if (this.scripts.indexOf(url) === -1) {
     this.scripts.push(url);
   }
   return this;
