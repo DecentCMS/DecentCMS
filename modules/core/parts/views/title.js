@@ -2,7 +2,7 @@
 'use strict';
 
 module.exports = function titleTemplate(title, renderer) {
-  renderer.write('<h1>');
+  renderer.startTag('h1');
   renderer.writeEncoded(title.text);
-  renderer.writeLine('</h1>');
+  renderer.endTag();
 };
