@@ -1,7 +1,7 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT license. See license.txt for licensing details.
 'use strict';
 var expect = require('chai').expect;
-var t = require('../lib/t');
+var t = require('../services/t');
 
 describe('t', function() {
   it('should return the string when there are no additional parameters', function() {

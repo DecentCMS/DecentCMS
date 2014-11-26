@@ -3,8 +3,6 @@
 
 //TODO: Separate lifetime features from content management apis
 
-var t = require('decent-core-localization').t;
-
 /**
  * @description
  * The ContentManager is responsible for the content retrieval and rendering lifecycle.
@@ -139,6 +137,7 @@ ContentManager.prototype.fetchItems = function fetchItems(payload) {
   }
   // Each handler should have synchronously removed the items it can take care of.
   if (self.itemsToFetch && Object.getOwnPropertyNames(self.itemsToFetch).length > 0) {
+    var t = this.scope.require('localization');
     var error = new Error(t('Couldn\'t load items %s', require('util').inspect(self.items)));
     if (callback) callback(error,  self.items);
   }
@@ -184,7 +183,6 @@ ContentManager.prototype.promiseToRender = function promiseToRender(options) {
       },
       id: options.id
     });
-    // console.log(t('Promised to fetch and render %s', options.id));
   }
   else if (options.shape) {
     options.request.shapes.push(options.shape);
@@ -237,6 +235,7 @@ ContentManager.prototype.buildRenderedPage = function buildRenderedPage(payload)
   });
   // Tear down
   renderStream.end();
+  var t = this.scope.require('localization');
   console.log(t('Request handled %s in %s ms.', request.url, new Date() - request.startTime));
 };
 

@@ -3,6 +3,12 @@
   "friendlyName": "Localization",
   "version": "0.0.0",
   "description": "Localization utilities for DecentCMS.",
+  "features": {
+    "localization": {
+      "name": "Localization",
+      "description": "Localize modules and themes."
+    }
+  },
   "main": "./index",
   "scripts": {
     "test": "./test/index"

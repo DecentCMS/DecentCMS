@@ -3,7 +3,6 @@
 
 var path = require('path');
 var fs = require('fs');
-var t = require('decent-core-localization').t;
 
 /**
  * @description
@@ -23,6 +22,7 @@ var StaticRouteHandler = {
         return scope.moduleManifests[moduleName].physicalPath;
       });
       var staticFolders = scope.staticFolders;
+      var t = scope.require('localization');
       for (var i = 0; i < modulePaths.length; i++) {
         for (var j = 0; j < staticFolders.length; j++) {
           var physicalPath = path.join(modulePaths[i], staticFolders[j]);

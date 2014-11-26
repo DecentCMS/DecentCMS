@@ -9,9 +9,6 @@
   },
   "author": "Bertrand Le Roy",
   "license": "MIT",
-  "dependencies": {
-    "decent-core-localization": "*"
-  },
   "devDependencies": {
     "chai": "*",
     "grunt-mocha-test": "*",

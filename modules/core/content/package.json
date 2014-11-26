@@ -13,9 +13,6 @@
   "directories": {
     "test": "./test/index"
   },
-  "dependencies": {
-    "decent-core-localization": "*"
-  },
   "devDependencies": {
     "chai": "*",
     "grunt": "*",

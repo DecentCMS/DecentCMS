@@ -1,8 +1,6 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-var t = require('decent-core-localization').t;
-
 /**
  * @description
  * This handler registers itself as an Express middleware that handles
@@ -26,7 +24,6 @@ var ContentRouteHandler = {
         });
         next();
       });
-      // console.log(t('Added catch-all route for contents.'));
     });
   }
 };

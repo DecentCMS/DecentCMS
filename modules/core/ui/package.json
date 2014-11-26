@@ -45,7 +45,6 @@
     "proxyquire": "*"
   },
   "dependencies": {
-    "decent-core-localization": "*",
     "htmlencode": "*"
   }
 }

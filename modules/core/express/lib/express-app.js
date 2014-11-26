@@ -1,16 +1,15 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-var t = require('decent-core-localization').t;
-
 /**
  * @description
  * Wraps an Express application so prioritized middleware can be added.
  * @param app The Express app.
  * @constructor
  */
-var ExpressApp = function(app) {
+var ExpressApp = function(app, scope) {
   this.app = app;
+  this.scope = scope;
   this.registrations = [];
   this.locked = false;
 };
@@ -24,7 +23,10 @@ var ExpressApp = function(app) {
  *                                Takes the Express app as its parameter.
  */
 ExpressApp.prototype.register = function(priority, registration) {
-  if (this.locked) throw new Error(t('Can\'t register middleware on a locked application.'));
+  if (this.locked) {
+    var t = this.scope.require('localization');
+    throw new Error(t('Can\'t register middleware on a locked application.'));
+  }
   registration.routePriority = priority;
   this.registrations.push(registration);
 };
@@ -43,6 +45,7 @@ ExpressApp.prototype.lock = function() {
     .forEach(function registerWithApp(registration) {
       registration(self.app);
     });
+  var t = self.scope.require('localization');
   console.log(t('Registered Express middleware.'));
   self.locked = true;
 };

@@ -15,7 +15,6 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "dependencies": {
-    "decent-core-localization": "*",
     "express": "*"
   },
   "devDependencies": {

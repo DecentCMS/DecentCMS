@@ -12,7 +12,6 @@ var path = require('path');
 var fs = require('fs');
 var async = require('async');
 var scope = require('decent-core-dependency-injection').scope;
-var t = require('decent-core-localization').t;
 
 /**
  * @description
@@ -95,9 +94,8 @@ Shell.load = function(sitePath, defaults) {
       settings[settingName] = defaults[settingName];
     }
   }
-  console.log(t('Loaded site settings from %s', settingsPath));
   return new Shell(settings);
-}
+};
 
 /**
  * @description
@@ -108,9 +106,7 @@ Shell.load = function(sitePath, defaults) {
  *                           Defaults to ./sites
  */
 Shell.discover = function(defaults, rootPath) {
-  Shell.discoveryStart = new Date();
   rootPath = rootPath || './sites';
-  console.log(t('Discovering tenants in %s', rootPath));
   var siteNames = fs.readdirSync(rootPath);
   siteNames.forEach(function(siteName) {
     var resolvedSitePath = path.resolve(rootPath, siteName);
@@ -120,12 +116,10 @@ Shell.discover = function(defaults, rootPath) {
     }
     catch(ex) {
       ex.path = resolvedSitePath;
-      ex.message = t('Failed to load site settings from %s.', settingsPath);
+      ex.message = 'Failed to load site settings from ' + settingsPath;
       throw ex;
     }
   });
-  var elapsed = new Date() - Shell.discoveryStart;
-  console.log(t('All tenants discovered in %s ms.', elapsed))
 };
 
 /**
@@ -250,7 +244,6 @@ Shell.prototype.loadModule = function(moduleName) {
       ServiceClass.manifest = service;
       self.serviceManifests[servicePath] = service;
       anyEnabledService = true;
-      console.log(t('Loaded service %s from %s', serviceName, servicePath));
     }
   }
   // Only add to the modules collection if it has enabled services
@@ -297,20 +290,17 @@ Shell.prototype.handleRequest = function(request, response) {
     routeHandlers,
     function routeHandledCallback() {
       // All route handlers have called back, carry on
-      // console.log(t('Route handlers called for %s', request.url));
       self.emit(Shell.fetchContentEvent, {
         shell: self,
         request: request,
         response: response,
         callback: function fetchContentDone(err) {
-          // console.log(t('Contents fetched for %s', request.url));
           if (err) {
             self.emit(Shell.renderErrorPage, err);
             return;
           }
           // Let's render stuff
           self.emit(Shell.renderPageEvent, payload);
-          // console.log(t('Page rendered for %s', request.url));
           // Tear down
           self.emit(Shell.endRequestEvent, payload);
           request.tearDown();

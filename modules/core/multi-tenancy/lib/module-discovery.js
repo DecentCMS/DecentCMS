@@ -2,7 +2,6 @@
 'use strict';
 var fs = require('fs');
 var path = require('path');
-var t = require('decent-core-localization').t;
 
 var availableModules = {};
 
@@ -15,7 +14,6 @@ function discover() {
   Array.prototype.forEach.call(
     (arguments.length === 0 ? ['./modules', './themes'] : arguments),
     function(rootPath) {
-      console.log(t('Discovering module areas in %s', rootPath));
       var areaPaths = fs.readdirSync(rootPath).map(function(subPath) {
         return path.resolve(rootPath, subPath);
       });
@@ -27,7 +25,6 @@ function discover() {
           modulePaths = [areaPath];
         }
         else {
-          console.log(t('Discovering modules in %s', areaPath));
           var pathStats = fs.statSync(areaPath);
           if (!pathStats.isFile()) {
             modulePaths = fs.readdirSync(areaPath).map(function(subPath) {
@@ -43,7 +40,6 @@ function discover() {
             var manifest = require(manifestPath);
             var moduleName = manifest.name;
             manifest.physicalPath = path.dirname(manifestPath);
-            console.log(t('Loaded module %s from %s', moduleName, manifestPath));
             availableModules[moduleName] = manifest;
             // Look for self-configuring services under /services
             if (!manifest.services) manifest.services = {};
@@ -78,7 +74,7 @@ function discover() {
           }
           catch(ex) {
             ex.path = manifestPath;
-            ex.message = t('Failed to load %s.', manifestPath);
+            ex.message = 'Failed to load ' + manifestPath;
             throw ex;
           }
         });

@@ -3,7 +3,6 @@
 var domain = require('domain');
 var http = require('http');
 var https = require('https');
-var t = require('./modules/core/localization/lib/t');
 var cluster = require('cluster');
 var moduleDiscovery = require('./modules/core/multi-tenancy/lib/module-discovery');
 var Shell = require('./modules/core/multi-tenancy/lib/shell');
@@ -19,7 +18,7 @@ if (runInCluster && cluster.isMaster) {
   }
 
   cluster.on('disconnect', function() {
-    console.error(t('Worker disconnected'));
+    console.error('Worker disconnected');
     cluster.fork();
   });
 } else {
@@ -67,11 +66,11 @@ if (runInCluster && cluster.isMaster) {
         res.statusCode = 500;
         // TODO: let route handlers set headers, including powered by.
         res.setHeader('content-type', 'text/html');
-        res.end(t('Oops, the server choked on this request!\n'));
+        res.end('Oops, the server choked on this request!\n');
         // TODO: broadcast the error to give loggers a chance to use it.
       } catch (er2) {
         // oh well, not much we can do at this point.
-        console.error(t('Error sending 500!'), er2.stack);
+        console.error('Error sending 500!', er2.stack);
       }
     });
     d.add(req);
@@ -109,11 +108,10 @@ if (runInCluster && cluster.isMaster) {
     if (!(hostAndPort in server._hostsAndPorts)) {
       server.listen(shell.port, shell.host);
       server._hostsAndPorts[hostAndPort] = true;
-      console.log(t('Tenant %s started on %s:%s.', shellName, shell.host, shell.port));
+      console.log('Tenant %s started on %s:%s.', shellName, shell.host, shell.port);
     }
     else {
-      console.log(t('Tenant %s added to listener on %s:%s.', shellName, shell.host, shell.port));
+      console.log('Tenant %s added to listener on %s:%s.', shellName, shell.host, shell.port);
     }
   }
-  console.log(t('All tenants started in %s ms.', new Date() - Shell.discoveryStart))
 }

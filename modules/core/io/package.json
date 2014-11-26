@@ -16,7 +16,6 @@
   "license": "MIT",
   "devDependencies": {
     "chai": "*",
-    "decent-core-localization": "*",
     "grunt-mocha-test": "*",
     "mocha": "*",
     "proxyquire": "*"

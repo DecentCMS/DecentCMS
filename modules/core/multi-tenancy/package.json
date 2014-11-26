@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "async": "*",
-    "decent-core-dependency-injection": "*",
-    "decent-core-localization": "*"
+    "decent-core-dependency-injection": "*"
   }
 }

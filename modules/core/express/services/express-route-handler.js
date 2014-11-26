@@ -12,7 +12,7 @@ var ExpressApp = require('../lib/express-app');
  */
 function ExpressRouteHandler(scope) {
   var app = this.app = express();
-  var expressApp = this.expressApp = new ExpressApp(app);
+  var expressApp = this.expressApp = new ExpressApp(app, scope);
   scope.register('express-app', expressApp);
   scope.register('express', express);
   if (!expressApp.locked) {

@@ -16,7 +16,13 @@ describe('Express App', function() {
     var registration2 = function(theApp) {theApp.push('two')};
     var registration3 = function(theApp) {theApp.push('three')};
 
-    var expressApp = new ExpressApp(app);
+    var expressApp = new ExpressApp(app, {
+      require: function(serviceName) {
+        if (serviceName === 'localization') {
+          return function(s) {return s;};
+        }
+      }
+    });
     expressApp.register(2, registration1);
     expressApp.register(3, registration2);
     expressApp.register(1, registration3);
@@ -26,7 +32,13 @@ describe('Express App', function() {
   });
 
   it('can\'t register middleware after it\'s been locked', function() {
-    var expressApp = new ExpressApp({});
+    var expressApp = new ExpressApp({}, {
+      require: function(serviceName) {
+        if (serviceName === 'localization') {
+          return function(s) {return s;};
+        }
+      }
+    });
     expressApp.lock();
 
     expect(expressApp.register).to.throw();
@@ -62,8 +74,12 @@ describe('Express Route Handler', function() {
       },
       getServices: function(serviceName) {
         return services[serviceName];
+      },
+      require: function(serviceName) {
+        return services[serviceName][0];
       }
     };
+    scope.register('localization', function(s) {return s;});
     var expressRouteHandler = new ExpressRouteHandler(scope);
     var request = new IncomingMessage(80);
     request.url = '/foo';

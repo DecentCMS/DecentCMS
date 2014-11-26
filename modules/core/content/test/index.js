@@ -145,7 +145,11 @@ describe('Content Manager', function() {
       payload.shape.rendered = true;
       payload.renderStream.write('rendered');
     });
-    var cm = new ContentManager();
+    var cm = new ContentManager({
+      require: function(serviceName) {
+        if (serviceName === 'localization') return function(s) {return s;};
+      }
+    });
 
     cm.buildRenderedPage({
       request: request,
