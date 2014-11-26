@@ -23,16 +23,8 @@ module.exports = function layoutTemplate(layout, renderer, scope) {
 
     .endTag()
     .writeLine()
-    .startTag('body');
-
-  if (layout.main) {
-    scope.emit('decent.core.shape.render', {
-      shape: layout.main,
-      renderStream: renderer
-    });
-  }
-
-  renderer
+    .startTag('body')
+    .shape(layout.main)
     .writeLine()
 
     .renderScripts()
