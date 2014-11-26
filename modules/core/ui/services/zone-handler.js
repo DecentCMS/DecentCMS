@@ -15,7 +15,7 @@ var ZoneHandler = {
   on: {
     'decent.core.handle-item': function(scope, options) {
       var zone = options.shape;
-      if (!zone.meta || !zone.temp) return;
+      if (!zone.temp) return;
 
       var items = zone.temp.items;
       if (items) {
