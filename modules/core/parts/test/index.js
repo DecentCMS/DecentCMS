@@ -179,20 +179,14 @@ describe('Title Part View', function() {
   it('renders the encoded title in h1 tags', function() {
     var html = '';
     var renderer = {
-      write: function(text) {
-        html += text;
-      },
-      writeEncoded: function(text) {
-        html += '|' + text + '|';
-      },
-      writeLine: function(text) {
-        html += text + '\r\n';
+      tag: function(tag, attributes, text) {
+        html += '[' + tag + ':' + text + ']';
       }
     };
 
     TitleView({text: 'foo du fa fa'}, renderer);
 
     expect(html)
-      .to.equal('<h1>|foo du fa fa|</h1>\r\n');
+      .to.equal('[h1:foo du fa fa]');
   });
 });
