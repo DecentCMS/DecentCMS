@@ -3,10 +3,6 @@
 
 module.exports = function layoutTemplate(layout, renderer, scope) {
   renderer
-    .addMeta('generator', 'DecentCMS')
-    .addStyleSheet('bootstrap')
-    .addScript('bootstrap')
-
     .doctype()
     .writeLine()
     .startTag('html')
