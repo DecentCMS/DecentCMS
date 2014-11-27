@@ -254,6 +254,21 @@ Shell.prototype.loadModule = function(moduleName) {
 
 /**
  * @description
+ * Middleware for use, for example, with Express.
+ *
+ * @param {http.IncomingMessage} request Request
+ * @param {http.ServerResponse}  response Response
+ */
+Shell.prototype.middleware = function(request, response, next) {
+  if (!this.canHandle(request)) {
+    next();
+    return;
+  }
+  this.handleRequest(request, response, next);
+};
+
+/**
+ * @description
  * Handles the request for the tenant
  * Emits the following events:
  * * decent-core-shell-start-request
@@ -266,9 +281,8 @@ Shell.prototype.loadModule = function(moduleName) {
  * @param {http.IncomingMessage} request Request
  * @param {http.ServerResponse}  response Response
  */
-Shell.prototype.handleRequest = function(request, response) {
+Shell.prototype.handleRequest = function(request, response, next) {
   var self = this;
-  request.startTime = new Date();
   // Most events use the same payload structure
   var payload = {
     shell: self,
@@ -305,6 +319,7 @@ Shell.prototype.handleRequest = function(request, response) {
           self.emit(Shell.endRequestEvent, payload);
           request.tearDown();
           response.end('');
+          if (next) next();
         }
       });
     }

@@ -6,6 +6,7 @@ var proxyquire = require('proxyquire');
 var EventEmitter = require('events').EventEmitter;
 var path = require('path');
 var IncomingMessage = require('http').IncomingMessage;
+var ServerResponse = require('http').ServerResponse;
 var scope = require('decent-core-dependency-injection').scope;
 
 var Shell = require('../lib/shell');
@@ -31,6 +32,7 @@ describe('Shell', function() {
       expect(Shell.empty.name).to.equal('Empty shell');
     });
   });
+
   describe('instance', function() {
     it('has default host, port, https flag, features, available modules, services, and manifests', function() {
       var shell = new Shell();
@@ -245,7 +247,7 @@ describe('Shell', function() {
       };
       Shell.list.site1.canHandle = function() {
         return true;
-      }
+      };
       var req = new IncomingMessage();
       req.headers.host = 'tenant1';
 
@@ -699,6 +701,39 @@ describe('Shell', function() {
 
       expect(instances)
         .to.be.empty;
+    });
+
+    it('can behave as middleware and handle requests', function(done) {
+      var happened = [];
+      var request = new IncomingMessage(80);
+      request.headers.host = 'localhost';
+      var response = new ServerResponse(request);
+      var shell = scope('', new Shell(), {
+        'route-handler': [
+          {handle: function(payload, callback) {happened.push('handled by 1');callback();}},
+          {handle: function(payload, callback) {happened.push('handled by 2');callback();}}
+        ]
+      });
+      shell.on(Shell.startRequestEvent, function() {happened.push('start request')});
+      shell.on(Shell.fetchContentEvent, function(payload) {
+        happened.push('fetch content');
+        payload.callback();
+      });
+      shell.on(Shell.renderPageEvent, function() {happened.push('render')});
+      shell.on(Shell.endRequestEvent, function() {happened.push('end request')});
+
+      shell.middleware(request, response, function() {
+        expect(happened)
+          .to.deep.equal([
+            'start request',
+            'handled by 1',
+            'handled by 2',
+            'fetch content',
+            'render',
+            'end request'
+          ]);
+        done();
+      });
     });
   });
 });
