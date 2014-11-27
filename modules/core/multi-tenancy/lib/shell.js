@@ -12,6 +12,7 @@ var path = require('path');
 var fs = require('fs');
 var async = require('async');
 var scope = require('decent-core-dependency-injection').scope;
+var nullServices = require('./null-services');
 
 /**
  * @description
@@ -137,7 +138,7 @@ Shell.resolve = function(request) {
     }
   }
   return null; // Unresolved requests should not go to a default shell
-}
+};
 
 /**
  * @description
@@ -194,6 +195,14 @@ Shell.prototype.load = function() {
   this.initialize();
   // The shell exposes itself as a service
   this.register('shell', this);
+  // Register null services if no better one exists
+  for (var nullServiceName in nullServices) {
+    if (!this.services.hasOwnProperty(nullServiceName)) {
+      var nullService = nullServices[nullServiceName];
+      nullService.isStatic = true;
+      this.services[nullServiceName] = [nullService];
+    }
+  }
   // Mark the shell as loaded
   this.loaded = true;
 };

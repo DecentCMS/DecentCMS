@@ -588,6 +588,24 @@ describe('Shell', function() {
         .to.deep.equal(["module 2", "module 3", "module 1"]);
     });
 
+    it('will use null services if no service with the same name is defined', function() {
+      var shell = new Shell();
+      shell.load();
+      var localizationService = shell.require('localization');
+      expect(localizationService('foo')).to.equal('foo');
+    });
+
+    it('will not use null services if a service with the same name is defined', function() {
+      var shell = new Shell();
+      shell.services = {
+        localization: [function(s) {return '[' + s + ']';}]
+      };
+      shell.services.localization[0].isStatic = true;
+      shell.load();
+      var localizationService = shell.require('localization');
+      expect(localizationService('foo')).to.equal('[foo]');
+    });
+
     it('will initialize modules', function() {
       var ServiceClass1 = serviceClassFactory(1);
       var initialized = false;
