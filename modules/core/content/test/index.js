@@ -43,7 +43,24 @@ describe('Content Manager', function() {
   });
 
   it('calls into content stores to fetch items', function(done) {
-    var cm = new ContentManager();
+    var cm = new ContentManager({
+      getServices: function() {
+        return [{
+          loadItems: function(scope, payload, next) {
+            var itemsToFetch = payload.itemsToFetch;
+            for (var id in itemsToFetch) {
+              var item = {id: id, data: 'fetched ' + id};
+              payload.items[id] = item;
+              for (var i = 0; i < itemsToFetch[id].length; i++) {
+                itemsToFetch[id][i](null, item);
+              }
+              delete payload.itemsToFetch[id];
+            }
+            next();
+          }
+        }];
+      }
+    });
     var got = [];
     var itemCallback = function(err, item) {
       got.push(item.data);
@@ -52,23 +69,9 @@ describe('Content Manager', function() {
       foo: [itemCallback],
       bar: [itemCallback, itemCallback]
     };
-    var request = new EventEmitter();
-    request.on(ContentManager.loadItemsEvent, function(payload) {
-      var itemsToFetch = payload.itemsToFetch;
-      for (var id in itemsToFetch) {
-        var item = {id: id, data: 'fetched ' + id};
-        payload.items[id] = item;
-        for (var i = 0; i < itemsToFetch[id].length; i++) {
-          itemsToFetch[id][i](null, item);
-        }
-        delete payload.itemsToFetch[id];
-        payload.callback();
-      }
-    });
-
-    cm.fetchItems({
-      request: request,
-      callback: function(err) {
+    cm.fetchItems(
+      {request: new EventEmitter()},
+      function(err) {
         if (err) {
           got.push(err.message);
           return;
@@ -80,7 +83,7 @@ describe('Content Manager', function() {
             'fetched bar'
           ]);
         done();
-    }});
+    });
   });
 
   it('promises to render shapes by adding them to its list', function() {

@@ -26,7 +26,8 @@ var stubs = {
           // File not found
           callback({code: 'ENOENT'});
       }
-    }
+    },
+    '@noCallThru': true
   }
 };
 
@@ -61,18 +62,17 @@ describe('File Content Store', function() {
       itemsToFetch: {
         '/': [itemCallback],
         '/bar/baz': [itemCallback, itemCallback]
-      },
-      callback: function(err, data) {
-        expect(itemIdsRead)
-          .to.deep.equal(['/', '/bar/baz', '/bar/baz']);
-        expect(items['/'].title).to.equal('Home');
-        expect(items['/bar/baz'].title).to.equal('Foo');
-        expect(items['/bar/baz'].body._data).to.equal('*markdown*');
-        done();
       }
     };
 
-    fileContentStore.on['decent.core.load-items'](scope, payload);
+    fileContentStore.loadItems(scope, payload, function() {
+      expect(itemIdsRead)
+        .to.deep.equal(['/', '/bar/baz', '/bar/baz']);
+      expect(items['/'].title).to.equal('Home');
+      expect(items['/bar/baz'].title).to.equal('Foo');
+      expect(items['/bar/baz'].body._data).to.equal('*markdown*');
+      done();
+    });
   });
 
   it('transmits errors to callbacks', function(done) {
@@ -80,14 +80,13 @@ describe('File Content Store', function() {
       items: {},
       itemsToFetch: {
         'error': []
-      },
-      callback: function(err) {
-        expect(err.message).to.equal('error');
-        done();
       }
     };
 
-    fileContentStore.on['decent.core.load-items'](scope, payload);
+    fileContentStore.loadItems(scope, payload, function(err) {
+      expect(err.message).to.equal('error');
+      done();
+    });
   });
 
   it("does nothing for items it can't find", function(done) {
@@ -95,15 +94,14 @@ describe('File Content Store', function() {
       items: {},
       itemsToFetch: {
         doesntExist: []
-      },
-      callback: function(err) {
-        expect(err).to.not.be.ok;
-        expect(payload.itemsToFetch.doesntExist).to.be.ok;
-        expect(payload.items.doesntExist).to.not.be.ok;
-        done();
       }
     };
 
-    fileContentStore.on['decent.core.load-items'](scope, payload);
+    fileContentStore.loadItems(scope, payload, function(err) {
+      expect(err).to.not.be.ok;
+      expect(payload.itemsToFetch.doesntExist).to.be.ok;
+      expect(payload.items.doesntExist).to.not.be.ok;
+      done();
+    });
   });
 });

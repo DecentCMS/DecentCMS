@@ -1,6 +1,8 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
+var async = require('async');
+
 //TODO: Separate lifetime features from content management apis
 
 /**
@@ -32,7 +34,8 @@ ContentManager.on = {
     var contentManager = payload.request.contentManager;
     if (!contentManager) return;
     // Use it to fetch items from the content store
-    contentManager.fetchItems(payload);
+    var callback = payload.callback;
+    contentManager.fetchItems(payload, callback);
   },
   'decent.core.shell.render-page': function onRenderPage(scope, payload) {
     if (!payload.request) return;
@@ -105,11 +108,8 @@ ContentManager.prototype.getAvailableItem = function getAvailableItem(id) {
  * called when all items have been fetched, or when an error
  * occurs.
  */
-ContentManager.prototype.fetchItems = function fetchItems(payload) {
-  // TODO: refactor this to use the async library.
-  // TODO: make callback a parameter, not an option of payload.
+ContentManager.prototype.fetchItems = function fetchItems(payload, callback) {
   var self = this;
-  var callback = payload.callback;
   for (var id in self.itemsToFetch) {
     if (self.items.hasOwnProperty(id)
       && self.itemsToFetch
@@ -124,36 +124,22 @@ ContentManager.prototype.fetchItems = function fetchItems(payload) {
     }
   }
   if (payload.request && Object.getOwnPropertyNames(self.itemsToFetch).length > 0) {
-    // Now broadcast the list for content stores to do their job
-    payload.request.emit(ContentManager.loadItemsEvent, {
-      items: self.items,
-      itemsToFetch: self.itemsToFetch,
-      callback: function () {
-        self.itemsFetchedCallback(null, {
-          callback: callback
-        });
-      }
-    });
+    var stores = self.scope.getServices('content-store');
+    async.each(stores,
+      function(store, next) {
+        store.loadItems(
+          self.scope,
+          {
+            items: self.items,
+            itemsToFetch: self.itemsToFetch
+          }, next);
+      },
+      callback
+    );
   }
-  // Each handler should have synchronously removed the items it can take care of.
-  if (self.itemsToFetch && Object.getOwnPropertyNames(self.itemsToFetch).length > 0) {
-    var t = this.scope.require('localization');
-    var error = new Error(t('Couldn\'t load items %s', require('util').inspect(self.items)));
-    if (callback) callback(error,  self.items);
-  }
-};
-
-// This will disappear once the item fetching uses async:
-// this is the last callback after all items have come back from storage.
-ContentManager.prototype.itemsFetchedCallback = function itemsFetchedCallback(err, data) {
-  if (err) {
-    if (data.callback) data.callback(err);
-    return;
-  }
-  // If all items have been loaded from storage, it's time to start the next task
-  // TODO: what happens if not all items can be fetched?
-  if (Object.getOwnPropertyNames(this.itemsToFetch).length === 0) {
-    data.callback();
+  else if (self.itemsToFetch && Object.getOwnPropertyNames(self.itemsToFetch).length > 0) {
+    // TODO: add not found route handler, that will fall back correctly even when the static handler is involved.
+    if (callback) callback(null,  self.items);
   }
 };
 
@@ -273,31 +259,6 @@ ContentManager.prototype.getParts = function getParts(item, partTypeName) {
 
 // TODO: make event names consistent everywhere
 // TODO: finish documenting emitted events
-
-/**
- * @description
- * This event is emitted when content items should be fetched from stores.
- */
-ContentManager.loadItemsEvent = 'decent.core.load-items';
-ContentManager.loadItemsEvent.payload = {
-  /**
-   * @description
-   * The current map of id to item that we already have. The handlers add to this map.
-   */
-  items: 'Object',
-  /**
-   * @description
-   * The list of item ids to fetch from the stores.
-   * Handlers must remove from this list what they were able to successfully fetch.
-   */
-  itemsToFetch: 'Array',
-  /**
-   * @description
-   * A function that handlers must call after they are done. This should be done asynchronously.
-   */
-  callback: 'Function'
-};
-
 /**
  * @description
  * This item lets handlers manipulate the shapes before
