@@ -108,10 +108,6 @@ if (runInCluster && cluster.isMaster) {
     if (!(hostAndPort in server._hostsAndPorts)) {
       server.listen(shell.port, shell.host);
       server._hostsAndPorts[hostAndPort] = true;
-      console.log('Tenant %s started on %s:%s.', shellName, shell.host, shell.port);
-    }
-    else {
-      console.log('Tenant %s added to listener on %s:%s.', shellName, shell.host, shell.port);
     }
   }
 }

@@ -588,11 +588,18 @@ describe('Shell', function() {
         .to.deep.equal(["module 2", "module 3", "module 1"]);
     });
 
-    it('will use null services if no service with the same name is defined', function() {
+    it('will use null localization if no localization service is defined', function() {
       var shell = new Shell();
       shell.load();
       var localizationService = shell.require('localization');
       expect(localizationService('foo')).to.equal('foo');
+    });
+
+    it('will use null logging if no log service is defined', function() {
+      var shell = new Shell();
+      shell.load();
+      var logger = shell.require('log');
+      expect(logger.verbose).to.be.ok;
     });
 
     it('will not use null services if a service with the same name is defined', function() {
@@ -730,7 +737,8 @@ describe('Shell', function() {
         'route-handler': [
           {handle: function(payload, callback) {happened.push('handled by 1');callback();}},
           {handle: function(payload, callback) {happened.push('handled by 2');callback();}}
-        ]
+        ],
+        'log': [{profile: function() {}}]
       });
       shell.on(Shell.startRequestEvent, function() {happened.push('start request')});
       shell.on(Shell.fetchContentEvent, function(payload) {

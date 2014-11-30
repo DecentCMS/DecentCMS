@@ -235,8 +235,6 @@ ContentManager.prototype.buildRenderedPage = function buildRenderedPage(payload)
   });
   // Tear down
   renderStream.end();
-  var t = this.scope.require('localization');
-  console.log(t('Request handled %s in %s ms.', request.url, new Date() - request.startTime));
 };
 
 /**

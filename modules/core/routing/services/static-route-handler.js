@@ -22,14 +22,14 @@ var StaticRouteHandler = {
         return scope.moduleManifests[moduleName].physicalPath;
       });
       var staticFolders = scope.staticFolders;
-      var t = scope.require('localization');
+      var log = scope.require('log');
       for (var i = 0; i < modulePaths.length; i++) {
         for (var j = 0; j < staticFolders.length; j++) {
           var physicalPath = path.join(modulePaths[i], staticFolders[j]);
           if (!fs.existsSync(physicalPath)) continue;
           var url = '/' + staticFolders[j];
           app.use(url, express.static(physicalPath));
-          console.log(t('Added static file route for %s.', physicalPath));
+          log.verbose('Added static file route.', {path: physicalPath});
         }
       }
     });

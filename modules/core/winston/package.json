@@ -1,0 +1,26 @@
+{
+  "name": "decent-core-winston",
+  "version": "0.0.0",
+  "description": "Integration of Winston logging into DecentCMS.",
+  "features": {
+    "winston-logger": {
+      "name": "Winston Logger",
+      "description": "Integration of Winston logger.",
+      "dependencies": ["localization"]
+    }
+  },
+  "main": "./index",
+  "scripts": {
+    "test": "./test/index"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "dependencies": {
+    "winston": "*"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "chai": "*",
+    "grunt-mocha-test": "*"
+  }
+}

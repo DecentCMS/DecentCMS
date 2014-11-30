@@ -8,7 +8,16 @@
  * type is registered.
  */
 var nullServices = {
-  localization: function(s) {return s;}
+  localization: function(s) {return s;},
+  log: {
+    log: function() {},
+    verbose: function() {},
+    debug: function() {},
+    info: function() {},
+    warn: function() {},
+    error: function() {},
+    profile: function() {}
+  }
 };
 
 module.exports = nullServices;

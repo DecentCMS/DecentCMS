@@ -45,8 +45,8 @@ ExpressApp.prototype.lock = function() {
     .forEach(function registerWithApp(registration) {
       registration(self.app);
     });
-  var t = self.scope.require('localization');
-  console.log(t('Registered Express middleware.'));
+  var log = self.scope.require('log');
+  if (log ) log.verbose('Registered Express middleware.');
   self.locked = true;
 };
 

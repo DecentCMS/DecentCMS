@@ -49,9 +49,7 @@ describe('Static Route Handler', function() {
   it('registers all existing static paths in all modules as routes', function() {
     var middleware = null;
     var scope = {
-      require: function(serviceName) {
-        if (serviceName === 'localization') return function(s) {return s;};
-      },
+      require: function() {return {verbose: function() {}}},
       modules: ['moduleA', 'moduleB'],
       moduleManifests: {
         moduleA: {physicalPath: path.join('path', 'to', 'a')},

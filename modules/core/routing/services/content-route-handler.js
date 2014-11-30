@@ -14,7 +14,6 @@ var ContentRouteHandler = {
   register: function registerContentMiddleware(scope, payload) {
     payload.expressApp.register(ContentRouteHandler.routePriority, function (app) {
       app.get('*', function (request, response, next) {
-        // console.log(t('Content handler handling %s', request.url));
         var contentManager = request.contentManager;
         if (!contentManager) return;
         contentManager.promiseToRender({

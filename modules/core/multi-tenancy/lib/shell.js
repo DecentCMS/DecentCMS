@@ -292,6 +292,10 @@ Shell.prototype.middleware = function(request, response, next) {
  */
 Shell.prototype.handleRequest = function(request, response, next) {
   var self = this;
+  var log = self.require('log');
+  var profileId = 'shell-handle-request-'
+    + (this._profileIndex = (this._profileIndex || 0) + 1);
+  log.profile(profileId);
   // Most events use the same payload structure
   var payload = {
     shell: self,
@@ -328,6 +332,10 @@ Shell.prototype.handleRequest = function(request, response, next) {
           self.emit(Shell.endRequestEvent, payload);
           request.tearDown();
           response.end('');
+          log.profile(profileId, 'Handled request', {
+            tenant: self.name,
+            url: request.url
+          });
           if (next) next();
         }
       });
