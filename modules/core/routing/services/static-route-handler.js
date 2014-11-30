@@ -23,6 +23,7 @@ var StaticRouteHandler = {
       });
       var staticFolders = scope.staticFolders;
       var log = scope.require('log');
+      // Register a static route for each existing static folder in each module
       for (var i = 0; i < modulePaths.length; i++) {
         for (var j = 0; j < staticFolders.length; j++) {
           var physicalPath = path.join(modulePaths[i], staticFolders[j]);
@@ -32,6 +33,10 @@ var StaticRouteHandler = {
           log.verbose('Added static file route.', {path: physicalPath});
         }
       }
+      // Also, register a /favicon.ico route in case the theme doesn't do things correctly
+      var faviconPath = path.resolve('./favicon.ico');
+      app.use('/favicon.ico', express.static(faviconPath));
+      log.verbose('Added static favicon.ico route.', {path: faviconPath});
     });
   }
 };

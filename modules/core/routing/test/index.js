@@ -93,7 +93,8 @@ describe('Static Route Handler', function() {
         {url: '/img', path: files[0]},
         {url: '/css', path: files[1]},
         {url: '/js', path: files[3]},
-        {url: '/css', path: files[2]}
+        {url: '/css', path: files[2]},
+        {url: '/favicon.ico', path: path.resolve('favicon.ico')}
       ]);
   });
 });
