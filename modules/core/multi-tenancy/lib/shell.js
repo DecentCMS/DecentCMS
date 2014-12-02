@@ -280,12 +280,12 @@ Shell.prototype.middleware = function(request, response, next) {
  * @description
  * Handles the request for the tenant
  * Emits the following events:
- * * decent-core-shell-start-request
+ * * decent.core.shell.start-request
  * * decent.core.shell.handle-route
  * * decent.core.shell.fetch-content
  * * decent.core.shell.render-error
  * * decent.core.shell.render-page
- * * decent-core-shell-end-request
+ * * decent.core.shell.end-request
  *
  * @param {http.IncomingMessage} request Request
  * @param {http.ServerResponse}  response Response
@@ -349,7 +349,7 @@ Shell.prototype.handleRequest = function(request, response, next) {
  * This is a good time to attach a service to the request object.
  * @type {string}
  */
-Shell.startRequestEvent = 'decent-core-shell-start-request';
+Shell.startRequestEvent = 'decent.core.shell.start-request';
 Shell.startRequestEvent.payload = {
   shell: 'Shell',
   request: 'IncomingMessage',
@@ -362,7 +362,7 @@ Shell.startRequestEvent.payload = {
  * This is a good time to detach services and events.
  * @type {string}
  */
-Shell.endRequestEvent = 'decent-core-shell-end-request';
+Shell.endRequestEvent = 'decent.core.shell.end-request';
 Shell.endRequestEvent.payload = {
   shell: 'Shell',
   request: 'IncomingMessage',

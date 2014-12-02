@@ -24,7 +24,7 @@ ContentManager.scope = 'shell';
 ContentManager.isStatic = true;
 
 ContentManager.on = {
-  'decent-core-shell-start-request': function onStartRequest(scope, payload) {
+  'decent.core.shell.start-request': function onStartRequest(scope, payload) {
     // Create a content manager for the duration of the request.
     payload.request.contentManager = new ContentManager(scope);
   },
@@ -45,7 +45,7 @@ ContentManager.on = {
     // Use it to build the rendered page
     contentManager.buildRenderedPage(payload);
   },
-  'decent-core-shell-end-request': function onEndRequest(scope, payload) {
+  'decent.core.shell.end-request': function onEndRequest(scope, payload) {
     var request = payload.request;
     if (!request) return;
     var contentManager = request.contentManager;
@@ -257,7 +257,6 @@ ContentManager.prototype.getParts = function getParts(item, partTypeName) {
   return parts;
 }
 
-// TODO: make event names consistent everywhere
 // TODO: finish documenting emitted events
 /**
  * @description
