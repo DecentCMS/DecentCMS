@@ -13,5 +13,8 @@
     "chai": "*",
     "grunt-mocha-test": "*",
     "mocha": "*"
+  },
+  "dependencies": {
+    "async": "*"
   }
 }

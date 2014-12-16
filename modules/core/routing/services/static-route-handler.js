@@ -16,9 +16,9 @@ var StaticRouteHandler = {
   scope: 'shell',
   register: function registerStaticRoutesMiddleware(scope, payload) {
     var express = payload.express;
-    payload.expressApp.register(StaticRouteHandler.routePriority, function (app) {
+    payload.expressApp.register(StaticRouteHandler.routePriority, function bindStaticMiddleware(app) {
       var modules = scope.modules;
-      var modulePaths = modules.map(function(moduleName) {
+      var modulePaths = modules.map(function mapModuleToPath(moduleName) {
         return scope.moduleManifests[moduleName].physicalPath;
       });
       var staticFolders = scope.staticFolders;

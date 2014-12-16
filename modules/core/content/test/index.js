@@ -3,74 +3,77 @@
 var expect = require('chai').expect;
 var EventEmitter = require('events').EventEmitter;
 var stream = require('stream');
+var async = require('async');
+
 var ContentManager = require('../services/content-manager');
+var ContentStorageManager = require('../services/content-storage-manager');
+var ContentRenderer = require('../services/content-renderer');
 
 describe('Content Manager', function() {
   it('can promise to get single ids', function() {
-    var cm = new ContentManager();
+    var scope = {};
+    var cm = new ContentStorageManager(scope);
     cm.promiseToGet('foo');
-    expect(cm.itemsToFetch)
+    expect(scope.itemsToFetch)
       .to.contain.key('foo');
     cm.promiseToGet('bar');
-    expect(cm.itemsToFetch)
+    expect(scope.itemsToFetch)
       .to.contain.key('foo')
       .and.to.contain.key('bar');
   });
 
   it('can promise to get arrays of ids', function() {
-    var cm = new ContentManager();
+    var scope = {};
+    var cm = new ContentStorageManager(scope);
     cm.promiseToGet(['foo', 'bar']);
-    expect(cm.itemsToFetch)
+    expect(scope.itemsToFetch)
       .to.contain.key('foo')
       .and.to.contain.key('bar');
     cm.promiseToGet(['bar', 'baz']);
-    expect(cm.itemsToFetch)
+    expect(scope.itemsToFetch)
       .to.contain.key('foo')
       .and.to.contain.key('bar')
       .and.to.contain.key('baz');
   });
 
   it('immediately calls back when an item is already available', function() {
-    var cm = new ContentManager();
-    cm.items = {foo: {}};
+    var scope = {items: {foo:{}}};
+    var cm = new ContentStorageManager(scope);
     var fetchedItem = null;
     cm.promiseToGet('foo', function(err, item) {
       fetchedItem = item;
     });
-    cm.fetchItems({});
+    cm.fetchContent();
 
     expect(fetchedItem).to.be.ok;
   });
 
   it('calls into content stores to fetch items', function(done) {
-    var cm = new ContentManager({
-      getServices: function() {
-        return [{
-          loadItems: function(scope, payload, next) {
-            var itemsToFetch = payload.itemsToFetch;
-            for (var id in itemsToFetch) {
-              var item = {id: id, data: 'fetched ' + id};
-              payload.items[id] = item;
-              for (var i = 0; i < itemsToFetch[id].length; i++) {
-                itemsToFetch[id][i](null, item);
-              }
-              delete payload.itemsToFetch[id];
-            }
-            next();
-          }
-        }];
-      }
-    });
     var got = [];
     var itemCallback = function(err, item) {
       got.push(item.data);
     };
-    cm.itemsToFetch = {
-      foo: [itemCallback],
-      bar: [itemCallback, itemCallback]
-    };
-    cm.fetchItems(
-      {request: new EventEmitter()},
+    var cm = new ContentStorageManager({
+      itemsToFetch: {
+        foo: [itemCallback],
+        bar: [itemCallback, itemCallback]
+      },
+      callService: function(service, method, payload, next) {
+        var itemsToFetch = payload.itemsToFetch;
+        for (var id in itemsToFetch) {
+          var item = {id: id, data: 'fetched ' + id};
+          payload.items[id] = item;
+          for (var i = 0; i < itemsToFetch[id].length; i++) {
+            itemsToFetch[id][i](null, item);
+          }
+          delete payload.itemsToFetch[id];
+        }
+        next();
+      }
+    });
+
+    cm.fetchContent(
+      {},
       function(err) {
         if (err) {
           got.push(err.message);
@@ -87,8 +90,8 @@ describe('Content Manager', function() {
   });
 
   it('promises to render shapes by adding them to its list', function() {
-    var cm = new ContentManager();
     var request = {};
+    var cm = new ContentRenderer(request);
     var shape1 = {};
     var shape2 = {};
 
@@ -100,8 +103,12 @@ describe('Content Manager', function() {
   });
 
   it('promises to render ids by adding promise shapes to its list', function() {
-    var cm = new ContentManager();
-    var request = {};
+    var request = {
+      require: function() {
+        return new ContentStorageManager(request);
+      }
+    };
+    var cm = new ContentRenderer(request);
 
     cm.promiseToRender({request: request, id: 'foo', displayType: 'main'});
 
@@ -113,60 +120,55 @@ describe('Content Manager', function() {
       .to.equal('foo');
   });
 
-  it('renders the page from a list of shapes', function() {
-    var request = new EventEmitter();
-    request.shapes = [
-      {meta: {type: 'shape-type-1'}},
-      {meta: {type: 'shape-type-2'}}
-    ];
-    request.require = function(serviceName) {
-      return new stream.PassThrough();
-    };
+  it('executes a page lifecycle', function(done) {
     var response = new stream.PassThrough();
     var html = [];
+    var servicesAndMethods = [];
     response.on('data', function(data) {
       html.push(data);
     });
-    request.on(ContentManager.placementEvent, function(payload) {
-      payload.shape.one = payload.shapes[0];
-      payload.shape.two = payload.shapes[1];
-    });
-    request.on(ContentManager.handleItemEvent, function(payload) {
-      payload.shape.handled = true;
-      payload.renderStream.write('handlers')
-    });
-    request.on(ContentManager.registerMetaEvent, function(payload) {
+    var request = new EventEmitter();
+    request.require = function () {
+      return new stream.PassThrough();
+    };
+    request.lifecycle = function() {
+      var args = arguments;
+      return function(payload, callback) {
+        async.each(args, function(argument, next) {
+          if (typeof(argument) === 'string') {
+            servicesAndMethods.push(argument);
+            next();
+          }
+          else {
+            argument(payload, next);
+          }
+        }, function() {
+          callback();
+        });
+      }
+    };
+    request.on(ContentRenderer.registerMetaEvent, function(payload) {
       payload.renderStream.write('meta');
     });
-    request.on(ContentManager.registerStyleEvent, function(payload) {
+    request.on(ContentRenderer.registerStyleEvent, function(payload) {
       payload.renderStream.write('style');
     });
-    request.on(ContentManager.registerScriptEvent, function(payload) {
+    request.on(ContentRenderer.registerScriptEvent, function(payload) {
       payload.renderStream.write('script');
     });
-    request.on(ContentManager.renderShapeEvent, function(payload) {
-      payload.shape.rendered = true;
-      payload.renderStream.write('rendered');
-    });
-    var cm = new ContentManager({
-      require: function(serviceName) {
-        if (serviceName === 'localization') return function(s) {return s;};
-      }
-    });
+    var cm = new ContentRenderer(request);
 
-    cm.buildRenderedPage({
+    cm.render({
+      scope: request,
       request: request,
       response: response
+    }, function() {
+      expect(html.join('|'))
+        .to.equal('meta|style|script');
+      expect(servicesAndMethods.join('|'))
+        .to.equal('placement-strategy|placeShapes|content-handler|handleItem|rendering-strategy|render');
+      done();
     });
-
-    expect(html.join('|'))
-      .to.equal('handlers|meta|style|script|rendered');
-    expect(request.layout.one.meta.type)
-      .to.equal('shape-type-1');
-    expect(request.layout.two.meta.type)
-      .to.equal('shape-type-2');
-    expect(request.layout.handled).to.be.ok;
-    expect(request.layout.rendered).to.be.ok;
   });
 
   it('can infer the type definition for a shape', function() {

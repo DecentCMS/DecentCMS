@@ -45,6 +45,8 @@
     "proxyquire": "*"
   },
   "dependencies": {
+    "async": "*",
+    "flasync": "*",
     "htmlencode": "*"
   }
 }

@@ -279,12 +279,12 @@ Shell.prototype.middleware = function(request, response, next) {
 /**
  * @description
  * Handles the request for the tenant
- * Emits the following events:
+ * Emits the following events and service calls:
  * * decent.core.shell.start-request
- * * decent.core.shell.handle-route
- * * decent.core.shell.fetch-content
+ * * 'route-handler'.handle({shell, request, response}, done)
+ * * 'storage-manager'.fetchContent({shell, request, response}, done)
+ * * 'renderer'.render({shell, request, response}, done)
  * * decent.core.shell.render-error
- * * decent.core.shell.render-page
  * * decent.core.shell.end-request
  *
  * @param {http.IncomingMessage} request Request
@@ -303,44 +303,30 @@ Shell.prototype.handleRequest = function(request, response, next) {
     response: response
   };
   // Mix-in scope into request
-  scope('request', request, self.services);
+  scope('request', request, self.services, self);
   // Let services register themselves with the request
   self.emit(Shell.startRequestEvent, payload);
-  // Does anyone want to handle this?
-  var routeHandlers = this.getServices('route-handler')
-    .map(function mapRouteHandlers(routeHandler) {
-      return function(callback) {
-        routeHandler.handle(payload, callback);
-      }
-    });
-  async.waterfall(
-    routeHandlers,
-    function routeHandledCallback() {
-      // All route handlers have called back, carry on
-      self.emit(Shell.fetchContentEvent, {
-        shell: self,
-        request: request,
-        response: response,
-        callback: function fetchContentDone(err) {
-          if (err) {
-            self.emit(Shell.renderErrorPage, err);
-            return;
-          }
-          // Let's render stuff
-          self.emit(Shell.renderPageEvent, payload);
-          // Tear down
-          self.emit(Shell.endRequestEvent, payload);
-          request.tearDown();
-          response.end('');
-          log.profile(profileId, 'Handled request', {
-            tenant: self.name,
-            url: request.url
-          });
-          if (next) next();
-        }
-      });
-    }
+
+  var lifecycle = request.lifecycle(
+    'route-handler', 'handle',
+    'storage-manager', 'fetchContent',
+    'renderer', 'render'
   );
+  lifecycle(payload, function lifecycleDone(err) {
+    if (err) {
+      self.emit(Shell.renderErrorPage, err);
+      throw err;
+    }
+    // Tear down
+    self.emit(Shell.endRequestEvent, payload);
+    request.tearDown();
+    response.end('');
+    log.profile(profileId, 'Handled request', {
+      tenant: self.name,
+      url: request.url
+    });
+    if (next) next();
+  });
 };
 
 /**
@@ -367,35 +353,6 @@ Shell.endRequestEvent.payload = {
   shell: 'Shell',
   request: 'IncomingMessage',
   response: 'ServerResponse'
-};
-
-/**
- * @description
- * The event that is broadcast when a route needs to be resolved.
- * @type {string}
- */
-Shell.handleRouteEvent = 'decent.core.shell.handle-route';
-Shell.handleRouteEvent.payload = {
-  shell: 'Shell',
-  request: 'IncomingMessage',
-  response: 'ServerResponse'
-};
-
-/**
- * @description
- * The event that is broadcast when content needs to be fetched from stores.
- * @type {string}
- */
-Shell.fetchContentEvent = 'decent.core.shell.fetch-content';
-Shell.fetchContentEvent.payload = {
-  shell: 'Shell',
-  request: 'IncomingMessage',
-  response: 'ServerResponse',
-  /**
-   * @description
-   * A callback with signature (err, data).
-   */
-  callback: 'Function'
 };
 
 /**

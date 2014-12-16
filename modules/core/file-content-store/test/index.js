@@ -58,6 +58,7 @@ describe('File Content Store', function() {
       itemIdsRead.push(item.id);
     };
     var payload = {
+      scope: scope,
       items: items,
       itemsToFetch: {
         '/': [itemCallback],
@@ -65,7 +66,7 @@ describe('File Content Store', function() {
       }
     };
 
-    fileContentStore.loadItems(scope, payload, function() {
+    fileContentStore.loadItems(payload, function() {
       expect(itemIdsRead)
         .to.deep.equal(['/', '/bar/baz', '/bar/baz']);
       expect(items['/'].title).to.equal('Home');
@@ -77,13 +78,14 @@ describe('File Content Store', function() {
 
   it('transmits errors to callbacks', function(done) {
     var payload = {
+      scope: scope,
       items: {},
       itemsToFetch: {
         'error': []
       }
     };
 
-    fileContentStore.loadItems(scope, payload, function(err) {
+    fileContentStore.loadItems(payload, function(err) {
       expect(err.message).to.equal('error');
       done();
     });
@@ -91,13 +93,14 @@ describe('File Content Store', function() {
 
   it("does nothing for items it can't find", function(done) {
     var payload = {
+      scope: scope,
       items: {},
       itemsToFetch: {
         doesntExist: []
       }
     };
 
-    fileContentStore.loadItems(scope, payload, function(err) {
+    fileContentStore.loadItems(payload, function(err) {
       expect(err).to.not.be.ok;
       expect(payload.itemsToFetch.doesntExist).to.be.ok;
       expect(payload.items.doesntExist).to.not.be.ok;

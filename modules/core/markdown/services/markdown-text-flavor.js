@@ -22,6 +22,7 @@ function MarkdownFlavor(scope, options) {
 }
 MarkdownFlavor.service = 'text-flavor';
 MarkdownFlavor.feature = 'markdown';
+MarkdownFlavor.scope = 'shell';
 
 /**
  * Matches if the flavor is 'md' or 'markdown'.

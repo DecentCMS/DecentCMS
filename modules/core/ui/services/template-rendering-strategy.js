@@ -10,53 +10,56 @@ var path = require('path');
  * @param shell
  * @constructor
  */
-var TemplateRenderingStrategy = {
-  service: 'rendering-strategy',
-  scope: 'request',
-  feature: 'template-rendering-strategy',
-  dependencies: ['decent-core-io'],
-  init: function(scope) {
-    var fileResolver = scope.require('file-resolution');
-    var shapeHelper = scope.require('shape');
-    var viewEngines = scope.getServices('view-engine');
-    var extensionExpression = '(' + viewEngines
+function TemplateRenderingStrategy(scope) {
+  this.scope = scope;
+  var fileResolver = scope.require('file-resolution');
+  var shapeHelper = scope.require('shape');
+  var viewEngines = scope.getServices('view-engine');
+  var extensionExpression = '(' + viewEngines
       .map(function(viewEngine) {return viewEngine.extension;})
       .join('|') + ')';
-    var viewEngineMap = {};
-    for (var i = 0; i < viewEngines.length; i++) {
-      viewEngineMap[viewEngines[i].extension] = viewEngines[i];
-    }
-    var shapeTemplates = scope.shapeTemplates = scope.shapeTemplates || {};
+  var viewEngineMap = {};
+  for (var i = 0; i < viewEngines.length; i++) {
+    viewEngineMap[viewEngines[i].extension] = viewEngines[i];
+  }
+  var shapeTemplates = scope.shapeTemplates = scope.shapeTemplates || {};
 
-    scope.on('decent.core.shape.render', function(payload) {
-      var shape = payload.shape;
-      var renderer = payload.renderStream;
-      var temp = shapeHelper.temp(shape);
-      if (temp.html) {
-        renderer.write(temp.html);
+  this.render = function(payload, done) {
+    var shape = payload.shape;
+    var renderer = payload.renderStream;
+    var temp = shapeHelper.temp(shape);
+    if (temp.html) {
+      renderer.write(temp.html);
+      return done();
+    }
+    var meta = shapeHelper.meta(shape);
+    var shapeName = meta.type;
+    if (!shapeName) {
+      shapeName = meta.type = 'zone';
+    }
+    var template = shapeTemplates[shapeName];
+    if (!template) {
+      var templatePath = fileResolver.resolve(
+        'views', new RegExp(shapeName + '\\.' + extensionExpression));
+      if (templatePath) {
+        var extension = path.extname(templatePath).substr(1);
+        var viewEngine = viewEngineMap[extension];
+        viewEngine.load(templatePath, function onTemplateLoaded(template) {
+          shapeTemplates[shapeName] = template;
+          template(shape, renderer, done);
+        });
         return;
       }
-      var meta = shapeHelper.meta(shape);
-      var shapeName = meta.type;
-      if (!shapeName) {
-        shapeName = meta.type = 'zone';
-      }
-      var template = shapeTemplates[shapeName];
-      if (!template) {
-        var templatePath = fileResolver.resolve(
-          'views', new RegExp(shapeName + '\\.' + extensionExpression));
-        if (templatePath) {
-          var extension = path.extname(templatePath).substr(1);
-          var viewEngine = viewEngineMap[extension];
-          template = viewEngine.load(templatePath);
-        }
-      }
-      if (template) {
-        shapeTemplates[shapeName] = template;
-        template(shape, renderer, scope);
-      }
-    });
-  }
-};
+    }
+    if (template) {
+      shapeTemplates[shapeName] = template;
+      template(shape, renderer, done);
+    }
+  };
+}
+TemplateRenderingStrategy.service = 'rendering-strategy';
+TemplateRenderingStrategy.scope = 'shell';
+TemplateRenderingStrategy.feature = 'template-rendering-strategy';
+TemplateRenderingStrategy.dependencies = ['decent-core-io'];
 
 module.exports = TemplateRenderingStrategy;

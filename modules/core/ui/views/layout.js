@@ -1,7 +1,7 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-module.exports = function layoutTemplate(layout, renderer) {
+module.exports = function layoutTemplate(layout, renderer, done) {
   renderer
     .doctype()
     .writeLine()
@@ -25,5 +25,6 @@ module.exports = function layoutTemplate(layout, renderer) {
 
     .renderScripts()
 
-    .endAllTags();
+    .endAllTags()
+    .finally(done);
 };

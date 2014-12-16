@@ -11,8 +11,9 @@ var async = require('async');
 var fileContentStore = {
   service: 'content-store',
   feature: 'file-content-store',
-  scope: 'request',
-  loadItems: function (scope, payload, nextStore) {
+  scope: 'shell',
+  loadItems: function (payload, nextStore) {
+    var scope = payload.scope;
     var shapeHelper = scope.require('shape');
     var shell = scope.require('shell');
 

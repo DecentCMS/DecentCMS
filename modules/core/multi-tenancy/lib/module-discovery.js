@@ -36,46 +36,41 @@ function discover() {
         modulePaths.forEach(function discoverModule(modulePath) {
           var manifestPath = path.join(modulePath, 'package.json');
           if (!fs.existsSync(manifestPath)) return;
-          try {
-            var manifest = require(manifestPath);
-            var moduleName = manifest.name;
-            manifest.physicalPath = path.dirname(manifestPath);
-            availableModules[moduleName] = manifest;
-            // Look for self-configuring services under /services
-            if (!manifest.services) manifest.services = {};
-            if (!manifest.features) manifest.features = {};
-            var servicesPath = path.join(modulePath, 'services');
-            try {
-              var servicePaths = fs.readdirSync(servicesPath);
-              for(var i = 0; i < servicePaths.length; i++) {
-                var serviceFileName = servicePaths[i];
-                if (path.extname(serviceFileName) === '.js') {
-                  var servicePath = path.join(servicesPath, serviceFileName).slice(0, -3);
-                  var service = require(servicePath);
-                  var serviceName = service.service || path.basename(serviceFileName, '.js');
-                  // TODO: build default feature from module name
-                  var serviceFeature = service.feature;
-                  var serviceDependencies = service.dependencies;
-                  var serviceManifest = {
-                    path: servicePath,
-                    feature: serviceFeature,
-                    dependencies: serviceDependencies
-                  };
-                  if (!manifest.services[serviceName]) {
-                    manifest.services[serviceName] = [serviceManifest];
-                  }
-                  else {
-                    manifest.services[serviceName].push(serviceManifest);
-                  }
-                }
+          var manifest = require(manifestPath);
+          var moduleName = manifest.name;
+          manifest.physicalPath = path.dirname(manifestPath);
+          availableModules[moduleName] = manifest;
+          // Look for self-configuring services under /services
+          if (!manifest.services) manifest.services = {};
+          if (!manifest.features) manifest.features = {};
+          var servicesPath = path.join(modulePath, 'services');
+          if (!fs.existsSync(servicesPath)) return;
+          var servicePaths = fs.readdirSync(servicesPath);
+          for(var i = 0; i < servicePaths.length; i++) {
+            var serviceFileName = servicePaths[i];
+            if (path.extname(serviceFileName) === '.js') {
+              var servicePath = path.join(servicesPath, serviceFileName).slice(0, -3);
+              var service = require(servicePath);
+              // Check that the service declares its scope
+              if (typeof(service.scope) !== 'string') {
+                service.scope = 'shell';
+              }
+              var serviceName = service.service || path.basename(serviceFileName, '.js');
+              // TODO: build default feature from module name
+              var serviceFeature = service.feature;
+              var serviceDependencies = service.dependencies;
+              var serviceManifest = {
+                path: servicePath,
+                feature: serviceFeature,
+                dependencies: serviceDependencies
+              };
+              if (!manifest.services[serviceName]) {
+                manifest.services[serviceName] = [serviceManifest];
+              }
+              else {
+                manifest.services[serviceName].push(serviceManifest);
               }
             }
-            catch(dirEx) {}
-          }
-          catch(ex) {
-            ex.path = manifestPath;
-            ex.message = 'Failed to load ' + manifestPath;
-            throw ex;
           }
         });
       });

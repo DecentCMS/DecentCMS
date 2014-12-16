@@ -30,6 +30,7 @@ function ExpressRouteHandler(scope) {
 ExpressRouteHandler.service = 'route-handler';
 ExpressRouteHandler.feature = 'express';
 ExpressRouteHandler.isScopeSingleton = true;
+ExpressRouteHandler.scope = 'shell';
 
 ExpressRouteHandler.prototype.handle = function expressHandle(payload, next) {
   // Handle the request (using private API for a good cause)

@@ -1,6 +1,9 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
+var async = require('async');
+var util = require('util');
+
 /**
  * @description
  * Constructs an instance of the class passed in.
@@ -25,21 +28,58 @@ function construct(scope, ServiceClass, options) {
  * @description
  * Gets the instance for a singleton service.
  * This should not be called, except by scope methods.
- * @param {object} scope   The scoped object.
- * @param {string} service The service name.
- * @param {number} index   The index at which the service is cached.
- * @param {object} options The options to pass into the service constructor.
+ * @param {object} scope         The scoped object.
+ * @param {string} service       The service name.
+ * @param {number} index         The index at which the service is to be cached.
+ * @param {object} options       The options to pass into the service constructor.
  * @returns {object} The singleton instance.
  */
 function getSingleton(scope, service, index, options) {
   var serviceClasses = scope.services[service];
+  // Get or build the instance cache
   var instances = scope.instances[service];
   if (!instances) {
     instances = scope.instances[service] = new Array(serviceClasses.length);
   }
+  // Try to get the instance from the cache
   var instance = instances[index];
   if (instance) return instance;
-  return instances[index] = construct(scope, serviceClasses[index], options);
+  // if scope is not current, walk parent scopes to find the current one
+  var serviceClass = serviceClasses[index];
+  var currentScope = scope;
+  while (currentScope && (currentScope.scopeName !== serviceClass.scope)) {
+    currentScope = currentScope.parentScope;
+  }
+  // Note: currentScope might be null at this point, which will make the object
+  // scope-less. Not necessarily a problem, but probably not very useful.
+  if (currentScope && scope != currentScope) {
+    var currentScopeInstances = currentScope.instances[service];
+    var currentScopeServiceClasses = currentScope.services[service];
+    var currentScopeIndex = currentScopeServiceClasses.indexOf(serviceClass);
+    if (currentScopeIndex !== -1) {
+      if (!currentScopeInstances) {
+        currentScopeInstances = currentScope.instances[service] =
+          new Array(currentScopeServiceClasses.length);
+      }
+      instance = currentScopeInstances[currentScopeIndex];
+      if (instance) {
+        return instances[index] = instance;
+      }
+      return currentScopeInstances[currentScopeIndex]
+        = instances[index]
+        = construct(currentScope, serviceClass, options);
+    }
+  }
+  // At this point, if the scope is not currentScope, it's an error case:
+  // the service's scope is incompatible with the scope chain or the available
+  // services on the scopes.
+  if (scope.scopeName !== serviceClass.scope) {
+    throw new Error(
+      util.format(
+        "Couldn't find an instance of %s on scope %s.",
+        service, serviceClass.scope));
+  }
+  return instances[index] = construct(scope, serviceClass, options);
 }
 
 /**
@@ -72,13 +112,16 @@ function initializeService(scope, ServiceClass) {
  * @param {string} name          The name of the scope.
  * @param {object} objectToScope The object that must be made a scope.
  * @param {object} services      A map of the services to be made available from require.
+ * @param {object} [parentScope] An optional parent scope that may have valid instances of services to hand down.
  */
-function scope(name, objectToScope, services) {
+function scope(name, objectToScope, services, parentScope) {
   // TODO: test object init
+  // TODO: test parent scope singleton inheritance and shell singletons
   if (services) {
     objectToScope.services = services;
   }
   objectToScope.scopeName = name;
+  objectToScope.parentScope = parentScope;
 
   /**
    * @description
@@ -171,6 +214,73 @@ function scope(name, objectToScope, services) {
       }
       return construct(self, ServiceClass, options);
     });
+  };
+
+  /**
+   * @description
+   * Calls a method on each registered service of the specified name,
+   * asynchronously.
+   * @param {string} service The name of the service.
+   * @param {string} method  The name of the method.
+   * @param {object} options The parameter to pass to the method.
+   * @param {Function} done  The function to call when all service methods have returned.
+   */
+  objectToScope.callService = function callService(service, method, options, done) {
+    async.eachSeries(
+      this.getServices(service),
+      function callMethod(service, next) {
+        service[method](options, next);
+      },
+      done
+    );
+  };
+
+  /**
+   * @description
+   * Creates a lifecycle function that calls into all the
+   * service methods specified in an alternated list of
+   * service names, and method names as parameters.
+   * It is possible to replace service/method pairs with
+   * a function(options, done) that will be called as part
+   * of the lifecycle execution.
+   *
+   * For example:
+   *
+   *   scope.lifecycle(
+   *     'service1', 'methodA',
+   *     'service2', 'methodB',
+   *     function(options, done) {...},
+   *     'service3', 'methodC'
+   *   )
+   *
+   * returns a function that will call methodA on all instances
+   * of service1, then methodB on all instances of service2,
+   * then the function, then methodC on all instances of service3.
+   *
+   * @param {string} service The service name.
+   * @param {string} method  The method name.
+   * @returns {Function} A function that takes an options object and a callback as a parameter.
+   */
+  objectToScope.lifecycle = function lifecycle(service, method) {
+    var methodArray = [];
+    for (var i = 0; i < arguments.length; i++) {
+      var serviceName = arguments[i];
+      if (typeof(serviceName) === 'function') {
+        methodArray.push(serviceName);
+        continue;
+      }
+      var services = this.getServices(serviceName);
+      var methodName = arguments[++i];
+      Array.prototype.push.apply(
+        methodArray,
+        services.map(function serviceToMethod(service) {
+          return service[methodName].bind(service);
+        })
+      );
+    }
+    return function lifecycle(options, done) {
+      async.applyEachSeries(methodArray, options, done);
+    };
   };
 
   /**

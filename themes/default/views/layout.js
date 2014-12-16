@@ -1,7 +1,7 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-module.exports = function layoutTemplate(layout, renderer, scope) {
+module.exports = function layoutTemplate(layout, renderer, done) {
   renderer
     .addMeta('generator', 'DecentCMS')
     .addStyleSheet('bootstrap')
@@ -23,19 +23,15 @@ module.exports = function layoutTemplate(layout, renderer, scope) {
 
     .endTag()
     .writeLine()
-    .startTag('body');
+    .startTag('body')
 
-  if (layout.main) {
-    scope.emit('decent.core.shape.render', {
-      shape: layout.main,
-      renderStream: renderer
-    });
-  }
+    .shape(layout.main)
 
-  renderer
     .writeLine()
 
     .renderScripts()
 
-    .endAllTags();
+    .endAllTags()
+
+    .finally(done);
 };

@@ -13,10 +13,11 @@ var codeViewEngine = {
    * @description
    * Loads the rendering function from the provided path.
    * @param {string} templatePath The path to the JavaScript file.
+   * @param {Function} done The callback function to call when the template is loaded.
    * @returns {function} The template function.
    */
-  load: function (templatePath) {
-    return require(templatePath);
+  load: function (templatePath, done) {
+    done(require(templatePath));
   }
 };
 

@@ -15,6 +15,12 @@ describe('Content Route Handler', function() {
         }
       }
     };
+    var shape = null;
+    var contentRenderer = {
+      promiseToRender: function(s) {
+        shape = s;
+      }
+    };
     ContentRouteHandler.register({}, payload);
     var handler = null;
     var route = null;
@@ -28,14 +34,11 @@ describe('Content Route Handler', function() {
 
     expect(route).to.equal('*');
 
-    var shape = null;
-    var contentManager = {
-      promiseToRender: function(s) {
-        shape = s;
-      }
-    };
     handler({
-      contentManager: contentManager,
+      require: function() {
+        return contentRenderer;
+      },
+      contentManager: contentRenderer,
       path: '/foo/bar/baz'
     }, null, function() {
       expect(shape.id).to.equal('/foo/bar/baz');

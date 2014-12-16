@@ -2,24 +2,31 @@
 'use strict';
 var html = require('htmlencode');
 
-module.exports = function textTemplate(textPart, renderer, scope) {
+module.exports = function textTemplate(textPart, renderer, done) {
   switch(textPart.flavor) {
     case 'plain-text':
       var rendered = html
         .htmlEncode(textPart.text)
         .replace('&#13;&#10;', '<br/>\r\n');
-      renderer.write(rendered);
+      renderer
+        .write(rendered)
+        .finally(done);
       break;
     case 'html':
-      renderer.write(textPart.text);
+      renderer
+        .write(textPart.text)
+        .finally(done);
       break;
     default:
-      var flavorHandlers = scope.getServices('text-flavor');
+      var flavorHandlers = renderer.scope.getServices('text-flavor');
       for (var i = 0; i < flavorHandlers.length; i++) {
         if (flavorHandlers[i].matches(textPart.flavor)) {
-          renderer.write(flavorHandlers[i].getHtml(textPart.text));
-          break;
+          renderer
+            .write(flavorHandlers[i].getHtml(textPart.text))
+            .finally(done);
+          return;
         }
       }
+      done();
   }
 };

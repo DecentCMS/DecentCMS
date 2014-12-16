@@ -52,6 +52,7 @@ describe('scope', function() {
   it('retrieves the same singleton instance every time require is called', function() {
     function ServiceClass() {}
     ServiceClass.isScopeSingleton = true;
+    ServiceClass.scope = '';
     var scoped = scope('', {}, {
       service: [ServiceClass]
     });
@@ -67,6 +68,7 @@ describe('scope', function() {
   it('retrieves different singleton instances from different scopes', function() {
     function ServiceClass() {}
     ServiceClass.isScopeSingleton = true;
+    ServiceClass.scope = '';
     var scoped1 = scope('', {}, {
       service: [ServiceClass]
     });
@@ -129,8 +131,10 @@ describe('scope', function() {
   it('returns the same instances of singleton services every time from getServices', function() {
     function ServiceClass1() {}
     ServiceClass1.isScopeSingleton = true;
+    ServiceClass1.scope = '';
     function ServiceClass2() {}
     ServiceClass2.isScopeSingleton = true;
+    ServiceClass2.scope = '';
     var scoped = scope('', {}, {
       service: [ServiceClass1, ServiceClass2]
     });
@@ -144,6 +148,34 @@ describe('scope', function() {
     expect(serviceInstances1[1])
       .to.be.an.instanceOf(ServiceClass2)
       .and.to.equal(serviceInstances2[1]);
+  });
+
+  it('returns singletons from the right scope', function() {
+    function ServiceClass(scope) {
+      this.scope = scope;
+    }
+    ServiceClass.isScopeSingleton = true;
+    ServiceClass.scope = 'outer';
+    var initializedToScope = null;
+    ServiceClass.init = function(scope) {
+      initializedToScope = scope;
+    };
+    var outerScope = scope('outer', {}, {
+      service: [ServiceClass]
+    });
+    outerScope.initialize();
+    var innerScope = scope('inner', {}, {
+      service: [ServiceClass]
+    }, outerScope);
+    innerScope.initialize();
+
+    expect(initializedToScope).to.equal(outerScope);
+
+    var serviceInstanceFromInner = innerScope.require('service');
+    var serviceInstanceFromOuter = outerScope.require('service');
+
+    expect(serviceInstanceFromInner.scope).to.equal(outerScope);
+    expect(serviceInstanceFromInner).to.equal(serviceInstanceFromOuter);
   });
 
   it('returns static instances of static services', function() {
@@ -170,6 +202,7 @@ describe('scope', function() {
       this.options = options;
     }
     SingletonClass.isScopeSingleton = true;
+    SingletonClass.scope = '';
     var scoped = scope('', {}, {
       service: [ServiceClass],
       singleton: [SingletonClass],
@@ -190,5 +223,78 @@ describe('scope', function() {
     expect(instance[0].options).to.equal(options);
     expect(instance[1].scope).to.equal(scoped);
     expect(instance[1].options).to.equal(options);
+  });
+
+  it('calls services', function(done) {
+    var results = [];
+    function ServiceClass(scope) {
+      this.scope = scope;
+    }
+    ServiceClass.prototype.method = function(payload, next) {
+      results.push('service');
+      results.push(payload.one);
+      next();
+    };
+    function SingletonClass(scope) {
+      this.scope = scope;
+    }
+    SingletonClass.prototype.method = function(payload, next) {
+      results.push('singleton');
+      results.push(payload.two);
+      next();
+    };
+    SingletonClass.isScopeSingleton = true;
+    SingletonClass.scope = '';
+    var scoped = scope('', {}, {
+      service: [ServiceClass, SingletonClass]
+    });
+
+    scoped.callService('service', 'method', {one: 'one', two: 'two'}, function() {
+      expect(results).to.deep.equal(['service', 'one', 'singleton', 'two']);
+      done();
+    });
+  });
+
+  it('runs life cycles', function(done) {
+    var results = [];
+    function ServiceClass(scope) {
+      this.scope = scope;
+    }
+    ServiceClass.prototype.method = function(payload, next) {
+      results.push('service');
+      results.push(payload.one);
+      next();
+    };
+    function SingletonClass(scope) {
+      this.scope = scope;
+    }
+    SingletonClass.prototype.method = function(payload, next) {
+      results.push('singleton');
+      results.push(payload.two);
+      next();
+    };
+    SingletonClass.isScopeSingleton = true;
+    SingletonClass.scope = '';
+    var scoped = scope('', {}, {
+      service: [ServiceClass, SingletonClass]
+    });
+
+    var lifecycle = scoped.lifecycle(
+      'service', 'method',
+      function(payload, next) {
+        results.push('anonymous');
+        results.push(payload.three);
+        next();
+      },
+      'service', 'method'
+    );
+    lifecycle({one: 'one', two: 'two', three: 'three'}, function() {
+      expect(results).to.deep.equal([
+        'service', 'one', 'singleton', 'two',
+        'anonymous', 'three',
+        'service', 'one', 'singleton', 'two'
+      ]);
+      done();
+    });
   });
 });

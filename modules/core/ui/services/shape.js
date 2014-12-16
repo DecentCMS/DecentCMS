@@ -10,6 +10,7 @@
  */
 var Shape = {
   feature: 'shape',
+  scope: 'shell',
   /**
    * @description
    * Places a shape into the shape tree above a root shape.

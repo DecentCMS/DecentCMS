@@ -278,6 +278,7 @@ describe('Shell', function() {
         this.scope = shell;
       };
       SomeClass.isScopeSingleton = true;
+      SomeClass.scope = '';
       var shell = scope('', new Shell(), {
         service: [SomeClass]
       });
@@ -295,6 +296,7 @@ describe('Shell', function() {
         this.scope = shell;
       };
       SomeClass.isScopeSingleton = true;
+      SomeClass.scope = '';
       var shell1 = scope('', new Shell(), {service: [SomeClass]});
       var shell2 = scope('', new Shell(), {service: [SomeClass]});
       var instance1 = shell1.require('service');
@@ -738,15 +740,26 @@ describe('Shell', function() {
           {handle: function(payload, callback) {happened.push('handled by 1');callback();}},
           {handle: function(payload, callback) {happened.push('handled by 2');callback();}}
         ],
+        'storage-manager': [
+          {fetchContent: function(payload, callback) {
+            happened.push('fetch content');
+            callback();
+          }}
+        ],
+        'renderer': [
+          {render: function(payload, callback) {
+            happened.push('render');
+            callback();
+          }}
+        ],
         'log': [{profile: function() {}}]
       });
-      shell.on(Shell.startRequestEvent, function() {happened.push('start request')});
-      shell.on(Shell.fetchContentEvent, function(payload) {
-        happened.push('fetch content');
-        payload.callback();
+      shell.on(Shell.startRequestEvent, function() {
+        happened.push('start request');
       });
-      shell.on(Shell.renderPageEvent, function() {happened.push('render')});
-      shell.on(Shell.endRequestEvent, function() {happened.push('end request')});
+      shell.on(Shell.endRequestEvent, function() {
+        happened.push('end request');
+      });
 
       shell.middleware(request, response, function() {
         expect(happened)

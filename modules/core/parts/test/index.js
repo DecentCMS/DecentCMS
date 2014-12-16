@@ -8,7 +8,7 @@ var TextView = require('../views/text');
 var TitleView = require('../views/title');
 
 describe('Text Part Handler', function() {
-  it('adds shapes for each text part', function() {
+  it('adds shapes for each text part', function(done) {
     var item = {
       title: 'Foo',
       body: {
@@ -22,7 +22,7 @@ describe('Text Part Handler', function() {
       },
       tags: ['foo', 'bar']
     };
-    var options = {
+    var context = {
       shape: {
         meta: {
           type: 'content'
@@ -42,39 +42,40 @@ describe('Text Part Handler', function() {
       }
     };
 
-    TextPart.on['decent.core.handle-item']({}, options);
-
-    var newShapes = options.shape.temp.shapes;
-    expect(newShapes[0])
-      .to.deep.equal({
-        meta: {type: 'text', name: 'body'},
-        temp: {displayType: 'summary'},
-        text: 'Lorem ipsum',
-        flavor: 'md'
-      });
-    expect(newShapes[1])
-      .to.deep.equal({
-        meta: {type: 'text', name: 'summary'},
-        temp: {displayType: 'summary'},
-        text: 'Lorem',
-        flavor: 'plain-text'
-      });
-    expect(newShapes[2])
-      .to.deep.equal({
-        meta: {type: 'text', name: 'disclaimer'},
-        temp: {displayType: 'summary'},
-        text: 'Not my fault',
-        flavor: 'strawberry'
-      });
+    TextPart.handleItem(context, function() {
+      var newShapes = context.shape.temp.shapes;
+      expect(newShapes[0])
+        .to.deep.equal({
+          meta: {type: 'text', name: 'body'},
+          temp: {displayType: 'summary'},
+          text: 'Lorem ipsum',
+          flavor: 'md'
+        });
+      expect(newShapes[1])
+        .to.deep.equal({
+          meta: {type: 'text', name: 'summary'},
+          temp: {displayType: 'summary'},
+          text: 'Lorem',
+          flavor: 'plain-text'
+        });
+      expect(newShapes[2])
+        .to.deep.equal({
+          meta: {type: 'text', name: 'disclaimer'},
+          temp: {displayType: 'summary'},
+          text: 'Not my fault',
+          flavor: 'strawberry'
+        });
+      done();
+    });
   });
 });
 
 describe('Title Part Handler', function() {
-  it('adds a shape for the title part', function() {
+  it('adds a shape for the title part', function(done) {
     var item = {
       title: 'Foo'
     };
-    var options = {
+    var context = {
       shape: {
         meta: {
           type: 'content'
@@ -87,22 +88,23 @@ describe('Title Part Handler', function() {
       }
     };
 
-    TitlePart.on['decent.core.handle-item']({}, options);
-
-    var newShapes = options.shape.temp.shapes;
-    expect(newShapes[0])
-      .to.deep.equal({
-        meta: {type: 'title'},
-        temp: {displayType: 'summary'},
-        text: 'Foo'
-      });
+    TitlePart.handleItem(context, function() {
+      var newShapes = context.shape.temp.shapes;
+      expect(newShapes[0])
+        .to.deep.equal({
+          meta: {type: 'title'},
+          temp: {displayType: 'summary'},
+          text: 'Foo'
+        });
+      done();
+    });
   });
 
-  it('sets the title only if the display type is main', function() {
+  it('sets the title only if the display type is main', function(done) {
     var item = {
       title: 'Foo'
     };
-    var options = {
+    var context = {
       shape: {
         meta: {
           type: 'content'
@@ -116,12 +118,15 @@ describe('Title Part Handler', function() {
       renderStream: {}
     };
 
-    TitlePart.on['decent.core.handle-item']({}, options);
-    expect(options.renderStream.title).to.not.be.ok;
+    TitlePart.handleItem(context, function() {
+      expect(context.renderStream.title).to.not.be.ok;
 
-    options.shape.temp.displayType = 'main';
-    TitlePart.on['decent.core.handle-item']({}, options);
-    expect(options.renderStream.title).to.equal('Foo');
+      context.shape.temp.displayType = 'main';
+      TitlePart.handleItem(context, function() {
+        expect(context.renderStream.title).to.equal('Foo');
+        done();
+      });
+    });
   });
 });
 
