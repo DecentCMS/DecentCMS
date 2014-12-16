@@ -55,7 +55,7 @@ ContentStorageManager.prototype.promiseToRender = function promiseToRender(optio
  * so far. This method defines the rendering lifecycle, by emitting
  * events and service calls:
  * * 'placement-strategy'.placeShapes({shape, shapes, renderStream}, done)
- * * 'content-handler'.handleItem({shape, shapes, renderStream}, done)
+ * * 'shape-handler'.handle({shape, shapes, renderStream}, done)
  * * decent.core.register-meta
  * * decent.core.register-style
  * * decent.core.register-script
@@ -83,7 +83,7 @@ ContentStorageManager.prototype.render = function render(payload, pageBuilt) {
     // Let handlers manipulate items and shapes
     // Handlers are responsible for drilling into the tree according to
     // their knowledge of the shapes they are handling.
-    'content-handler', 'handleItem',
+    'shape-handler', 'handle',
     // Call for meta, script, and style sheet registration
     function registerMetaStyleAndScript(options, done) {
       scope.emit(ContentStorageManager.registerMetaEvent, {renderStream: renderStream});

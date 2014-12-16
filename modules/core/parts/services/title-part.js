@@ -10,8 +10,8 @@
  */
 var TitlePart = {
   feature: 'core-parts',
-  service: 'content-handler',
-  handleItem: function handleTitlePart(context, done) {
+  service: 'shape-handler',
+  handle: function handleTitlePart(context, done) {
     var content = context.shape;
     if (!content.meta
       || content.meta.type !== 'content'

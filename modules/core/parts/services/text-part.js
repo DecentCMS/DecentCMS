@@ -9,15 +9,14 @@ var path = require('path');
  */
 var TextPart = {
   feature: 'core-parts',
-  service: 'content-handler',
-  handleItem: function handleTextPart(context, done) {
+  service: 'shape-handler',
+  handle: function handleTextPart(context, done) {
     var content = context.shape;
     if (!content.meta
       || content.meta.type !== 'content'
       || !content.temp) return done();
     var temp = content.temp;
     var item = temp.item;
-    var renderer = context.renderStream;
     var scope = context.scope;
     var contentManager = scope.require('content-manager');
     var textParts = contentManager.getParts(item, 'text');

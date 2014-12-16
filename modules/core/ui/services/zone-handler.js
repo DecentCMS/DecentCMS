@@ -10,8 +10,8 @@ var async = require('async');
  */
 var ZoneHandler = {
   feature: 'zone-handler',
-  service: 'content-handler',
-  handleItem: function handleZone(context, done) {
+  service: 'shape-handler',
+  handle: function handleZone(context, done) {
     var request = context.scope;
     var zone = context.shape;
     if (!zone.temp) return;
@@ -20,7 +20,7 @@ var ZoneHandler = {
     async.each(
       items,
       function(item, next) {
-        request.callService('content-handler', 'handleItem', {
+        request.callService('shape-handler', 'handle', {
           scope: request,
           shape: item,
           renderStream: context.renderStream
@@ -33,7 +33,7 @@ var ZoneHandler = {
           Object.getOwnPropertyNames(zones),
           function(zoneName, next) {
             var zone = zones[zoneName];
-            request.callService('content-handler', 'handleItem', {
+            request.callService('shape-handler', 'handle', {
               scope: request,
               shape: zone,
               renderStream: context.renderStream

@@ -11,8 +11,8 @@
  */
 var ShapeItemPromiseHandler = {
   feature: 'shape',
-  service: 'content-handler',
-  handleItem: function handleShapeItemPromise(context, done) {
+  service: 'shape-handler',
+  handle: function handleShapeItemPromise(context, done) {
     var scope = context.scope;
     var itemShape = context.shape;
     var shapeMeta = itemShape.meta;
@@ -32,8 +32,8 @@ var ShapeItemPromiseHandler = {
       renderStream: renderer
     };
     var lifecycle = scope.lifecycle(
-      // Part handlers will fill the shapes array
-      'content-handler', 'handleItem',
+      // Shape handlers will fill the shapes array
+      'shape-handler', 'handle',
       function addShapesToLocalContext(localContext, next) {
         localContext.shapes = shapeTemp.shapes;
         delete shapeTemp.shapes;
