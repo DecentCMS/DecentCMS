@@ -7,12 +7,26 @@ function NavigationHandler(scope) {
   this.scope = scope;
 }
 NavigationHandler.feature = 'navigation';
+NavigationHandler.service = 'shape-handler';
 NavigationHandler.scope = 'request';
 
-NavigationHandler.prototype.placeShapes = function placeNavigation(options, done) {
-  var layout = options.shape;
-  if (!layout.meta || layout.meta.type !== 'layout') return;
-  var navigationProviders = this.scope.getServices('navigation-provider');
+NavigationHandler.prototype.handle = function handleNavigation(context, done) {
+  var layout = context.shape;
+  if (!layout.meta || layout.meta.type !== 'layout') return done();
+  var scope = this.scope;
+  var navigationContext = {
+    menu: 'default',
+    items: []
+  };
+  this.scope.callService('navigation-provider', 'addRootItems', navigationContext, function() {
+    var shapeHelper = scope.require('shape');
+    shapeHelper.place(layout, 'navigation', {
+      meta: {type: 'menu'},
+      name: navigationContext.menu,
+      items: navigationContext.items
+    }, 'after');
+    done();
+  });
 };
 
 module.exports = NavigationHandler;

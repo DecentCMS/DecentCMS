@@ -25,6 +25,8 @@ module.exports = function layoutTemplate(layout, renderer, done) {
     .writeLine()
     .startTag('body')
 
+    .shape(layout.navigation)
+
     .shape(layout.main)
 
     .writeLine()

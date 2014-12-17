@@ -1,0 +1,24 @@
+{
+  "name": "decent-core-navigation",
+  "version": "0.0.0",
+  "description": "Navigation menus for DecentCMS",
+  "features": {
+    "file-navigation-provider": {
+      "name": "File Navigation Provider",
+      "description": "Gets navigation data from JSON files."
+    },
+    "navigation": {
+      "name": "Navigation",
+      "description": "Core navigation services"
+    }
+  },
+  "main": "./index",
+  "scripts": {
+    "test": "./test/index"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "dependencies": {
+    "async": "*"
+  }
+}

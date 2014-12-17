@@ -20,6 +20,7 @@ module.exports = function layoutTemplate(layout, renderer, done) {
     .endTag()
     .writeLine()
     .startTag('body')
+    .shape(layout.navigation)
     .shape(layout.main)
     .writeLine()
 
