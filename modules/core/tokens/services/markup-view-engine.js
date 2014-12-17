@@ -20,26 +20,19 @@ MarkupViewEngine.prototype.extension = 'markup';
 
 /**
  * @description
- * Loads a template from the file system.
- * @param {string} templatePath The path to the template.
- * @returns {function} The compiled template.
+ * Loads the rendering function from the provided path.
+ * @param {string} templatePath The path to the JavaScript file.
+ * @param {function} done The callback function to call when the template is loaded.
+ * @returns {function} The template function.
  */
-MarkupViewEngine.prototype.load = function (templatePath) {
-  return this.compile(fs.readdirSync(templatePath));
-};
-
-/**
- * @description
- * Returns a function for the template that takes a shape as
- * the view model.
- * @param {string} template The template.
- * @returns {Function} The template function.
- */
-MarkupViewEngine.prototype.compile = function (template) {
+MarkupViewEngine.prototype.load = function loadMarkupTemplate(templatePath, done) {
   var token = this.scope.require('token');
-  return function (shape) {
-    return token.interpolate(template, shape);
-  };
+  fs.readFile(templatePath, function readTemplate(template) {
+    done(function markupTemplate(shape, renderer, doneRendering) {
+      renderer.write(token.interpolate(template, shape));
+      doneRendering();
+    });
+  });
 };
 
 module.exports = MarkupViewEngine;

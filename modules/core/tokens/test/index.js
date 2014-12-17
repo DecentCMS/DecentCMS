@@ -1,6 +1,7 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 var expect = require('chai').expect;
+var proxyquire = require('proxyquire');
 var EventEmitter = require('events').EventEmitter;
 var shell = new EventEmitter();
 var Token = require('../services/token');
@@ -38,15 +39,28 @@ describe('Markup View Engine', function() {
   shell.require = function(service) {
     return service === 'token' ? new Token(shell) : null;
   };
-  var ViewEngine = require('../services/markup-view-engine');
+  var ViewEngine = proxyquire('../services/markup-view-engine', {
+    fs: {
+      readFile: function(path, done) {
+        done(path);
+      }
+    }
+  });
   var viewEngine = new ViewEngine(shell);
+  var html = [];
+  var renderer = new require('stream').PassThrough();
+  renderer.on('data', function(chunk) {
+    html.push(chunk);
+  });
 
-  it('compiles templates', function() {
-    var compiled = viewEngine.compile('Foo: {{foo}}, Bar: {{bar}}');
-
-    expect(compiled({foo: 'foo', bar: 'bar'}))
-      .to.equal('Foo: foo, Bar: bar');
-    expect(compiled({foo: 42, bar: 6}))
-      .to.equal('Foo: 42, Bar: 6');
+  it('compiles templates', function(done) {
+    html  = [];
+    viewEngine.load('Foo: {{foo}}, Bar: {{bar}}, Baz: {{baz}}', function(compiled) {
+      compiled({foo: 'foo', bar: 'bar', baz: 42}, renderer, function() {
+        expect(html.join(''))
+          .to.equal('Foo: foo, Bar: bar, Baz: 42');
+        done();
+      });
+    });
   });
 });
