@@ -16,7 +16,7 @@ var codeViewEngine = {
    * @param {Function} done The callback function to call when the template is loaded.
    * @returns {function} The template function.
    */
-  load: function (templatePath, done) {
+  load: function loadCodeTemplate(templatePath, done) {
     done(require(templatePath));
   }
 };
