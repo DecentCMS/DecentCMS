@@ -1,7 +1,7 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-// TODO: Make Shell a middleware (usable in an Express app)
+// TODO: Add configurable timeout to request handling.
 // TODO: Enable shells to be restarted.
 // TODO: Move module loading and service discovery into a separate service, so that shell can deal purely with handling requests.
 // TODO: Build file monitoring events so code that caches parsed files can expire and re-parse entries on-the-fly. Make sure that this can be done as an optional feature.

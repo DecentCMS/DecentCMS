@@ -1,7 +1,7 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-// TODO: find a way for sync methods to call other sync methods without going through async.
+// TODO: add automatic indentation
 
 var stream = require('stream');
 var Transform = stream.Transform;
