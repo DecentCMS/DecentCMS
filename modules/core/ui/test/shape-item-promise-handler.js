@@ -11,14 +11,15 @@ describe('Shape Item Promise Handler', function() {
     var item = {id: '/foo'};
     var context = {
       shape: promiseShape,
-      renderStream: {
-        contentManager: {
-          getAvailableItem: function() {
-            return item;
-          }
-        }
-      },
-      request: {
+      renderStream: {},
+      scope: {
+        require: function() {
+          return {
+            getAvailableItem: function () {
+              return item;
+            }
+          };
+        },
         lifecycle: function() {
           return function(payload, next) {
             expect(payload.shape.temp.item).to.equal(item);
@@ -28,7 +29,7 @@ describe('Shape Item Promise Handler', function() {
       }
     };
     var ShapeItemPromiseHandler = require('../services/shape-item-promise-handler');
-    ShapeItemPromiseHandler.handleItem(context, function() {
+    ShapeItemPromiseHandler.handle(context, function() {
       done();
     });
   });

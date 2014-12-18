@@ -8,7 +8,7 @@ describe('Zone Handler', function() {
     var shape = {
       temp: {
         items: ['item1', 'item2'],
-        zones: {zone1: {}, zone2: {}}
+        zones: {zone1: 'zone1', zone2: 'zone2'}
       }
     };
     var request = new EventEmitter();
@@ -19,7 +19,7 @@ describe('Zone Handler', function() {
     };
     var ZoneHandler = require('../services/zone-handler');
 
-    ZoneHandler.handleItem({request: request, shape: shape}, function() {
+    ZoneHandler.handle({scope: request, shape: shape}, function() {
       expect(handled).to.deep.equal(['item1', 'item2', 'zone1', 'zone2']);
       done();
     });
