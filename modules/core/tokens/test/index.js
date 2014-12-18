@@ -42,7 +42,7 @@ describe('Markup View Engine', function() {
   var ViewEngine = proxyquire('../services/markup-view-engine', {
     fs: {
       readFile: function(path, done) {
-        done(path);
+        done(null, path);
       }
     }
   });

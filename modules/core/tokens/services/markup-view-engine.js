@@ -27,7 +27,8 @@ MarkupViewEngine.prototype.extension = 'markup';
  */
 MarkupViewEngine.prototype.load = function loadMarkupTemplate(templatePath, done) {
   var token = this.scope.require('token');
-  fs.readFile(templatePath, function readTemplate(template) {
+  fs.readFile(templatePath, function readTemplate(err, template) {
+    if (err) throw err;
     done(function markupTemplate(shape, renderer, doneRendering) {
       renderer.write(token.interpolate(template, shape));
       doneRendering();
