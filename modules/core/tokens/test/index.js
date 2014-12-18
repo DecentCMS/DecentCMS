@@ -39,11 +39,13 @@ describe('Markup View Engine', function() {
   shell.require = function(service) {
     return service === 'token' ? new Token(shell) : null;
   };
+  var readFile = function(path, done) {
+    done(null, path);
+  };
+  readFile['@noCallThru'] = true;
   var ViewEngine = proxyquire('../services/markup-view-engine', {
     fs: {
-      readFile: function(path, done) {
-        done(null, path);
-      }
+      readFile: readFile
     }
   });
   var viewEngine = new ViewEngine(shell);
