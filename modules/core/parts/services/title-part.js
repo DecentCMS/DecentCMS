@@ -23,7 +23,10 @@ var TitlePart = {
     var title = item.title;
     if (title && temp.displayType === 'main') {
       var renderer = context.renderStream;
-      renderer.title = title;
+      renderer.title =
+        context.scope.title =
+          context.scope.layout.title =
+          title;
     }
     temp.shapes.push({
       meta: {type: 'title'},
