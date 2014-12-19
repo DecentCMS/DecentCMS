@@ -84,12 +84,13 @@ describe('Dust View Engine', function() {
   });
 
   it('can register and render style sheets', function(done) {
-    template = '{@style name="foo"/}' +
-    '{@style name="bar"/}' +
-    '{@style name="foo"/}' +
-    '{@style name="http://foo.com/css/style.css"/}' +
-    '{@style name="https://bar.com/css/style.css"/}' +
-    'Registered styles:{~n}{@styles/}.';
+    template =
+      '{@style name="foo"/}' +
+      '{@style name="bar"/}' +
+      '{@style name="foo"/}' +
+      '{@style name="http://foo.com/css/style.css"/}' +
+      '{@style name="https://bar.com/css/style.css"/}' +
+      'Registered styles:{~n}{@styles/}.';
     dustViewEngine.load('path-to-template-registering-styles', function(renderTemplate) {
       renderTemplate({}, renderer, function() {
         expect(html.join(''))
@@ -105,12 +106,13 @@ describe('Dust View Engine', function() {
   });
 
   it('can register and render scripts', function(done) {
-    template = '{@script name="foo"/}' +
-    '{@script name="bar"/}' +
-    '{@script name="foo"/}' +
-    '{@script name="http://foo.com/js/script.js"/}' +
-    '{@script name="https://bar.com/js/script.js"/}' +
-    'Registered scripts:{~n}{@scripts/}.';
+    template =
+      '{@script name="foo"/}' +
+      '{@script name="bar"/}' +
+      '{@script name="foo"/}' +
+      '{@script name="http://foo.com/js/script.js"/}' +
+      '{@script name="https://bar.com/js/script.js"/}' +
+      'Registered scripts:{~n}{@scripts/}.';
     dustViewEngine.load('path-to-template-registering-scripts', function(renderTemplate) {
       renderTemplate({}, renderer, function() {
         expect(html.join(''))
@@ -119,6 +121,24 @@ describe('Dust View Engine', function() {
           '  <script src="/js/bar.js" type="text/javascript"></script>\r\n' +
           '  <script src="http://foo.com/js/script.js" type="text/javascript"></script>\r\n' +
           '  <script src="https://bar.com/js/script.js" type="text/javascript"></script>\r\n' +
+          '.');
+        done();
+      });
+    });
+  });
+
+  it('can register and render meta tags', function(done) {
+    template =
+      '{@meta name="foo" value="Fou"/}' +
+      '{@meta name="bar" value="Barre" custom="yup" other="baz"/}' +
+      '{@meta name="foo" value="Encore plus fou"/}' +
+      'Registered metas:{~n}{@metas/}.';
+    dustViewEngine.load('path-to-template-registering-metas', function(renderTemplate) {
+      renderTemplate({}, renderer, function() {
+        expect(html.join(''))
+          .to.equal('Registered metas:\n' +
+          '  <meta name="foo" content="Encore plus fou"/>\r\n' +
+          '  <meta custom="yup" other="baz" name="bar" content="Barre"/>\r\n' +
           '.');
         done();
       });

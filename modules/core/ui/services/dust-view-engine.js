@@ -40,7 +40,7 @@ dust.helpers.style = function styleDustHelper(chunk, context, bodies, params) {
     renderer._addStyleSheet(stylesheet);
   }
   return chunk.write();
-}
+};
 
 dust.helpers.styles = function stylesDustHelper(chunk, context, bodies, params) {
   var renderer = chunk.root['decent-renderer'];
@@ -53,7 +53,7 @@ dust.helpers.styles = function stylesDustHelper(chunk, context, bodies, params) 
   });
   innerRenderer._renderStyleSheets();
   return chunk.write(html);
-}
+};
 
 dust.helpers.script = function scriptDustHelper(chunk, context, bodies, params) {
   var script = dust.helpers.tap(params.name, chunk, context);
@@ -66,7 +66,7 @@ dust.helpers.script = function scriptDustHelper(chunk, context, bodies, params) 
     renderer._addScript(script);
   }
   return chunk.write();
-}
+};
 
 dust.helpers.scripts = function scriptsDustHelper(chunk, context, bodies, params) {
   var renderer = chunk.root['decent-renderer'];
@@ -79,7 +79,41 @@ dust.helpers.scripts = function scriptsDustHelper(chunk, context, bodies, params
   });
   innerRenderer._renderScripts();
   return chunk.write(html);
-}
+};
+
+dust.helpers.meta = function metaDustHelper(chunk, context, bodies, params) {
+  var attributes = {};
+  var name = '';
+  var value = '';
+  Object.getOwnPropertyNames(params).forEach(function forEachParam(attrName) {
+    switch(attrName) {
+      case 'name':
+        name = dust.helpers.tap(params.name, chunk, context);
+        break;
+      case 'value':
+        value = dust.helpers.tap(params.value, chunk, context);
+        break;
+      default:
+        attributes[attrName] = dust.helpers.tap(params[attrName], chunk, context);
+    }
+  });
+  var renderer = chunk.root['decent-renderer'];
+  renderer._addMeta(name, value, attributes);
+  return chunk.write();
+};
+
+dust.helpers.metas = function metasDustHelper(chunk, context, bodies, params) {
+  var renderer = chunk.root['decent-renderer'];
+  var innerRenderer = new RenderStream(renderer.scope, {
+    meta: renderer.meta
+  });
+  var html = '';
+  innerRenderer.on('data', function onShapeData(data) {
+    html += data;
+  });
+  innerRenderer._renderMeta();
+  return chunk.write(html);
+};
 
 function getDustTemplate(templatePath) {
   return function dustTemplate(shape, renderer, next) {
