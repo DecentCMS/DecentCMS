@@ -2,6 +2,7 @@
 'use strict';
 
 // TODO: add automatic indentation
+// TODO: handle .min when not in debug, for stylesheets and scripts
 
 var stream = require('stream');
 var Transform = stream.Transform;
