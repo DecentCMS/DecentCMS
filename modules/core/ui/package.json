@@ -23,6 +23,10 @@
       "name": "Code View Engine",
       "description": "A view engine that uses plain JavaScript code."
     },
+    "dust-view-engine": {
+      "name": "Dust View Engine",
+      "description": "A view engine that uses <a href=\"http://akdubya.github.io/dustjs/\">Dust</a> templates."
+    },
     "template-rendering-strategy": {
       "name": "Template Rendering Strategy",
       "description": "Renders shapes using template files."
@@ -46,6 +50,8 @@
   },
   "dependencies": {
     "async": "*",
+    "dustjs-helpers": "*",
+    "dustjs-linkedin": "*",
     "flasync": "*",
     "htmlencode": "*"
   }
