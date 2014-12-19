@@ -5,6 +5,80 @@ var RenderStream = require('./render-stream');
 var dust = require('dustjs-linkedin');
 dust.helper = require('dustjs-helpers');
 
+/**
+ * @description
+ * A view engine using Dust templates.
+ * http://akdubya.github.io/dustjs/
+ * https://github.com/linkedin/dustjs/wiki/Dust-Tutorial
+ *
+ * The view engine exposes by default the standard helpers:
+ * https://github.com/linkedin/dustjs-helpers
+ *
+ * Helpers
+ * =======
+ *
+ * Shape
+ * -----
+ * It adds a 'shape' helper that enables the rendering of
+ * DecentCMS shapes. The shape helper takes a 'shape' parameter
+ * that should point to the shape object to render.
+ * Optional parameters are tag and class.
+ *
+ * Style
+ * -----
+ * Registers a style sheet.
+ * Use the non-minimized name, without extension, as the name parameter.
+ *
+ * Styles
+ * ------
+ * Renders the list of registered styles.
+ *
+ * Script
+ * ------
+ * Registers a script.
+ * Use the non-minimized name, without extension, as the name parameter.
+ *
+ * Scripts
+ * -------
+ * Renders the list of registered scripts.
+ *
+ * Meta
+ * ----
+ * Registers a meta tag.
+ * name: the name of the tag
+ * value: the value of the tag (rendered as the content attribute)
+ * Additional attributes will be rendered as-is.
+ *
+ * Metas
+ * -----
+ * Renders registered meta tags.
+ */
+var codeViewEngine = {
+  service: 'view-engine',
+  feature: 'dust-view-engine',
+  extension: 'tl',
+  scope: 'shell',
+  /**
+   * @description
+   * Loads the rendering function from the provided path.
+   * @param {string} templatePath The path to the .dust file.
+   * @param {Function} done The callback function to call when the template is loaded.
+   * @returns {function} The template function.
+   */
+  load: function loadCodeTemplate(templatePath, done) {
+    if (dust.cache.hasOwnProperty(templatePath)) {
+      return done(getDustTemplate(templatePath));
+    }
+    fs.readFile(templatePath, function readTemplate(err, template) {
+      dust.register(
+        templatePath,
+        dust.loadSource(dust.compile(template.toString(), templatePath))
+      );
+      done(getDustTemplate(templatePath));
+    });
+  }
+};
+
 dust.helpers.shape = function shapeDustHelper(chunk, context, bodies, params) {
   var shape = dust.helpers.tap(params.shape, chunk, context);
   if (!shape) return;
@@ -22,7 +96,7 @@ dust.helpers.shape = function shapeDustHelper(chunk, context, bodies, params) {
       chunk.write(data);
     });
     innerRenderer
-      .shape(shape, tag, {class: cssClass})
+      .shape(shape, tag, cssClass ? {class: cssClass} : null)
       .finally(function() {
         chunk.end();
       });
@@ -126,76 +200,5 @@ function getDustTemplate(templatePath) {
     stream['decent-renderer'] = renderer;
   };
 }
-
-/**
- * @description
- * A view engine using Dust templates.
- * http://akdubya.github.io/dustjs/
- * https://github.com/linkedin/dustjs/wiki/Dust-Tutorial
- *
- * The view engine exposes by default the standard helpers:
- * https://github.com/linkedin/dustjs-helpers
- *
- * Helpers
- * =======
- *
- * Shape
- * -----
- * It adds a 'shape' helper that enables the rendering of
- * DecentCMS shapes. The shape helper takes a 'shape' parameter
- * that should point to the shape object to render.
- * Optional parameters are tag and class.
- *
- * Style
- * -----
- * Registers a style sheet.
- * Use the non-minimized name, without extension, as the name parameter.
- *
- * Styles
- * ------
- * Renders the list of registered styles.
- *
- * Script
- * ------
- * Registers a script.
- * Use the non-minimized name, without extension, as the name parameter.
- *
- * Scripts
- * -------
- * Renders the list of registered scripts.
- *
- * Meta
- * ----
- * Registers a meta tag.
- * name: the name of the tag
- * value: the value of the tag (rendered as the content attribute)
- * Additional attributes will be rendered as-is.
- *
- * Metas
- * -----
- * Renders registered meta tags.
- */
-var codeViewEngine = {
-  service: 'view-engine',
-  feature: 'dust-view-engine',
-  extension: 'tl',
-  scope: 'shell',
-  /**
-   * @description
-   * Loads the rendering function from the provided path.
-   * @param {string} templatePath The path to the .dust file.
-   * @param {Function} done The callback function to call when the template is loaded.
-   * @returns {function} The template function.
-   */
-  load: function loadCodeTemplate(templatePath, done) {
-    if (dust.cache.hasOwnProperty(templatePath)) {
-      return done(getDustTemplate(templatePath));
-    }
-    fs.readFile(templatePath, function readTemplate(err, template) {
-      dust.register(templatePath, dust.loadSource(dust.compile(template, templatePath)));
-      done(getDustTemplate(templatePath));
-    });
-  }
-};
 
 module.exports = codeViewEngine;

@@ -197,12 +197,12 @@ function RenderStream(scope, options) {
         tag = null;
       } else {
         if (typeof(attributes) === 'function') {
-          if (shape) this._startTag(tag);
+          if (shape && tag) this._startTag(tag);
           done = attributes;
           attributes = null;
         }
         else {
-          if (shape) this._startTag(tag, attributes);
+          if (shape && tag) this._startTag(tag, attributes);
         }
       }
       if (!shape) {
@@ -366,8 +366,8 @@ function RenderStream(scope, options) {
     for (var name in this.meta) {
       var meta = this.meta[name];
       var attributes = meta.attributes || {};
-      attributes.name = meta.name;
-      attributes.content = meta.value;
+      if (meta.name) attributes.name = meta.name;
+      if (meta.value) attributes.content = meta.value;
       this.push('  ');
       this.tag('meta', attributes);
       this.push('\r\n');
