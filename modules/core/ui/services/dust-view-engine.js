@@ -57,7 +57,7 @@ function getDustTemplate(templatePath) {
 var codeViewEngine = {
   service: 'view-engine',
   feature: 'dust-view-engine',
-  extension: 'dust',
+  extension: 'tl',
   scope: 'shell',
   /**
    * @description
