@@ -105,10 +105,12 @@ describe('Render Stream', function() {
   it('can render a shape', function(done) {
     var shape = {};
     scope.callService = function(service, method, options, next) {
-      expect(service).to.equal('rendering-strategy');
-      expect(method).to.equal('render');
-      expect(options.shape).to.equal(shape);
-      next();
+      process.nextTick(function() {
+        expect(service).to.equal('rendering-strategy');
+        expect(method).to.equal('render');
+        expect(options.shape).to.equal(shape);
+        next();
+      });
     };
     renderer
       .shape(shape)
@@ -118,9 +120,11 @@ describe('Render Stream', function() {
   it('can render a shape inside a tag', function(done) {
     var shape = {};
     scope.callService = function(service, method, options, next) {
-      options.renderStream
-        .write('[shape]')
-        .finally(next);
+      process.nextTick(function() {
+        options.renderStream
+          .write('[shape]')
+          .finally(next);
+      });
     };
     renderer
       .shape(shape, 'span', {id: 'shape-id'})
@@ -134,9 +138,11 @@ describe('Render Stream', function() {
   it("renders nothing if the shape doesn't exist", function(done) {
     var shape = null;
     scope.callService = function(service, method, options, next) {
-      options.renderStream
-        .write('[shape]')
-        .finally(next);
+      process.nextTick(function() {
+        options.renderStream
+          .write('[shape]')
+          .finally(next);
+      });
     };
     renderer
       .shape()

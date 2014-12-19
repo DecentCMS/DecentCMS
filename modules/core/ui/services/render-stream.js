@@ -217,7 +217,7 @@ function RenderStream(scope, options) {
         renderStream: innerRenderStream
       }, function() {
         if (tag) {
-          self.endTag();
+          self._endTag();
         }
         done();
       });
