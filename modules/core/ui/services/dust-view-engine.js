@@ -42,7 +42,7 @@ dust.helpers.style = function styleDustHelper(chunk, context, bodies, params) {
   return chunk.write();
 }
 
-dust.helpers.styles = function styleDustHelper(chunk, context, bodies, params) {
+dust.helpers.styles = function stylesDustHelper(chunk, context, bodies, params) {
   var renderer = chunk.root['decent-renderer'];
   var innerRenderer = new RenderStream(renderer.scope, {
     stylesheets: renderer.stylesheets
@@ -52,6 +52,32 @@ dust.helpers.styles = function styleDustHelper(chunk, context, bodies, params) {
     html += data;
   });
   innerRenderer._renderStyleSheets();
+  return chunk.write(html);
+}
+
+dust.helpers.script = function scriptDustHelper(chunk, context, bodies, params) {
+  var script = dust.helpers.tap(params.name, chunk, context);
+  if (!script) return;
+  var renderer = chunk.root['decent-renderer'];
+  if (/^https?:/.test(script)) {
+    renderer._addExternalScript(script);
+  }
+  else {
+    renderer._addScript(script);
+  }
+  return chunk.write();
+}
+
+dust.helpers.scripts = function scriptsDustHelper(chunk, context, bodies, params) {
+  var renderer = chunk.root['decent-renderer'];
+  var innerRenderer = new RenderStream(renderer.scope, {
+    scripts: renderer.scripts
+  });
+  var html = '';
+  innerRenderer.on('data', function onShapeData(data) {
+    html += data;
+  });
+  innerRenderer._renderScripts();
   return chunk.write(html);
 }
 
