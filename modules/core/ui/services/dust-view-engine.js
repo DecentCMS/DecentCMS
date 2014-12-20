@@ -17,6 +17,10 @@ dust.helper = require('dustjs-helpers');
  * Helpers
  * =======
  *
+ * T
+ * -
+ * Makes the enclosed string localizable.
+ *
  * Shape
  * -----
  * It adds a 'shape' helper that enables the rendering of
@@ -79,6 +83,18 @@ var codeViewEngine = {
   }
 };
 
+function getDustTemplate(templatePath) {
+  return function dustTemplate(shape, renderer, next) {
+    var stream = dust.stream(templatePath, shape)
+      .on('data', function(data) {
+        renderer.write(data);
+      })
+      .on('end', next)
+      .on('error', function(err) {throw err;});
+    stream['decent-renderer'] = renderer;
+  };
+}
+
 dust.helpers.shape = function shapeDustHelper(chunk, context, bodies, params) {
   var shape = dust.helpers.tap(params.shape, chunk, context);
   if (!shape) return;
@@ -103,6 +119,21 @@ dust.helpers.shape = function shapeDustHelper(chunk, context, bodies, params) {
   });
 };
 
+dust.helpers.t = function localizationDustHelper(chunk, context, bodies) {
+  var renderer = chunk.root['decent-renderer'];
+  var scope = renderer.scope;
+  var t = scope.require('localization');
+  var body = dust.helpers.tap(bodies.block, chunk, context);
+  var localizedBody = t(body);
+  var reTokenized = localizedBody.replace(/\[([^\]]+)\]/g, '{$1}');
+  dust.loadSource(dust.compile(reTokenized, reTokenized));
+  return chunk.map(function renderLocalizedString(chunk) {
+    dust.render(reTokenized, context, function(err, rendered) {
+      chunk.end(rendered);
+    });
+  });
+};
+
 dust.helpers.style = function styleDustHelper(chunk, context, bodies, params) {
   var stylesheet = dust.helpers.tap(params.name, chunk, context);
   if (!stylesheet) return;
@@ -113,7 +144,7 @@ dust.helpers.style = function styleDustHelper(chunk, context, bodies, params) {
   else {
     renderer._addStyleSheet(stylesheet);
   }
-  return chunk.write();
+  return chunk;
 };
 
 dust.helpers.styles = function stylesDustHelper(chunk, context, bodies, params) {
@@ -139,7 +170,7 @@ dust.helpers.script = function scriptDustHelper(chunk, context, bodies, params) 
   else {
     renderer._addScript(script);
   }
-  return chunk.write();
+  return chunk;
 };
 
 dust.helpers.scripts = function scriptsDustHelper(chunk, context, bodies, params) {
@@ -173,7 +204,7 @@ dust.helpers.meta = function metaDustHelper(chunk, context, bodies, params) {
   });
   var renderer = chunk.root['decent-renderer'];
   renderer._addMeta(name, value, attributes);
-  return chunk.write();
+  return chunk;
 };
 
 dust.helpers.metas = function metasDustHelper(chunk, context, bodies, params) {
@@ -188,17 +219,5 @@ dust.helpers.metas = function metasDustHelper(chunk, context, bodies, params) {
   innerRenderer._renderMeta();
   return chunk.write(html);
 };
-
-function getDustTemplate(templatePath) {
-  return function dustTemplate(shape, renderer, next) {
-    var stream = dust.stream(templatePath, shape)
-      .on('data', function(data) {
-        renderer.write(data);
-      })
-      .on('end', next)
-      .on('error', function(err) {throw err;});
-    stream['decent-renderer'] = renderer;
-  };
-}
 
 module.exports = codeViewEngine;

@@ -17,12 +17,23 @@ describe('Dust View Engine', function() {
     }
   });
   var scope = {
-    callService: function(service, method, context, done) {
+    callService: function callService(service, method, context, done) {
       process.nextTick(function() {
         var shape = context.shape;
         context.renderStream.write('[' + shape.meta.type + ':' + shape.title + ']');
         done();
       });
+    },
+    require: function require(service) {
+      return function t(str) {
+        switch(str) {
+          case 'simple localized':
+            return 'simplement localisé';
+          case 'more complicated localized string with parameters: [foo] and [bar]...':
+            return 'plus compliqué avec des paramètres: [foo] et [bar]...';
+          default: return str;
+        }
+      }
     }
   };
   var html;
@@ -62,6 +73,20 @@ describe('Dust View Engine', function() {
       }, renderer, function() {
         expect(html.join(''))
           .to.equal('My favorite shows are: Twin Peaks, Kingdom, Profit.');
+        done();
+      });
+    });
+  });
+
+  it('can be localized', function(done) {
+    template = 'Localized: {@t}simple localized{/t} or {@t}more complicated localized string with parameters: [foo] and [bar]...{/t}.'
+    dustViewEngine.load('path-to-localizable-template', function(renderTemplate) {
+      renderTemplate({
+        foo: 'Fou',
+        bar: 'Barre'
+      }, renderer, function() {
+        expect(html.join(''))
+          .to.equal('Localized: simplement localisé or plus compliqué avec des paramètres: Fou et Barre....');
         done();
       });
     });
