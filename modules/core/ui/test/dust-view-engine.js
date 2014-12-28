@@ -115,6 +115,7 @@ describe('Dust View Engine', function() {
       '{@style name="foo"/}' +
       '{@style name="http://foo.com/css/style.css"/}' +
       '{@style name="https://bar.com/css/style.css"/}' +
+      '{@style name="//baz.com/css/style.css"/}' +
       'Registered styles:{~n}{@styles/}.';
     dustViewEngine.load('path-to-template-registering-styles', function(renderTemplate) {
       renderTemplate({}, renderer, function() {
@@ -124,6 +125,7 @@ describe('Dust View Engine', function() {
           '  <link href="/css/bar.css" rel="stylesheet" type="text/css"/>\r\n' +
           '  <link href="http://foo.com/css/style.css" rel="stylesheet" type="text/css"/>\r\n' +
           '  <link href="https://bar.com/css/style.css" rel="stylesheet" type="text/css"/>\r\n' +
+          '  <link href="//baz.com/css/style.css" rel="stylesheet" type="text/css"/>\r\n' +
           '.');
         done();
       });
@@ -137,6 +139,7 @@ describe('Dust View Engine', function() {
       '{@script name="foo"/}' +
       '{@script name="http://foo.com/js/script.js"/}' +
       '{@script name="https://bar.com/js/script.js"/}' +
+      '{@script name="//baz.com/js/script.js"/}' +
       'Registered scripts:{~n}{@scripts/}.';
     dustViewEngine.load('path-to-template-registering-scripts', function(renderTemplate) {
       renderTemplate({}, renderer, function() {
@@ -146,6 +149,7 @@ describe('Dust View Engine', function() {
           '  <script src="/js/bar.js" type="text/javascript"></script>\r\n' +
           '  <script src="http://foo.com/js/script.js" type="text/javascript"></script>\r\n' +
           '  <script src="https://bar.com/js/script.js" type="text/javascript"></script>\r\n' +
+          '  <script src="//baz.com/js/script.js" type="text/javascript"></script>\r\n' +
           '.');
         done();
       });

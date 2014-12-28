@@ -138,7 +138,7 @@ dust.helpers.style = function styleDustHelper(chunk, context, bodies, params) {
   var stylesheet = dust.helpers.tap(params.name, chunk, context);
   if (!stylesheet) return;
   var renderer = chunk.root['decent-renderer'];
-  if (/^https?:/.test(stylesheet)) {
+  if (/^(https?:)?\/\//.test(stylesheet)) {
     renderer._addExternalStyleSheet(stylesheet);
   }
   else {
@@ -164,7 +164,7 @@ dust.helpers.script = function scriptDustHelper(chunk, context, bodies, params) 
   var script = dust.helpers.tap(params.name, chunk, context);
   if (!script) return;
   var renderer = chunk.root['decent-renderer'];
-  if (/^https?:/.test(script)) {
+  if (/^(https?:)?\/\//.test(script)) {
     renderer._addExternalScript(script);
   }
   else {
