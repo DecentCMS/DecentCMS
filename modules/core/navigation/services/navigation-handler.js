@@ -19,11 +19,15 @@ NavigationHandler.prototype.handle = function handleNavigation(context, done) {
     items: []
   };
   this.scope.callService('navigation-provider', 'addRootItems', navigationContext, function() {
+    var site = scope.require('shell');
+    var current = scope.url;
     var shapeHelper = scope.require('shape');
     shapeHelper.place(layout, 'navigation', {
       meta: {type: 'menu'},
+      site: site,
       name: navigationContext.menu,
-      items: navigationContext.items
+      items: navigationContext.items,
+      current: current
     }, 'after');
     done();
   });
