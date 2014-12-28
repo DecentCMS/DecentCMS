@@ -4,5 +4,13 @@
   "description": "Default theme for DecentCMS",
   "theme": true,
   "author": "Bertrand Le Roy",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "*",
+    "grunt-contrib-less": "*",
+    "grunt-banner": "*",
+    "grunt-contrib-concat": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-contrib-uglify": "*"
+  }
 }
