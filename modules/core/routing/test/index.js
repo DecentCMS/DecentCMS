@@ -58,7 +58,9 @@ describe('Static Route Handler', function() {
         moduleA: {physicalPath: path.join('path', 'to', 'a')},
         moduleB: {physicalPath: path.join('path', 'to', 'b')}
       },
-      staticFolders: ['img', 'js', 'css']
+      rootPath: path.join('sites', 'default'),
+      staticFolders: ['img', 'js', 'css'],
+      mediaFolder: 'media'
     };
     var payload = {
       expressApp: {
@@ -74,7 +76,8 @@ describe('Static Route Handler', function() {
       path.join('path', 'to', 'a', 'img'),
       path.join('path', 'to', 'a', 'css'),
       path.join('path', 'to', 'b', 'css'),
-      path.join('path', 'to', 'b', 'js')
+      path.join('path', 'to', 'b', 'js'),
+      path.join('sites', 'default', 'media')
     ];
     var StaticRouteHandler = proxyquire('../services/static-route-handler', {
       fs: {
@@ -97,6 +100,7 @@ describe('Static Route Handler', function() {
         {url: '/css', path: files[1]},
         {url: '/js', path: files[3]},
         {url: '/css', path: files[2]},
+        {url: '/media', path: files[4]},
         {url: '/favicon.ico', path: path.resolve('favicon.ico')}
       ]);
   });

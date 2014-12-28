@@ -54,6 +54,7 @@ function Shell(options) {
   this.types = options.types || {};
   this.theme = options.theme;
   this.staticFolders = options.staticFolders || [];
+  this.mediaFolder = options.mediaFolder;
   this.active = !(options.active === false);
   this.serviceManifests = {};
   this.moduleManifests = {};

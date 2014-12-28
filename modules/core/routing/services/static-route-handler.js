@@ -33,6 +33,12 @@ var StaticRouteHandler = {
           log.verbose('Added static file route.', {path: physicalPath});
         }
       }
+      // Register a static route for the site's media folder
+      if (scope.mediaFolder) {
+        var mediaPath = path.join(scope.rootPath, scope.mediaFolder);
+        app.use('/media', express.static(mediaPath));
+        log.verbose('Added media static file route.', {path: mediaPath});
+      }
       // Also, register a /favicon.ico route in case the theme doesn't do things correctly
       var faviconPath = path.resolve('./favicon.ico');
       app.use('/favicon.ico', express.static(faviconPath));
