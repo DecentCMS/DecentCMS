@@ -24,7 +24,8 @@ ContentManager.isScopeSingleton = true;
  */
 ContentManager.prototype.getType = function getType(item) {
   var typeName, type;
-  if (!item.meta
+  if (!item
+    || !item.meta
     || !(typeName = item.meta.type)
     || !this.scope.types
     || !(type = this.scope.types[typeName])) return null;
