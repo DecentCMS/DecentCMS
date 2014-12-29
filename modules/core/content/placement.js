@@ -8,7 +8,7 @@ module.exports = function(scope, rootShape, shapes) {
   for (var i = 0; i < shapes.length; i++) {
     var shape = shapes[i];
     var temp = shapeHelper.temp(shape);
-    var meta = shapeHelper.meta(shape)
+    var meta = shapeHelper.meta(shape);
     if (meta.type === 'shape-item-promise' && temp.displayType === 'main') {
       shapeHelper.place(rootShape, 'main', shape, 'after');
       shapes.splice(i--, 1);
