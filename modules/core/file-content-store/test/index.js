@@ -19,6 +19,9 @@ var stubs = {
         case path.join(rootContentPath, 'bar', 'baz.md'):
           callback(null, '*markdown*');
           return;
+        case path.join('foo', 'data', 'alt', 'foo.json'):
+          callback(null, '{"body": "alt body"}');
+          return;
         case path.join(rootContentPath, 'error.json'):
           callback(new Error('error'));
           return;
@@ -72,6 +75,22 @@ describe('File Content Store', function() {
       expect(items['/'].title).to.equal('Home');
       expect(items['/bar/baz'].title).to.equal('Foo');
       expect(items['/bar/baz'].body._data).to.equal('*markdown*');
+      done();
+    });
+  });
+
+  it('can load content items from alternative roots', function(done) {
+    var items = {};
+    var payload = {
+      scope: scope,
+      items: items,
+      itemsToFetch: {
+        'alt:foo': []
+      }
+    };
+
+    fileContentStore.loadItems(payload, function() {
+      expect(items['alt:foo'].body).to.equal('alt body');
       done();
     });
   });

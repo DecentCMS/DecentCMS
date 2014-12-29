@@ -20,7 +20,7 @@ var fileContentStore = {
     var items = payload.items;
     var itemsToFetch = payload.itemsToFetch;
 
-    var siteDataRoot = path.join(shell.rootPath, 'data/content');
+    var siteDataRoot = path.join(shell.rootPath, 'data');
 
     var handle = function handleItemData(id, filePath, data, callback) {
       // Parse the content item file
@@ -75,8 +75,15 @@ var fileContentStore = {
     async.each(
       paths,
       function(id, next) {
+        var rootSeparatorIndex = id.indexOf(':');
+        var root = 'content';
+        var localId = id;
+        if (rootSeparatorIndex !== -1) {
+          root = id.substr(0, rootSeparatorIndex);
+          localId = id.substr(rootSeparatorIndex + 1);
+        }
         // TODO: support for redirected roots where a folder points at another. This will enable module documentation sub sites.
-        var itemFilePath = path.join(siteDataRoot, id, 'index.json');
+        var itemFilePath = path.join(siteDataRoot, root, localId, 'index.json');
         fs.readFile(itemFilePath, function readIndexFile(err, data) {
           if (!err) {
             handle(id, itemFilePath, data.toString(), next);
@@ -88,7 +95,7 @@ var fileContentStore = {
               return;
             }
             // This was not a folder, maybe it was already a file.
-            itemFilePath = path.join(siteDataRoot, id + '.json');
+            itemFilePath = path.join(siteDataRoot, root, localId + '.json');
             fs.readFile(itemFilePath, function readItemFile(err, data) {
               if (err) {
                 if (err.code === 'ENOENT') {
