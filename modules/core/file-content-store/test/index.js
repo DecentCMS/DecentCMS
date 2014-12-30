@@ -19,7 +19,7 @@ var stubs = {
         case path.join(rootContentPath, 'bar', 'baz.md'):
           callback(null, '*markdown*');
           return;
-        case path.join('foo', 'data', 'alt', 'foo.json'):
+        case path.join('foo', 'alt', 'foo.json'):
           callback(null, '{"body": "alt body"}');
           return;
         case path.join(rootContentPath, 'error.json'):
