@@ -166,7 +166,7 @@ describe('Content Manager', function() {
       expect(html.join('|'))
         .to.equal('meta|style|script');
       expect(servicesAndMethods.join('|'))
-        .to.equal('placement-strategy|placeShapes|content-handler|handleItem|rendering-strategy|render');
+        .to.equal('placement-strategy|placeShapes|shape-handler|handle|rendering-strategy|render');
       done();
     });
   });
