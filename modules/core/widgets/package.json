@@ -1,0 +1,31 @@
+{
+  "name": "decent-core-widgets",
+  "version": "0.0.0",
+  "description": "Reusable blocks of content for DecentCMS.",
+  "features": {
+    "widgets": {
+      "name": "Widgets",
+      "description": "Reusable blocks of content."
+    },
+    "file-layer-store": {
+      "name": "File Layer Store",
+      "description": "Gets the list of widget layers from the site/widget/index.json file."
+    }
+  },
+  "main": "./index",
+  "scripts": {
+    "test": "./test/index"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "dependencies": {
+    "async": "*",
+    "esprima": "*",
+    "static-eval": "*"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*",
+    "proxyquire": "*"
+  }
+}
