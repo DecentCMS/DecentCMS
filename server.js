@@ -1,5 +1,7 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT license. See license.txt for licensing details.
 'use strict';
+// TODO: rename Winston to Logging
+// TODO: move file content store to content module
 var domain = require('domain');
 var http = require('http');
 var https = require('https');
