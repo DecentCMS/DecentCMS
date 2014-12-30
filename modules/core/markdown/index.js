@@ -2,5 +2,5 @@
 'use strict';
 
 module.exports = {
-  MarkdownFlavor: require('./lib/markdown-flavor-handler')
+  MarkdownFlavor: require('./services/markdown-text-flavor')
 };

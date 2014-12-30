@@ -2,5 +2,5 @@
 'use strict';
 
 module.exports = {
-  FileContentStore: require('./lib/file-content-store')
+  FileContentStore: require('./services/file-content-store')
 };

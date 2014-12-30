@@ -2,6 +2,6 @@
 'use strict';
 
 module.exports = {
-  Token: require('./lib/token'),
-  MarkupViewEngine: require('./lib/markup-view-engine')
+  Token: require('./services/token'),
+  MarkupViewEngine: require('./services/markup-view-engine')
 };

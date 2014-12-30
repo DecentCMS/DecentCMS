@@ -2,10 +2,13 @@
 'use strict';
 
 module.exports = {
-  CodeViewEngine: require('./lib/code-view-engine'),
-  FilePlacementStrategy: require('./lib/file-placement-strategy'),
-  Shape: require('./lib/shape'),
-  RenderStream: require('./lib/render-stream'),
-  TemplateRenderingStrategy: require('./lib/file-placement-strategy'),
-  ZoneHandler: require('')
+  CodeViewEngine: require('./services/code-view-engine'),
+  DefaultThemeSelector: require('./services/default-theme-selector'),
+  DustViewEngine: require('./services/dust-view-engine'),
+  FilePlacementStrategy: require('./services/file-placement-strategy'),
+  RenderStream: require('./services/render-stream'),
+  Shape: require('./services/shape'),
+  ShapeItemPromiseHandler: require('./services/shape-item-promise-handler'),
+  TemplateRenderingStrategy: require('./services/template-rendering-strategy'),
+  ZoneHandler: require('./services/zone-handler')
 };

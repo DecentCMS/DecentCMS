@@ -2,5 +2,6 @@
 'use strict';
 
 module.exports = {
-  TitlePart: require('./lib/title-part')
-}
+  TextPart: require('./services/text-part'),
+  TitlePart: require('./services/title-part')
+};
