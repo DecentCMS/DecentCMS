@@ -36,10 +36,11 @@ ContentStorageManager.prototype.promiseToRender = function promiseToRender(optio
     scope.require('storage-manager').promiseToGet(options.id);
     scope.shapes.push({
       meta: {
-        type: 'shape-item-promise'
+        type: 'shape-item-promise',
+        place: options.place
       },
       temp: {
-        displayType: options.displayType
+        displayType: options.displayType || 'details'
       },
       id: options.id
     });
