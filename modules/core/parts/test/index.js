@@ -33,16 +33,20 @@ describe('Text Part Handler', function() {
           shapes: []
         }
       },
-      renderStream: {
-        contentManager: {
-          getParts: function() {
-            return ['body', 'summary', 'other', 'disclaimer'];
+      scope: {
+        require: function require(service) {
+          if (service === 'content-manager') {
+            return {
+              getParts: function() {
+                return ['body', 'summary', 'other', 'disclaimer'];
+              }
+            };
           }
         }
       }
     };
 
-    TextPart.handleItem(context, function() {
+    TextPart.handle(context, function() {
       var newShapes = context.shape.temp.shapes;
       expect(newShapes[0])
         .to.deep.equal({
@@ -88,7 +92,7 @@ describe('Title Part Handler', function() {
       }
     };
 
-    TitlePart.handleItem(context, function() {
+    TitlePart.handle(context, function() {
       var newShapes = context.shape.temp.shapes;
       expect(newShapes[0])
         .to.deep.equal({
@@ -115,15 +119,20 @@ describe('Title Part Handler', function() {
           shapes: []
         }
       },
+      scope: {layout: {}},
       renderStream: {}
     };
 
-    TitlePart.handleItem(context, function() {
+    TitlePart.handle(context, function() {
       expect(context.renderStream.title).to.not.be.ok;
+      expect(context.scope.title).to.not.be.ok;
+      expect(context.scope.layout.title).to.not.be.ok;
 
       context.shape.temp.displayType = 'main';
-      TitlePart.handleItem(context, function() {
+      TitlePart.handle(context, function() {
         expect(context.renderStream.title).to.equal('Foo');
+        expect(context.scope.title).to.equal('Foo');
+        expect(context.scope.layout.title).to.equal('Foo');
         done();
       });
     });
@@ -131,31 +140,37 @@ describe('Title Part Handler', function() {
 });
 
 describe('Text Part View', function() {
-  it('renders plain text HTML-encoded, with br tags for carriage returns', function() {
-    var text = 'Lorem\r\n<b>ipsum</b>.';
-    var html = '';
-    var renderer = {write: function(text) {
+  var text = 'Lorem\r\n<b>ipsum</b>.';
+  var html = '';
+  var renderer = {
+    write: function write(text) {
       html += text;
-    }};
+      return renderer;
+    },
+    finally: function final(callback) {
+      callback();
+    }
+  };
 
-    TextView({text: text, flavor: 'plain-text'}, renderer);
-
-    expect(html).to.equal('Lorem<br/>\r\n&lt;b&gt;ipsum&lt;/b&gt;.');
+  beforeEach(function() {
+    html = '';
   });
 
-  it('renders html as is', function() {
-    var text = 'Lorem\r\n<b>ipsum</b>.';
-    var html = '';
-    var renderer = {write: function(text) {
-      html += text;
-    }};
-
-    TextView({text: text, flavor: 'html'}, renderer);
-
-    expect(html).to.equal(text);
+  it('renders plain text HTML-encoded, with br tags for carriage returns', function(done) {
+    TextView({text: text, flavor: 'plain-text'}, renderer, function() {
+      expect(html).to.equal('Lorem<br/>\r\n&lt;b&gt;ipsum&lt;/b&gt;.');
+      done();
+    });
   });
 
-  it('renders custom flavors', function() {
+  it('renders html as is', function(done) {
+    TextView({text: text, flavor: 'html'}, renderer, function() {
+      expect(html).to.equal(text);
+      done();
+    });
+  });
+
+  it('renders custom flavors', function(done) {
     var flavorHandler = {
       matches: function(flavor) {
         return flavor === 'custom';
@@ -164,34 +179,36 @@ describe('Text Part View', function() {
         return text + text;
       }
     };
-    var scope = {
+    renderer.scope = {
       getServices: function() {
         return [flavorHandler];
       }
     };
-    var html = '';
-    var renderer = {write: function(text) {
-      html += text;
-    }};
 
-    TextView({text: 'foo', flavor: 'custom'}, renderer, scope);
-
-    expect(html).to.equal('foofoo');
+    TextView({text: 'foo', flavor: 'custom'}, renderer, function() {
+      expect(html).to.equal('foofoo');
+      done();
+    });
   });
 });
 
 describe('Title Part View', function() {
-  it('renders the encoded title in h1 tags', function() {
+  it('renders the encoded title in h1 tags', function(done) {
     var html = '';
     var renderer = {
       tag: function(tag, attributes, text) {
         html += '[' + tag + ':' + text + ']';
+        return renderer;
+      },
+      finally: function final(callback) {
+        callback();
       }
     };
 
-    TitleView({text: 'foo du fa fa'}, renderer);
-
-    expect(html)
-      .to.equal('[h1:foo du fa fa]');
+    TitleView({text: 'foo du fa fa'}, renderer, function() {
+      expect(html)
+        .to.equal('[h1:foo du fa fa]');
+      done();
+    });
   });
 });
