@@ -6730,12 +6730,20 @@ body {
   padding-bottom: 30px;
 }
 .navbar-brand {
-  padding: 2px 15px;
+  padding: 3px 15px;
 }
 .navbar-brand > img {
   height: 44px;
   width: auto;
   display: inline-block;
   margin-right: 8px;
+}
+.main-footer {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  margin-top: 100px;
+  color: #777;
+  text-align: center;
+  border-top: 1px solid #e5e5e5;
 }
 /*# sourceMappingURL=css/style.css.map */
