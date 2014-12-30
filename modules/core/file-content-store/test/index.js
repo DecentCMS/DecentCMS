@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var proxyquire = require('proxyquire');
 var path = require('path');
 
-var rootContentPath = path.join('foo', 'data', 'content');
+var rootContentPath = path.join('foo', 'content');
 
 var stubs = {
   fs: {

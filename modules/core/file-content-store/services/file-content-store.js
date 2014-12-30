@@ -20,7 +20,7 @@ var fileContentStore = {
     var items = payload.items;
     var itemsToFetch = payload.itemsToFetch;
 
-    var siteDataRoot = path.join(shell.rootPath, 'data');
+    var siteDataRoot = shell.rootPath;
 
     var handle = function handleItemData(id, filePath, data, callback) {
       // Parse the content item file

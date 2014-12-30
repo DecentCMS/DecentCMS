@@ -28,7 +28,7 @@ FileNavigationProvider.scope = 'shell';
 FileNavigationProvider.prototype.addRootItems = function addRootItems(context, done) {
   var menu = context.menu || 'default';
   var items = context.items || [];
-  var navigationDataRoot = path.join(this.scope.rootPath, 'data/navigation');
+  var navigationDataRoot = path.join(this.scope.rootPath, 'navigation');
   var navigationFile = menu + '.json';
   var navigationFilePath = path.join(navigationDataRoot, navigationFile);
   fs.readFile(navigationFilePath, function navigationFileRead(err, data) {
