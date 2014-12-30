@@ -26,6 +26,7 @@
   "devDependencies": {
     "chai": "*",
     "mocha": "*",
-    "proxyquire": "*"
+    "proxyquire": "*",
+    "grunt-mocha-test": "*"
   }
 }
