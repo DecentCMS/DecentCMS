@@ -290,10 +290,13 @@ function scope(name, objectToScope, services, parentScope) {
   objectToScope.tearDown = function tearDown() {
     delete this.services;
     delete this.instances;
-    delete this.require;
-    delete this.getServices;
+    this.require = function() {return null;};
+    this.getServices = function() {return [];};
+    this.callService = function(s, m, c, done) {done();};
+    this.lifecycle = function() {return function(c, done) {done();};};
     delete this.tearDown;
     delete this._scopeInitialized;
+    this.isTornDown = true;
   };
 
   objectToScope.instances = {};
