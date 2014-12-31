@@ -210,13 +210,22 @@ function RenderStream(scope, options) {
         return this;
       }
       var innerRenderStream = new RenderStream(scope, options);
-      innerRenderStream.on('data', function(data) {
-        self.push(data);
-      });
+      innerRenderStream
+        .on('data', function(data) {
+          self.push(data);
+        })
+        .onError(function(err) {
+          done(err);
+          return;
+        });
       this.scope.callService('rendering-strategy', 'render', {
         shape: shape,
         renderStream: innerRenderStream
-      }, function() {
+      }, function(err) {
+        if (err) {
+          done(err);
+          return;
+        }
         if (tag) {
           self._endTag();
         }

@@ -316,7 +316,8 @@ Shell.prototype.handleRequest = function(request, response, next) {
   lifecycle(payload, function lifecycleDone(err) {
     if (err) {
       self.emit(Shell.renderErrorPage, err);
-      throw err;
+      log.error(err.message);
+      if (next) next(err);
     }
     // Tear down
     self.emit(Shell.endRequestEvent, payload);

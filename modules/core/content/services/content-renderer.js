@@ -34,6 +34,9 @@ ContentStorageManager.prototype.promiseToRender = function promiseToRender(optio
   }
   if (options.id) {
     scope.require('storage-manager').promiseToGet(options.id);
+    if (options.displayType === 'main') {
+      scope.itemId = options.id;
+    }
     scope.shapes.push({
       meta: {
         type: 'shape-item-promise',
@@ -76,11 +79,26 @@ ContentStorageManager.prototype.render = function render(payload, pageBuilt) {
     meta: {type: 'layout'},
     site: scope.require('shell')
   };
+  if (scope.itemId) {
+    var item = scope.require('storage-manager').getAvailableItem(scope.itemId);
+    if (!item) {
+      response.statusCode = 404;
+      scope.require('shape')
+        .place(layout, 'main', {
+          meta: {type: 'not-found'},
+          notFoundId: scope.itemId
+        }, 'before');
+    }
+  }
   var renderStream = scope.require('render-stream');
   // TODO: add filters, that are just additional pipes before res.
-  renderStream.on('data', function(data) {
-    response.write(data);
-  });
+  renderStream
+    .on('data', function(data) {
+      response.write(data);
+    })
+    .onError(function(err) {
+      pageBuilt(err);
+    });
   var lifecycle = scope.lifecycle(
     // Build the shape tree through placement strategies
     'placement-strategy', 'placeShapes',

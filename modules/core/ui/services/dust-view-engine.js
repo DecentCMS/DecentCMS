@@ -108,9 +108,14 @@ dust.helpers.shape = function shapeDustHelper(chunk, context, bodies, params) {
       meta: renderer.meta,
       title: renderer.title
     });
-    innerRenderer.on('data', function onShapeData(data) {
-      chunk.write(data);
-    });
+    innerRenderer
+      .on('data', function onShapeData(data) {
+        chunk.write(data);
+      })
+      .onError(function(err) {
+        renderer._onError(err);
+        chunk.end();
+      });
     innerRenderer
       .shape(shape, tag, cssClass ? {class: cssClass} : null)
       .finally(function() {

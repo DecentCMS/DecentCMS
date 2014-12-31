@@ -50,6 +50,10 @@ function TemplateRenderingStrategy(scope) {
         });
         return;
       }
+      else {
+        done(new Error('Template for ' + shapeName + ' not found.'));
+        return;
+      }
     }
     if (template) {
       shapeTemplates[shapeName] = template;
