@@ -72,7 +72,10 @@ ContentStorageManager.prototype.render = function render(payload, pageBuilt) {
   var scope = this.scope;
   var response = payload.response;
   var shapes = scope.shapes;
-  var layout = scope.layout = {meta: {type: 'layout'}};
+  var layout = scope.layout = {
+    meta: {type: 'layout'},
+    site: scope.require('shell')
+  };
   var renderStream = scope.require('render-stream');
   // TODO: add filters, that are just additional pipes before res.
   renderStream.on('data', function(data) {
