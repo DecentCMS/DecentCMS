@@ -43,6 +43,7 @@ Future features include:
 * Localization implementation
 * Dashboard
 * Authentication
+* Installer
 
 Road map
 --------
@@ -57,7 +58,18 @@ Near future milestones are:
 * Authentication and basic dashboard infrastructure
 * Documentation and community site running DecentCMS
 
+Installation
+------------
+
+There is no convenient installation procedure yet.
+For the moment, you'll need to clone the repository, add a sites/default
+folder (for example from [this sample site][decent-consulting-site]),
+and then `npm install` from the root and from every single module and
+theme folder. Obviously, there will be a Grunt task to automate that...
+
 Does this project take contributions?
 -------------------------------------
 
 Yes, please.
+
+  [decent-consulting-site]: https://github.com/DecentCMS/DecentConsulting
