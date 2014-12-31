@@ -59,7 +59,7 @@ ContentStorageManager.prototype.getAvailableItem = function getAvailableItem(id)
  * @description
  * Triggers the asynchronous fetching of the items whose
  * ids can be found in the content manager's itemsToFetch
- * array, anf their transfer into the items array.
+ * array, and their transfer into the items array.
  * This method emits the decent.core.load-items event.
  * @param payload
  * @param {Function} [payload.callback] a callback that gets
@@ -87,10 +87,6 @@ ContentStorageManager.prototype.fetchContent = function fetchContent(payload, ca
       items: scope.items,
       itemsToFetch: scope.itemsToFetch
     }, callback);
-  }
-  else if (scope.itemsToFetch && Object.getOwnPropertyNames(scope.itemsToFetch).length > 0) {
-    // TODO: add not found route handler, that will fall back correctly even when the static handler is involved.
-    if (callback) callback(null,  scope.items);
   }
 };
 
