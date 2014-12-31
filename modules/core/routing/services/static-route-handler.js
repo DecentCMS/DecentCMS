@@ -1,5 +1,6 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
+// TODO: modules register their own static folders, instead of having the site decide for all.
 
 var path = require('path');
 var fs = require('fs');
