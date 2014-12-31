@@ -67,7 +67,6 @@ if (runInCluster && cluster.isMaster) {
         // try to send an error to the request that triggered the problem
         res.statusCode = 500;
         // TODO: let route handlers set headers, including powered by.
-        res.setHeader('content-type', 'text/html');
         res.end('Oops, the server choked on this request!\n');
         // TODO: broadcast the error to give loggers a chance to use it.
       } catch (er2) {
