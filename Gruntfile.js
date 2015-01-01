@@ -2,61 +2,32 @@
 'use strict';
 //TODO: npm update all modules
 
-var fs = require('fs');
-var path = require('path');
+var buildConfig = require('./lib/sub-grunt-config').buildConfig;
 
 module.exports = function gruntDecent(grunt) {
   grunt.initConfig();
 
   // Execution of Grunt tasks in each module and theme
-  var moduleRoots = ['./modules', './themes'];
-
   grunt.loadNpmTasks('grunt-run-grunt');
-  var runGruntConfig = {};
   var verbose = grunt.option('verbose');
-  var task = grunt.option('run');
 
-  function setupSubGrunt(root, task) {
-    var gruntPath = path.resolve(root, 'Gruntfile.js');
-    var isGrunt =fs.existsSync(gruntPath);
-    if (isGrunt) {
-      runGruntConfig[root] = {
-        src: gruntPath,
-        options: {
-          task: [task || 'default'],
-          verbose: verbose,
-          indentLog: ' | ',
-          cwd: path.resolve(root)
-        }
-      };
-    }
-    return isGrunt;
-  }
-
-  moduleRoots.forEach(function forEachModuleRoot(moduleRoot) {
-    var moduleAreaFolders = fs.readdirSync(moduleRoot);
-    moduleAreaFolders.forEach(function forEachAreaFolder(areaFolder) {
-      var areaPath = path.join(moduleRoot, areaFolder);
-      if (fs.statSync(areaPath).isDirectory()) {
-        if (!setupSubGrunt(areaPath, task)) {
-          var moduleFolders = fs.readdirSync(areaPath);
-          moduleFolders.forEach(function forEachModuleFolder(moduleFolder) {
-            var modulePath = path.join(areaPath, moduleFolder);
-            if (fs.statSync(modulePath).isDirectory()) {
-              setupSubGrunt(modulePath, task);
-            }
-          });
-        }
-      }
-    });
-  });
+  var runGruntConfig = {};
+  var runTasks = buildConfig('default', runGruntConfig, verbose);
+  var testTasks = buildConfig('test', runGruntConfig, verbose);
   grunt.config.merge({
     run_grunt: runGruntConfig
   });
+  // console.log(JSON.stringify(runGruntConfig, null, 2));
+
   grunt.registerTask(
     'modules',
-    'Run all tasks in all modules. Use --run:task-name to target a specific task in each module.',
-    'run_grunt');
+    'Run all tasks in all modules.',
+    runTasks);
+  grunt.registerTask(
+    'test',
+    'Run all tests in all modules.',
+    testTasks
+  );
 
   // Other top-level Grunt tasks
 
