@@ -1,7 +1,7 @@
 {
   "name": "decent-core-winston",
   "version": "0.0.0",
-  "description": "Integration of Winston logging into DecentCMS.",
+  "description": "Logging for DecentCMS.",
   "features": {
     "winston-logger": {
       "name": "Winston Logger",
