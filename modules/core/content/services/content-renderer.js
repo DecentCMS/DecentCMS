@@ -84,9 +84,6 @@ ContentStorageManager.prototype.render = function render(payload, pageBuilt) {
   renderStream
     .on('data', function(data) {
       response.write(data);
-    })
-    .onError(function(err) {
-      pageBuilt(err);
     });
   if (scope.itemId) {
     var item = scope.require('storage-manager').getAvailableItem(scope.itemId);
