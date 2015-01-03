@@ -9,6 +9,7 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "async": "*",
     "grunt": "*",
     "grunt-contrib-imagemin": "*",
     "grunt-run-grunt": "*"

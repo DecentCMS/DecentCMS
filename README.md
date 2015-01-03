@@ -61,11 +61,22 @@ Near future milestones are:
 Installation
 ------------
 
-There is no convenient installation procedure yet.
-For the moment, you'll need to clone the repository, add a sites/default
-folder (for example from [this sample site][decent-consulting-site]),
-and then `npm install` from the root and from every single module and
-theme folder. Obviously, there will be a Grunt task to automate that...
+There is an experimental installation procedure for the moment:
+
+* Install Node.js
+* npm install -g grunt-cli
+* Clone the repository
+* From the root of the clone, npm install
+* From the root of the clone, grunt install
+* Create a web site or clone an existing one under sites/default
+  (for example from [this sample site][decent-consulting-site]).
+
+You can then run the server: node server, and navigate to localhost:1337.
+
+Otherwise, you can manually install by cloning the repository,
+adding a sites/default folder (for example from
+[this sample site][decent-consulting-site]), and then `npm install`
+from the root and from every single module and theme folder.
 
 Does this project take contributions?
 -------------------------------------

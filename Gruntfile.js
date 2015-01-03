@@ -3,6 +3,7 @@
 //TODO: npm update all modules
 
 var buildConfig = require('./lib/sub-grunt-config').buildConfig;
+var buildInstallConfig = require('./lib/sub-grunt-config').buildInstallConfig;
 
 module.exports = function gruntDecent(grunt) {
   grunt.initConfig();
@@ -12,8 +13,8 @@ module.exports = function gruntDecent(grunt) {
   var verbose = grunt.option('verbose');
 
   var runGruntConfig = {};
-  var runTasks = buildConfig('default', runGruntConfig, verbose);
-  var testTasks = buildConfig('test', runGruntConfig, verbose);
+  var runTasks = buildConfig('run_grunt', 'default', runGruntConfig, verbose);
+  var testTasks = buildConfig('run_grunt', 'test', runGruntConfig, verbose);
   grunt.config.merge({
     run_grunt: runGruntConfig
   });
@@ -27,6 +28,20 @@ module.exports = function gruntDecent(grunt) {
     'test',
     'Run all tests in all modules.',
     testTasks
+  );
+
+  // Installation and update of all modules and themes' dependencies
+  var installTask = require('./lib/grunt-install-decent-modules');
+  installTask(grunt);
+  grunt.config.merge({
+    install_decent_modules: {
+      all: {}
+    }
+  });
+  grunt.registerTask(
+    'install',
+    'Install or update all dependencies of all modules and themes.',
+    ['install_decent_modules']
   );
 
   // Other top-level Grunt tasks
