@@ -35,13 +35,37 @@ module.exports = function gruntDecent(grunt) {
   installTask(grunt);
   grunt.config.merge({
     install_decent_modules: {
-      all: {}
+      all: {
+        npmCommand: 'install',
+        dependencies: true,
+        devDependencies: true
+      },
+      update_all: {
+        npmCommand: 'update',
+        dependencies: true,
+        devDependencies: true
+      },
+      install_runtime: {
+        npmCommand: 'install',
+        dependencies: true,
+        devDependencies: false
+      }
     }
   });
   grunt.registerTask(
     'install',
-    'Install or update all dependencies of all modules and themes.',
-    ['install_decent_modules']
+    'Install all dependencies of all modules and themes.',
+    ['install_decent_modules:all']
+  );
+  grunt.registerTask(
+    'update',
+    'Update all dependencies of all modules and themes.',
+    ['install_decent_modules:update_all']
+  );
+  grunt.registerTask(
+    'install_runtime',
+    'Install only runtime dependencies (not dev dependencies) of all modules and themes.',
+    ['install_decent_modules:install_runtime']
   );
 
   // Other top-level Grunt tasks
