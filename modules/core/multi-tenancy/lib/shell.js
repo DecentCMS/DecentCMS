@@ -325,7 +325,8 @@ Shell.prototype.handleRequest = function(request, response, next) {
     response.end('');
     log.profile(profileId, 'Handled request', {
       tenant: self.name,
-      url: request.url
+      url: request.url,
+      status: response.statusCode
     });
     if (next) next();
   });
