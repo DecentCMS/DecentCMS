@@ -40,6 +40,7 @@ MarkdownFlavor.prototype.matches = function(flavor) {
  * @returns {string} The HTML.
  */
 MarkdownFlavor.prototype.getHtml = function(markdown) {
+  if (!markdown) return '';
   return this.marked(markdown, this.options);
 };
 
