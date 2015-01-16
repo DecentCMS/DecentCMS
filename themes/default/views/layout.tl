@@ -18,6 +18,7 @@
     <![endif]-->
   </head>
   <body role="document">
+    {@shape shape=analytics/}
     <a href="#content" class="sr-only sr-only-focusable">{@t}Skip to main content{/t}</a>
     {@shape shape=navigation tag="nav" class="navbar navbar-inverse navbar-fixed-top"/}
     <div class="container" id="content" role="main">
