@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "A Decent CMS written in Node",
   "main": "server.js",
+  "engines": {"node": "0.10.x"},
   "author": {
     "name": "Bertrand Le Roy",
     "email": "bertrand@decentcms.com"
