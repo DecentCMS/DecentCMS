@@ -7,8 +7,8 @@ var cluster = require('cluster');
 var moduleDiscovery = require('./modules/core/multi-tenancy/lib/module-discovery');
 var Shell = require('./modules/core/multi-tenancy/lib/shell');
 
-var port = +process.env.PORT || 1337;
-var host = process.env.IP || "localhost";
+var port = process.env.PORT || 1337;
+var host = process.env.IP;
 var workerCount = +process.env.WorkerCount || 1;
 var runInCluster = !!process.env.RunInCluster;
 
