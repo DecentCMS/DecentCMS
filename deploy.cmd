@@ -94,11 +94,11 @@ IF /I "%IN_PLACE_DEPLOYMENT%" NEQ "1" (
   IF !ERRORLEVEL! NEQ 0 goto error
 )
 
-if EXIST %HOME%\site\wwwroot\sites\default\.git (
-   pushd %HOME%\site\wwwroot\sites\default
-   git pull
-   popd
-)
+:: if EXIST %HOME%\site\wwwroot\sites\default\.git (
+::   pushd %HOME%\site\wwwroot\sites\default
+::   git pull
+::   popd
+::)
 
 :: 2. Select node version
 call :SelectNodeVersion
