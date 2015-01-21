@@ -41,19 +41,24 @@ var fileContentStore = proxyquire('../services/file-content-store', stubs);
 
 var scope = {
   require: function require(serviceName) {
-    switch(serviceName) {
-      case 'shape':
-        return {
-          temp: function(shape) {
-            return shape.temp = shape.temp || {};
-          }
-        };
-      case 'shell':
-        return {
-          rootPath: 'foo'
-        };
-    }
+    return services[serviceName];
+  },
+  getServices: function(serviceName) {
+    if (!services.hasOwnProperty(serviceName)) return [];
+    return [services[serviceName]];
   }
+};
+
+var services = {
+  shape: {
+    temp: function(shape) {
+      return shape.temp = shape.temp || {};
+    }
+  },
+  shell: {
+    rootPath: 'foo'
+  },
+  "id-to-path-map": new (require('../services/content-path-mapper'))(scope)
 };
 
 describe('File Content Store', function() {

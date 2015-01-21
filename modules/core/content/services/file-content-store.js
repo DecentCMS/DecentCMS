@@ -34,7 +34,7 @@ var fileContentStore = {
   service: 'content-store',
   feature: 'file-content-store',
   scope: 'shell',
-  loadItems: function (payload, nextStore) {
+  loadItems: function loadItems(payload, nextStore) {
     var scope = payload.scope;
     var shapeHelper = scope.require('shape');
     var shell = scope.require('shell');
@@ -103,21 +103,16 @@ var fileContentStore = {
           root = id.substr(0, rootSeparatorIndex);
           localId = id.substr(rootSeparatorIndex + 1);
         }
-        // TODO: support for redirected roots where a folder points at another. This will enable module documentation sub sites.
-        var itemFolderPath = path.join(siteDataRoot, root, localId);
-        // First look for a id/index.json file, then id/index.yaml, then id/index.yaml.md,
-        // then id.json, id.yaml, and finally id.yaml.md
-        var indexPath = path.join(itemFolderPath, 'index');
-        var paths = [
-          indexPath + '.json',
-          indexPath + '.yaml',
-          indexPath + '.yaml.md',
-          itemFolderPath + '.json',
-          itemFolderPath + '.yaml',
-          itemFolderPath + '.yaml.md'
-        ];
+        var mappingServices = scope.getServices('id-to-path-map');
+        var paths = [];
+        mappingServices.forEach(function forEachIdToPathMap(mappingService) {
+          var servicePaths = mappingService.mapIdToPath(root, localId);
+          if (servicePaths && servicePaths.length > 0) {
+            Array.prototype.push.apply(paths, servicePaths);
+          }
+        });
         var found = false;
-        paths.forEach(function(p) {
+        paths.forEach(function forEachPath(p) {
           if (found) return;
           if (fs.existsSync(p)) {
             found = true;
