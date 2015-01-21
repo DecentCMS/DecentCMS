@@ -1,6 +1,6 @@
 {
   "name": "DecentCMS",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A Decent CMS written in Node",
   "main": "server.js",
   "engines": {"node": "0.10.x"},
