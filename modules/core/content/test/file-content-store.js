@@ -4,31 +4,34 @@ var expect = require('chai').expect;
 var proxyquire = require('proxyquire');
 var path = require('path');
 
-var rootContentPath = path.join('foo', 'content');
+var files = {
+  'foo/content/index.json':   '{"title":"Home"}',
+  'foo/content/bar/baz.json': '{"title":"Foo","body":{"src":"baz.md"}}',
+  'foo/content/bar/baz.md':   '*markdown*',
+  'foo/content/bar/yaml.yaml':
+    'title: Foo YAML\r\n' +
+    'body:\r\n' +
+    '  src: yaml.md\r\n',
+  'foo/content/bar/yaml.md':   'YAML *markdown*',
+  'foo/content/bar/multipart.yaml.md':
+    'title: Foo multipart\r\n\r\n' +
+    '-8<------------\r\n\r\n' +
+    'multipart *markdown*\r\n',
+  'foo/alt/foo.json': '{"body": "alt body"}'
+};
 
 var stubs = {
   fs: {
     readFile: function readFile(fileName, callback) {
-      switch(fileName) {
-        case path.join(rootContentPath, 'index.json'):
-          callback(null, '{"title":"Home"}');
-          return;
-        case path.join(rootContentPath, 'bar', 'baz.json'):
-          callback(null, '{"title":"Foo","body":{"src":"baz.md"}}');
-          return;
-        case path.join(rootContentPath, 'bar', 'baz.md'):
-          callback(null, '*markdown*');
-          return;
-        case path.join('foo', 'alt', 'foo.json'):
-          callback(null, '{"body": "alt body"}');
-          return;
-        case path.join(rootContentPath, 'error.json'):
-          callback(new Error('error'));
-          return;
-        default:
-          // File not found
-          callback({code: 'ENOENT'});
-      }
+      var p = fileName.split(path.sep).join('/');
+      if (files.hasOwnProperty(p)) {callback(null, files[p]);return;}
+      if (p === 'foo/content/error.json') {callback(new Error('error'));return;}
+      // File not found
+      callback({code: 'ENOENT'});
+    },
+    existsSync: function(fileName) {
+      var p = fileName.split(path.sep).join('/');
+      return files.hasOwnProperty(p) || p === 'foo/content/error.json';
     },
     '@noCallThru': true
   }
@@ -54,7 +57,7 @@ var scope = {
 };
 
 describe('File Content Store', function() {
-  it('can load content items from the file system', function(done) {
+  it('can load JSON content items and satellite Markdown files from the file system', function(done) {
     var items = {};
     var itemIdsRead = [];
     var itemCallback = function(err, item) {
@@ -75,6 +78,52 @@ describe('File Content Store', function() {
       expect(items['/'].title).to.equal('Home');
       expect(items['/bar/baz'].title).to.equal('Foo');
       expect(items['/bar/baz'].body._data).to.equal('*markdown*');
+      done();
+    });
+  });
+
+  it('can load YAML content items and satellite Markdown files from the file system', function(done) {
+    var items = {};
+    var itemIdsRead = [];
+    var itemCallback = function(err, item) {
+      itemIdsRead.push(item.id);
+    };
+    var payload = {
+      scope: scope,
+      items: items,
+      itemsToFetch: {
+        '/bar/yaml': [itemCallback]
+      }
+    };
+
+    fileContentStore.loadItems(payload, function() {
+      expect(itemIdsRead)
+        .to.deep.equal(['/bar/yaml']);
+      expect(items['/bar/yaml'].title).to.equal('Foo YAML');
+      expect(items['/bar/yaml'].body._data).to.equal('YAML *markdown*');
+      done();
+    });
+  });
+
+  it('can load content items from multipart files', function(done) {
+    var items = {};
+    var itemIdsRead = [];
+    var itemCallback = function(err, item) {
+      itemIdsRead.push(item.id);
+    };
+    var payload = {
+      scope: scope,
+      items: items,
+      itemsToFetch: {
+        '/bar/multipart': [itemCallback]
+      }
+    };
+
+    fileContentStore.loadItems(payload, function() {
+      expect(itemIdsRead)
+        .to.deep.equal(['/bar/multipart']);
+      expect(items['/bar/multipart'].title).to.equal('Foo multipart');
+      expect(items['/bar/multipart'].body._data).to.equal('multipart *markdown*');
       done();
     });
   });

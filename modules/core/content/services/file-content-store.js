@@ -3,10 +3,32 @@
 var path = require('path');
 var fs = require('fs');
 var async = require('async');
+var YAML = require('yamljs');
+var Snippable = require('snippable');
+var snippable = new Snippable();
 
 /**
  * @description
- * A content store that uses JSON files.
+ * Parses a multipart YAML/Markdown document.
+ * The YAML part becomes the item, and the Markdown
+ * becomes the body part with a Markdown flavor.
+ * @param {string} data The data to parse.
+ * @returns {object} The parsed content item.
+ */
+function parseYamlMarkdown(data) {
+  var parts = snippable.parse(data, ['yaml', 'md']);
+  var item = parts[0];
+  var md = parts[1];
+  item.body = {
+    flavor: 'markdown',
+    _data: md
+  };
+  return item;
+}
+
+/**
+ * @description
+ * A content store that uses .json, .yaml, and .yaml.md files.
  */
 var fileContentStore = {
   service: 'content-store',
@@ -22,9 +44,8 @@ var fileContentStore = {
 
     var siteDataRoot = shell.rootPath;
 
-    var handle = function handleItemData(id, filePath, data, callback) {
+    var handle = function handleItemData(id, filePath, item, callback) {
       // Parse the content item file
-      var item = JSON.parse(data);
       // Look for any part that needs to load an additional file.
       // Typically, that could be a markdown file for the body.
       async.each(Object.keys(item), function lookForExtraFile(partName, next) {
@@ -83,34 +104,36 @@ var fileContentStore = {
           localId = id.substr(rootSeparatorIndex + 1);
         }
         // TODO: support for redirected roots where a folder points at another. This will enable module documentation sub sites.
-        var itemFilePath = path.join(siteDataRoot, root, localId, 'index.json');
-        fs.readFile(itemFilePath, function readIndexFile(err, data) {
-          if (!err) {
-            handle(id, itemFilePath, data.toString(), next);
-          }
-          else {
-            // File not found is normal, so let it flow, but re-throw others
-            if (err.code !== 'ENOENT') {
-              nextStore(err);
-              return;
-            }
-            // This was not a folder, maybe it was already a file.
-            itemFilePath = path.join(siteDataRoot, root, localId + '.json');
-            fs.readFile(itemFilePath, function readItemFile(err, data) {
-              if (err) {
-                if (err.code === 'ENOENT') {
-                  // If the item was not found, we skip the item,
-                  // as it may be found by another store.
-                  next();
-                  return;
-                }
-                nextStore(err);
-                return;
-              }
-              handle(id, itemFilePath, data.toString(), next);
+        var itemFolderPath = path.join(siteDataRoot, root, localId);
+        // First look for a id/index.json file, then id/index.yaml, then id/index.yaml.md,
+        // then id.json, id.yaml, and finally id.yaml.md
+        var indexPath = path.join(itemFolderPath, 'index');
+        var paths = [
+          indexPath + '.json',
+          indexPath + '.yaml',
+          indexPath + '.yaml.md',
+          itemFolderPath + '.json',
+          itemFolderPath + '.yaml',
+          itemFolderPath + '.yaml.md'
+        ];
+        var found = false;
+        paths.forEach(function(p) {
+          if (found) return;
+          if (fs.existsSync(p)) {
+            found = true;
+            fs.readFile(p, function readItemFile(err, data) {
+              if (err) {nextStore(err); return;}
+              var ext = path.extname(p);
+              var item = ext === '.json'
+                ? JSON.parse(data.toString())
+                : ext === '.yaml'
+                ? YAML.parse(data.toString())
+                : parseYamlMarkdown(data.toString());
+              handle(id, p, item, next);
             });
           }
         });
+        if (!found) next();
       },
       nextStore
     );

@@ -25,5 +25,9 @@
     "proxyquire": "*"
   },
   "author": "Bertrand Le Roy",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "snippable": "*",
+    "yamljs": "*"
+  }
 }
