@@ -111,7 +111,7 @@ describe('Shell', function() {
       PhoniedShell.discover();
 
       expect(PhoniedShell.list)
-        .to.have.deep.property('site1.name', 'Site 1')
+        .to.have.deep.property('site1.name', 'Site 1');
       expect(PhoniedShell.list)
         .to.have.deep.property('site2.name', 'Site 2');
     });

@@ -135,13 +135,13 @@ Shell.resolve = function(request) {
   // If there's only one shell, always return that.
   if (shellNames.length === 1) return Shell.list[shellNames[0]];
   // Otherwise let each shell decide if it can handle the request.
-  shellNames.forEach(function(shellName) {
+  for (var shellName in Shell.list) {
     var shell = Shell.list[shellName];
 
     if (shell.active && shell.canHandle(request)) {
       return shell;
     }
-  });
+  };
   // Unresolved requests should not go to a default shell
   // if there's more than one.
   return null;
