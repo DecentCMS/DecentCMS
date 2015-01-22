@@ -14,13 +14,15 @@ var ContentRouteHandler = {
   register: function registerContentMiddleware(scope, payload) {
     payload.expressApp.register(ContentRouteHandler.routePriority, function bindContentMiddleware(app) {
       app.get('*', function contentMiddleware(request, response, next) {
+        if (request.routed) {next();return;}
         var contentRenderer = request.require('renderer');
-        if (!contentRenderer) return;
+        if (!contentRenderer) {next();return;}
         contentRenderer.promiseToRender({
           request: request,
           id: request.path,
           displayType: 'main'
         });
+        request.routed = true;
         next();
       });
     });

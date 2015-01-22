@@ -1,0 +1,22 @@
+{
+  "name": "decent-core-documentation",
+  "version": "0.0.0",
+  "description": "Online documentation for DecentCMS",
+  "features": {
+    "documentation": {
+      "name": "Online documentation",
+      "description": "Makes online documentation for all modules available under the /doc path."
+    }
+  },
+  "main": "./index",
+  "scripts": {
+    "test": "./test/index"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "*",
+    "grunt-mocha-test": "*",
+    "mocha": "*"
+  }
+}
