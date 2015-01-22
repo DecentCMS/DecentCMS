@@ -22,17 +22,18 @@ var nullServices = require('./null-services');
  * 
  * @constructor
  * @param {Object}  options
- * @param {String}  [options.name]          The name of the tenant.
- * @param {String}  [options.rootPath]      The path to the site's folder.
- * @param {String}  [options.settingsPath]  The path to the settings file for this tenant.
- * @param {String}  [options.host]          The host name under which the tenant answers.
- * @param {Number}  [options.port]          The port to which the tenant answers.
- * @param {String}  [options.cert]          The path to the SSL certificate to use with this tenant.
- * @param {String}  [options.key]           The path to the SSL key to use with this tenant.
- * @param {String}  [options.pfx]           The path to the pfx SSL certificate to use with this tenant.
- * @param {Array}   [options.features]      The list of enabled feature names on this tenant.
- * @param {Object}  [options.services]      The enabled services keyed by service name.
- * @param {Boolean} [options.active]        True if the tenant is active.
+ * @param {String}  [options.name]             The name of the tenant.
+ * @param {String}  [options.rootPath]         The path to the site's folder.
+ * @param {String}  [options.settingsPath]     The path to the settings file for this tenant.
+ * @param {String}  [options.host]             The host name under which the tenant answers.
+ * @param {Number}  [options.port]             The port to which the tenant answers.
+ * @param {String}  [options.cert]             The path to the SSL certificate to use with this tenant.
+ * @param {String}  [options.key]              The path to the SSL key to use with this tenant.
+ * @param {String}  [options.pfx]              The path to the pfx SSL certificate to use with this tenant.
+ * @param {Array}   [options.features]         The list of enabled feature names on this tenant.
+ * @param {Object}  [options.availableModules] The list of available module manifests.
+ * @param {Object}  [options.services]         The enabled services keyed by service name.
+ * @param {Boolean} [options.active]           True if the tenant is active.
  */
 function Shell(options) {
   this.settings = options = options || {};
@@ -48,7 +49,6 @@ function Shell(options) {
   this.features = options.features || {};
   this.availableModules = options.availableModules || {};
   this.services = options.services || {};
-  this.mediaFolder = options.mediaFolder;
   this.active = !(options.active === false);
   this.serviceManifests = {};
   this.moduleManifests = {};

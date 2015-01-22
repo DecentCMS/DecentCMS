@@ -59,8 +59,10 @@ describe('Static Route Handler', function() {
         moduleB: {physicalPath: path.join('path', 'to', 'b')}
       },
       rootPath: path.join('sites', 'default'),
-      settings: {'static-route-handler': {staticFolders: ['img', 'js', 'css']}},
-      mediaFolder: 'media'
+      settings: {'static-route-handler': {
+        staticFolders: ['img', 'js', 'css'],
+        mediaFolder: 'media'
+      }}
     };
     var payload = {
       expressApp: {

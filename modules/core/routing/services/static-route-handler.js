@@ -22,7 +22,8 @@ var StaticRouteHandler = {
       var modulePaths = modules.map(function mapModuleToPath(moduleName) {
         return scope.moduleManifests[moduleName].physicalPath;
       });
-      var staticFolders = scope.settings['static-route-handler'].staticFolders;
+      var featureSettings = scope.settings[StaticRouteHandler.feature];
+      var staticFolders = featureSettings.staticFolders;
       var log = scope.require('log');
       // Register a static route for each existing static folder in each module
       for (var i = 0; i < modulePaths.length; i++) {
@@ -35,8 +36,9 @@ var StaticRouteHandler = {
         }
       }
       // Register a static route for the site's media folder
-      if (scope.mediaFolder) {
-        var mediaPath = path.join(scope.rootPath, scope.mediaFolder);
+      var mediaFolder = featureSettings.mediaFolder;
+      if (mediaFolder) {
+        var mediaPath = path.join(scope.rootPath, mediaFolder);
         app.use('/media', express.static(mediaPath));
         log.verbose('Added media static file route.', {path: mediaPath});
       }
