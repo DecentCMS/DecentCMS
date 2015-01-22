@@ -17,6 +17,13 @@
       "dependencies": [
         "decent-core-express"
       ]
+    },
+    "ensure-trailing-slash": {
+      "name": "Static Routes",
+      "description": "Serves static files from a set of folders configured in site settings.",
+      "dependencies": [
+        "decent-core-express"
+      ]
     }
   },
   "main": "./index",

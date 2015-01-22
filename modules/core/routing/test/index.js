@@ -105,3 +105,56 @@ describe('Static Route Handler', function() {
       ]);
   });
 });
+
+describe('Prevent trailing slash route handler', function() {
+  it ('redirects only requests with trailing slashes', function(done) {
+    var PreventTrailingSlashRouteHandler =
+          require('../services/prevent-trailing-slash-route-handler');
+    var middleware = null;
+    var payload = {
+      expressApp: {
+        register: function (priority, registration) {
+          middleware = registration;
+        }
+      }
+    };
+    PreventTrailingSlashRouteHandler.register({}, payload);
+    var handler = null;
+    var route = null;
+    var app = {
+      get: function (r, h) {
+        route = r;
+        handler = h;
+      }
+    };
+    middleware(app);
+
+    expect(route).to.equal('*');
+
+    var redirect = {};
+    var response = {
+      redirect: function (code, url) {
+        redirect.code = code;
+        redirect.url = url;
+      }
+    };
+    handler({path: '/foo/bar/baz/'}, response, function () {
+      expect(redirect.code).to.equal(301);
+      expect(redirect.url).to.equal('/foo/bar/baz');
+
+      redirect = {};
+      handler({path: '/foo/bar/baz'}, response, function () {
+        expect(redirect.code).to.not.be.ok;
+        expect(redirect.url).to.not.be.ok;
+
+        redirect = {};
+        handler({path: '/'}, response, function() {
+          expect(redirect.code).to.not.be.ok;
+          expect(redirect.url).to.not.be.ok;
+
+          done();
+        });
+      });
+    });
+  });
+});
