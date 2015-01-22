@@ -27,8 +27,8 @@ ContentManager.prototype.getType = function getType(item) {
   if (!item
     || !item.meta
     || !(typeName = item.meta.type)
-    || !this.scope.types
-    || !(type = this.scope.types[typeName])) return null;
+    || !this.scope.settings.content.types
+    || !(type = this.scope.settings.content.types[typeName])) return null;
   return type;
 };
 

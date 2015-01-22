@@ -13,8 +13,12 @@ describe('Content Manager', function() {
     var cm = new ContentManager();
     var fooDefinition = {};
     cm.scope = {
-      types: {
-        foo: fooDefinition
+      settings: {
+        content: {
+          types: {
+            foo: fooDefinition
+          }
+        }
       }
     };
 
@@ -29,12 +33,16 @@ describe('Content Manager', function() {
   it('can find the parts that are of a specific type', function() {
     var cm = new ContentManager();
     cm.scope = {
-      types: {
-        foo: {
-          parts: {
-            bar1: {type: 'part-bar'},
-            bar2: {type: 'part-bar'},
-            baz: {type: 'part-baz'}
+      settings: {
+        content: {
+          types: {
+            foo: {
+              parts: {
+                bar1: {type: 'part-bar'},
+                bar2: {type: 'part-bar'},
+                baz: {type: 'part-baz'}
+              }
+            }
           }
         }
       }
