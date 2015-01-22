@@ -7,7 +7,7 @@ var Logger = require('../services/winston-logger');
 describe('Winston Logger', function() {
   var scope = {
     settings: {
-      logging: {
+      'winston-logger': {
         Memory: {
           level: 'verbose',
           handleExceptions: true
