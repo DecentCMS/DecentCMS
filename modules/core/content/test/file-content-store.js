@@ -6,7 +6,7 @@ var path = require('path');
 
 var files = {
   'foo/content/index.json':   '{"title":"Home"}',
-  'foo/content/bar/baz.json': '{"title":"Foo","body":{"src":"baz.md"}}',
+  'foo/content/bar/baz.json': '{"title":"Foo","body":{"src":"baz.md"},"meta":{"type":"other-type"}}',
   'foo/content/bar/baz.md':   '*markdown*',
   'foo/content/bar/yaml.yaml':
     'title: Foo YAML\r\n' +
@@ -81,7 +81,9 @@ describe('File Content Store', function() {
       expect(itemIdsRead)
         .to.deep.equal(['/', '/bar/baz', '/bar/baz']);
       expect(items['/'].title).to.equal('Home');
+      expect(items['/'].meta.type).to.equal('page');
       expect(items['/bar/baz'].title).to.equal('Foo');
+      expect(items['/bar/baz'].meta.type).to.equal('other-type');
       expect(items['/bar/baz'].body._data).to.equal('*markdown*');
       done();
     });

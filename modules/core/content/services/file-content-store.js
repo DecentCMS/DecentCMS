@@ -42,9 +42,10 @@ var fileContentStore = {
     var items = payload.items;
     var itemsToFetch = payload.itemsToFetch;
 
-    var siteDataRoot = shell.rootPath;
-
     var handle = function handleItemData(id, filePath, item, callback) {
+      // Default content type is page:
+      var meta = item.meta = item.meta || {};
+      meta.type = meta.type || 'page';
       // Parse the content item file
       // Look for any part that needs to load an additional file.
       // Typically, that could be a markdown file for the body.
