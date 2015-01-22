@@ -48,7 +48,7 @@ function Shell(options) {
   this.cert = options.cert;
   this.key = options.key;
   this.pfx = options.pfx;
-  this.features = options.features || [];
+  this.features = options.features || {};
   this.availableModules = options.availableModules || {};
   this.services = options.services || {};
   this.types = options.types || {};
@@ -242,7 +242,7 @@ Shell.prototype.loadModule = function(moduleName) {
       var service = serviceList[i];
       var serviceFeature = service.feature;
       // Skip if that service is not enabled
-      if (serviceFeature && features.indexOf(serviceFeature) === -1) continue;
+      if (serviceFeature && !features.hasOwnProperty(serviceFeature)) continue;
       var servicePath = path.resolve(manifest.physicalPath, service.path + ".js");
       // Skip if that service is already loaded
       if (self.serviceManifests[servicePath]) continue;
@@ -256,6 +256,8 @@ Shell.prototype.loadModule = function(moduleName) {
       // Services are obtained through require
       var ServiceClass = moduleServiceClasses[serviceName] = require(servicePath);
       self.register(serviceName, ServiceClass);
+      // Add the service's configuration onto the service class
+      ServiceClass.config = features[serviceFeature];
       // Store the manifest on the service class, for reflection, and easy reading of settings
       ServiceClass.manifest = service;
       self.serviceManifests[servicePath] = service;

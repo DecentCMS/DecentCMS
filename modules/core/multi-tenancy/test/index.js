@@ -41,7 +41,7 @@ describe('Shell', function() {
       expect(shell.port).to.equal(80);
       expect(shell.https).to.be.false;
       expect(shell.features)
-        .to.be.an.instanceof(Array)
+        .to.be.an.instanceof(Object)
         .and.to.be.empty;
       expect(shell.availableModules)
         .to.be.an.instanceof(Object)
@@ -344,7 +344,7 @@ describe('Shell', function() {
       stubs[resolvedPathToService] = ServiceClass1;
       var PhoniedShell = proxyquire('../lib/shell', stubs);
       var shell = new PhoniedShell({
-        features: ['feature 1'],
+        features: {'feature 1': {}},
         availableModules: {
           'module 1': {
             name: 'module 1',
@@ -385,7 +385,7 @@ describe('Shell', function() {
       stubs[resolvedPathToService] = ServiceClass1;
       var PhoniedShell = proxyquire('../lib/shell', stubs);
       var shellSettings = {
-        features: ['feature 1'],
+        features: {'feature 1': {}},
         availableModules: {
           'module 1': {
             name: 'module 1',
@@ -417,7 +417,7 @@ describe('Shell', function() {
       stubs[resolvedPathToService] = ServiceClass1;
       var PhoniedShell = proxyquire('../lib/shell', stubs);
       var shell = new PhoniedShell({
-        features: ['feature 1'],
+        features: {'feature 1': {}},
         availableModules: {
           'module 1': {
             name: 'module 1',
@@ -447,7 +447,7 @@ describe('Shell', function() {
 
     it('won\'t load a service that\'s not available, and won\'t load the module either', function() {
       var shell = new Shell({
-        features: ['not feature 1', 'not feature 1 either'],
+        features: {'not feature 1': {}, 'not feature 1 either': {}},
         availableModules: {
           'path/to/module1': {
             name: 'module 1',
@@ -479,7 +479,7 @@ describe('Shell', function() {
 
       var PhoniedShell = proxyquire('../lib/shell', stubs);
       var shell = new PhoniedShell({
-        features: ['feature 1'],
+        features: {'feature 1': {}},
         availableModules: {
           'module 1': {
             name: 'module 1',
@@ -532,7 +532,7 @@ describe('Shell', function() {
 
       var PhoniedShell = proxyquire('../lib/shell', stubs);
       var shell = new PhoniedShell({
-        features: ['feature 1'],
+        features: {'feature 1': {}},
         availableModules: {
           'module 1': {
             name: 'module 1',
@@ -626,7 +626,7 @@ describe('Shell', function() {
       stubs[resolvedPathToService] = ServiceClass1;
       var PhoniedShell = proxyquire('../lib/shell', stubs);
       var shell = new PhoniedShell({
-        features: ['feature 1'],
+        features: {'feature 1': {}},
         availableModules: {
           'module 1': {
             name: 'module 1',
@@ -661,7 +661,7 @@ describe('Shell', function() {
       stubs[resolvedPathToService] = ServiceClass;
       var PhoniedShell = proxyquire('../lib/shell', stubs);
       var shell = new PhoniedShell({
-        features: ['feature'],
+        features: {'feature': {}},
         availableModules: {
           'module': {
             name: 'module',
