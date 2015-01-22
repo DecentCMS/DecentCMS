@@ -56,8 +56,7 @@ function discover() {
                 service.scope = 'shell';
               }
               var serviceName = service.service || path.basename(serviceFileName, '.js');
-              // TODO: build default feature from module name
-              var serviceFeature = service.feature;
+              var serviceFeature = service.feature || path.basename(serviceFileName, '.js');
               var serviceDependencies = service.dependencies;
               var serviceManifest = {
                 path: servicePath,
