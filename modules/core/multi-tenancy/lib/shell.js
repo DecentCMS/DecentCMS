@@ -256,8 +256,8 @@ Shell.prototype.loadModule = function(moduleName) {
       // Services are obtained through require
       var ServiceClass = moduleServiceClasses[serviceName] = require(servicePath);
       self.register(serviceName, ServiceClass);
-      // Add the service's configuration onto the service class
-      ServiceClass.config = features[serviceFeature];
+      // Add the service's configuration onto the config object
+      self.settings[serviceFeature] = features[serviceFeature];
       // Store the manifest on the service class, for reflection, and easy reading of settings
       ServiceClass.manifest = service;
       self.serviceManifests[servicePath] = service;

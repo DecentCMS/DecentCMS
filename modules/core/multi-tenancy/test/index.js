@@ -686,6 +686,33 @@ describe('Shell', function() {
         .to.equal(payload);
     });
 
+    it('will store feature settings from the site settings on the shell', function() {
+      var ServiceClass1 = serviceClassFactory(1);
+      var stubs = {};
+      var resolvedPathToService = path.resolve('path/to/module1/lib/service1.js');
+      stubs[resolvedPathToService] = ServiceClass1;
+      var PhoniedShell = proxyquire('../lib/shell', stubs);
+      var shell = new PhoniedShell({
+        features: {'feature 1': {foo: 'fou'}},
+        availableModules: {
+          'module 1': {
+            name: 'module 1',
+            physicalPath: 'path/to/module1',
+            services: {
+              service1: {
+                feature: 'feature 1',
+                path: 'lib/service1'
+              }
+            }
+          }
+        }
+      });
+      scope('', shell);
+      shell.loadModule('module 1');
+
+      expect(shell.settings['feature 1'].foo).to.equal('fou');
+    });
+
     it('will pass options into constructors when constructing an instance', function() {
       var options = {foo: 42, bar: 'baz'};
       var ServiceClass = function(shell, options) {
