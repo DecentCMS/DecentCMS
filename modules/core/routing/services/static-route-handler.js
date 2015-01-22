@@ -22,7 +22,7 @@ var StaticRouteHandler = {
       var modulePaths = modules.map(function mapModuleToPath(moduleName) {
         return scope.moduleManifests[moduleName].physicalPath;
       });
-      var staticFolders = scope.staticFolders;
+      var staticFolders = scope.settings['static-route-handler'].staticFolders;
       var log = scope.require('log');
       // Register a static route for each existing static folder in each module
       for (var i = 0; i < modulePaths.length; i++) {

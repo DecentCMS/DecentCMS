@@ -32,7 +32,6 @@ var nullServices = require('./null-services');
  * @param {String}  [options.pfx]           The path to the pfx SSL certificate to use with this tenant.
  * @param {Array}   [options.features]      The list of enabled feature names on this tenant.
  * @param {Object}  [options.services]      The enabled services keyed by service name.
- * @param {Array}   [options.staticFolders] The folder names that can serve static contents.
  * @param {Boolean} [options.active]        True if the tenant is active.
  */
 function Shell(options) {
@@ -49,7 +48,6 @@ function Shell(options) {
   this.features = options.features || {};
   this.availableModules = options.availableModules || {};
   this.services = options.services || {};
-  this.staticFolders = options.staticFolders || [];
   this.mediaFolder = options.mediaFolder;
   this.active = !(options.active === false);
   this.serviceManifests = {};
