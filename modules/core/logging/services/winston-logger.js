@@ -16,7 +16,7 @@ function WinstonLogger(scope) {
   self.t = scope.require('localization');
 
   // Obtain transports and their settings from shell settings
-  var settings = scope.settings['winston-logger'] || {
+  var settings = scope.settings[WinstonLogger.feature] || {
     Console: {}
   };
   var transports = [];
