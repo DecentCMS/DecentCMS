@@ -14,13 +14,13 @@ var DocumentationRouteHandler = {
   scope: 'shell',
   register: function registerDocumentationMiddleware(scope, context) {
     context.expressApp.register(DocumentationRouteHandler.routePriority, function bindDocumentationMiddleware(app) {
-      app.get('/doc(/*)?', function documentationMiddleware(request, response, next) {
+      app.get('/docs(/*)?', function documentationMiddleware(request, response, next) {
         if (request.routed) {next();return;}
         var contentRenderer = request.require('renderer');
         if (!contentRenderer) {next();return;}
         contentRenderer.promiseToRender({
           request: request,
-          id: 'doc:' + request.path.substr(5),
+          id: 'docs:' + request.path.substr(6),
           displayType: 'main'
         });
         request.routed = true;

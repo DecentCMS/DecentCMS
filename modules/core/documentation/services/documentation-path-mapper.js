@@ -21,12 +21,12 @@ DocumentationPathMapper.scope = 'shell';
  * @returns {string[]} The list of possible paths for a file describing the topic.
  */
 DocumentationPathMapper.prototype.mapIdToPath = function mapDocumentationIdToPath(root, id) {
-  if (root !== 'doc') return null;
+  if (root !== 'docs') return null;
   var idParts = id.split('/');
   var moduleName = idParts[0];
   var shell = this.scope.require('shell');
   var module = shell.moduleManifests[moduleName];
-  var rootPath = module ? path.resolve(module.physicalPath, 'doc') : path.resolve('doc');
+  var rootPath = module ? path.resolve(module.physicalPath, 'docs') : path.resolve('docs');
   var topic = (module ? idParts[1] : moduleName) || 'index';
   var topicPath = path.join(rootPath, topic);
   return [

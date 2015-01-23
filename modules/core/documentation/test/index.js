@@ -15,54 +15,54 @@ describe('Documentation path mapper', function() {
     };}
   };
 
-  it("won't map paths outside of /doc", function() {
+  it("won't map paths outside of /docs", function() {
     var mapper = new DocumentationPathMapper({});
     var paths = mapper.mapIdToPath('not-doc', '/path/to/foo');
 
     expect(paths).to.not.be.ok;
   });
 
-  it('maps /doc to /doc/index paths', function() {
+  it('maps /docs to /docs/index paths', function() {
     var mapper = new DocumentationPathMapper(scope);
-    var paths = mapper.mapIdToPath('doc', '');
+    var paths = mapper.mapIdToPath('docs', '');
 
     expect(paths).to.deep.equal([
-      path.resolve('doc/index.json'),
-      path.resolve('doc/index.yaml'),
-      path.resolve('doc/index.yaml.md')
+      path.resolve('docs/index.json'),
+      path.resolve('docs/index.yaml'),
+      path.resolve('docs/index.yaml.md')
     ])
   });
 
-  it('maps /doc/module to /path/to/module/doc/index paths', function() {
+  it('maps /docs/module to /path/to/module/docs/index paths', function() {
     var mapper = new DocumentationPathMapper(scope);
-    var paths = mapper.mapIdToPath('doc', 'module');
+    var paths = mapper.mapIdToPath('docs', 'module');
 
     expect(paths).to.deep.equal([
-      path.resolve('path/to/module/doc/index.json'),
-      path.resolve('path/to/module/doc/index.yaml'),
-      path.resolve('path/to/module/doc/index.yaml.md')
+      path.resolve('path/to/module/docs/index.json'),
+      path.resolve('path/to/module/docs/index.yaml'),
+      path.resolve('path/to/module/docs/index.yaml.md')
     ])
   });
 
-  it('maps /doc/topic to /doc/topic paths', function() {
+  it('maps /docs/topic to /docs/topic paths', function() {
     var mapper = new DocumentationPathMapper(scope);
-    var paths = mapper.mapIdToPath('doc', 'topic');
+    var paths = mapper.mapIdToPath('docs', 'topic');
 
     expect(paths).to.deep.equal([
-      path.resolve('doc/topic.json'),
-      path.resolve('doc/topic.yaml'),
-      path.resolve('doc/topic.yaml.md')
+      path.resolve('docs/topic.json'),
+      path.resolve('docs/topic.yaml'),
+      path.resolve('docs/topic.yaml.md')
     ])
   });
 
-  it('maps /doc/module/topic to /path/to/module/doc/topic paths', function() {
+  it('maps /docs/module/topic to /path/to/module/docs/topic paths', function() {
     var mapper = new DocumentationPathMapper(scope);
-    var paths = mapper.mapIdToPath('doc', 'module/topic');
+    var paths = mapper.mapIdToPath('docs', 'module/topic');
 
     expect(paths).to.deep.equal([
-      path.resolve('path/to/module/doc/topic.json'),
-      path.resolve('path/to/module/doc/topic.yaml'),
-      path.resolve('path/to/module/doc/topic.yaml.md')
+      path.resolve('path/to/module/docs/topic.json'),
+      path.resolve('path/to/module/docs/topic.yaml'),
+      path.resolve('path/to/module/docs/topic.yaml.md')
     ])
   });
 });
@@ -95,16 +95,16 @@ describe('Documentation Route Handler', function() {
     };
     middleware(app);
 
-    expect(route).to.equal('/doc(/*)?');
+    expect(route).to.equal('/docs(/*)?');
 
     handler({
       require: function() {
         return contentRenderer;
       },
       contentManager: contentRenderer,
-      path: '/doc/module/topic'
+      path: '/docs/module/topic'
     }, null, function() {
-      expect(shape.id).to.equal('doc:module/topic');
+      expect(shape.id).to.equal('docs:module/topic');
       expect(shape.displayType).to.equal('main');
       done();
     });
