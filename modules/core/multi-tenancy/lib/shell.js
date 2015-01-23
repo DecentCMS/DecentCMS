@@ -208,7 +208,6 @@ Shell.prototype.load = function() {
   this.loaded = true;
 };
 
-// TODO: replace service manifest with meta-data on the services themselves, auto-discover and load
 /**
  * @description
  * Loads all the services in the module under the path passed as a parameter.

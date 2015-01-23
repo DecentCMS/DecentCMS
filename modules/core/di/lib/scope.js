@@ -115,8 +115,6 @@ function initializeService(scope, ServiceClass) {
  * @param {object} [parentScope] An optional parent scope that may have valid instances of services to hand down.
  */
 function scope(name, objectToScope, services, parentScope) {
-  // TODO: test object init
-  // TODO: test parent scope singleton inheritance and shell singletons
   if (services) {
     objectToScope.services = services;
   }
