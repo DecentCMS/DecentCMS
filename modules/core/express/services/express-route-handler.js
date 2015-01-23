@@ -32,9 +32,9 @@ ExpressRouteHandler.feature = 'express';
 ExpressRouteHandler.isScopeSingleton = true;
 ExpressRouteHandler.scope = 'shell';
 
-ExpressRouteHandler.prototype.handle = function expressHandle(payload, next) {
+ExpressRouteHandler.prototype.handle = function expressHandle(context, next) {
   // Handle the request (using private API for a good cause)
-  this.expressApp.app.handle(payload.request, payload.response, next);
+  this.expressApp.app.handle(context.request, context.response, next);
 };
 
 module.exports = ExpressRouteHandler;

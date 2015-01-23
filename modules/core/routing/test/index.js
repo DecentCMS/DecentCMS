@@ -8,7 +8,7 @@ describe('Content Route Handler', function() {
   it('promises to render content items with the main display type', function(done) {
     var ContentRouteHandler = require('../services/content-route-handler');
     var middleware = null;
-    var payload = {
+    var context = {
       expressApp: {
         register: function(priority, registration) {
           middleware = registration;
@@ -21,7 +21,7 @@ describe('Content Route Handler', function() {
         shape = s;
       }
     };
-    ContentRouteHandler.register({}, payload);
+    ContentRouteHandler.register({}, context);
     var handler = null;
     var route = null;
     var app = {
@@ -64,7 +64,7 @@ describe('Static Route Handler', function() {
         mediaFolder: 'media'
       }}
     };
-    var payload = {
+    var context = {
       expressApp: {
         register: function(priority, registration) {
           middleware = registration;
@@ -87,7 +87,7 @@ describe('Static Route Handler', function() {
       }
     });
 
-    StaticRouteHandler.register(scope, payload);
+    StaticRouteHandler.register(scope, context);
     var routes = [];
     var app = {
       use: function(url, path) {
@@ -113,14 +113,14 @@ describe('Prevent trailing slash route handler', function() {
     var PreventTrailingSlashRouteHandler =
           require('../services/prevent-trailing-slash-route-handler');
     var middleware = null;
-    var payload = {
+    var context = {
       expressApp: {
         register: function (priority, registration) {
           middleware = registration;
         }
       }
     };
-    PreventTrailingSlashRouteHandler.register({}, payload);
+    PreventTrailingSlashRouteHandler.register({}, context);
     var handler = null;
     var route = null;
     var app = {

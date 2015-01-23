@@ -71,7 +71,7 @@ describe('Documentation Route Handler', function() {
   it('promises to render topics with the main display type', function(done) {
     var DocumentationRouteHandler = require('../services/documentation-route-handler');
     var middleware = null;
-    var payload = {
+    var context = {
       expressApp: {
         register: function(priority, registration) {
           middleware = registration;
@@ -84,7 +84,7 @@ describe('Documentation Route Handler', function() {
         shape = s;
       }
     };
-    DocumentationRouteHandler.register({}, payload);
+    DocumentationRouteHandler.register({}, context);
     var handler = null;
     var route = null;
     var app = {

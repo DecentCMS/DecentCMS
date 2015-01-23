@@ -1,6 +1,5 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-//TODO: npm update all modules
 
 var buildConfig = require('./lib/sub-grunt-config').buildConfig;
 var buildInstallConfig = require('./lib/sub-grunt-config').buildInstallConfig;

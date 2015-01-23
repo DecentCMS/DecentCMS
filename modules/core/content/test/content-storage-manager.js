@@ -53,15 +53,15 @@ describe('Content Storage Manager', function() {
         foo: [itemCallback],
         bar: [itemCallback, itemCallback]
       },
-      callService: function (service, method, payload, next) {
-        var itemsToFetch = payload.itemsToFetch;
+      callService: function (service, method, context, next) {
+        var itemsToFetch = context.itemsToFetch;
         for (var id in itemsToFetch) {
           var item = {id: id, data: 'fetched ' + id};
-          payload.items[id] = item;
+          context.items[id] = item;
           for (var i = 0; i < itemsToFetch[id].length; i++) {
             itemsToFetch[id][i](null, item);
           }
-          delete payload.itemsToFetch[id];
+          delete context.itemsToFetch[id];
         }
         next();
       }

@@ -64,16 +64,15 @@ ContentStorageManager.prototype.promiseToRender = function promiseToRender(optio
  * * decent.core.register-style
  * * decent.core.register-script
  * * 'rendering-strategy'.render({shape, shapes, renderStream}, done)
- * @param payload
- * @param {object}          [payload.scope] The scope, which is normally the current request.
- * @param {IncomingMessage} [payload.request] The request.
- * @param {ServerResponse}  [payload.response] The response.
+ * @param context
+ * @param {object}          [context.scope] The scope, which is normally the current request.
+ * @param {IncomingMessage} [context.request] The request.
+ * @param {ServerResponse}  [context.response] The response.
  * @param {Function} pageBuilt The function to call when the page has been rendered.
  */
-ContentStorageManager.prototype.render = function render(payload, pageBuilt) {
-  // TODO: rename payload to context everywhere.
+ContentStorageManager.prototype.render = function render(context, pageBuilt) {
   var scope = this.scope;
-  var response = payload.response;
+  var response = context.response;
   var shapes = scope.shapes;
   var layout = scope.layout = {
     meta: {type: 'layout'},

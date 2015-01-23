@@ -61,12 +61,12 @@ ContentStorageManager.prototype.getAvailableItem = function getAvailableItem(id)
  * ids can be found in the content manager's itemsToFetch
  * array, and their transfer into the items array.
  * This method emits the decent.core.load-items event.
- * @param payload
- * @param {Function} [payload.callback] a callback that gets
+ * @param context
+ * @param {Function} [context.callback] a callback that gets
  * called when all items have been fetched, or when an error
  * occurs.
  */
-ContentStorageManager.prototype.fetchContent = function fetchContent(payload, callback) {
+ContentStorageManager.prototype.fetchContent = function fetchContent(context, callback) {
   var scope = this.scope;
   for (var id in scope.itemsToFetch) {
     if (scope.items.hasOwnProperty(id)

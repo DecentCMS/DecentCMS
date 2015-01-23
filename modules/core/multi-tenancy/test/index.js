@@ -764,17 +764,17 @@ describe('Shell', function() {
       var response = new ServerResponse(request);
       var shell = scope('', new Shell(), {
         'route-handler': [
-          {handle: function(payload, callback) {happened.push('handled by 1');callback();}},
-          {handle: function(payload, callback) {happened.push('handled by 2');callback();}}
+          {handle: function(context, callback) {happened.push('handled by 1');callback();}},
+          {handle: function(context, callback) {happened.push('handled by 2');callback();}}
         ],
         'storage-manager': [
-          {fetchContent: function(payload, callback) {
+          {fetchContent: function(context, callback) {
             happened.push('fetch content');
             callback();
           }}
         ],
         'renderer': [
-          {render: function(payload, callback) {
+          {render: function(context, callback) {
             happened.push('render');
             callback();
           }}

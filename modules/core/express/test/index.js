@@ -38,16 +38,16 @@ describe('Express Route Handler', function() {
     var responses = [];
     var services = {
       middleware: [
-        {register: function(scope, payload) {
-          payload.expressApp.register(2, function(app) {
+        {register: function(scope, context) {
+          context.expressApp.register(2, function(app) {
             app.get('/foo', function(request, response, next) {
               responses.push('first middleware');
               next();
             });
           });
         }},
-        {register: function(scope, payload) {
-          payload.expressApp.register(1, function(app) {
+        {register: function(scope, context) {
+          context.expressApp.register(1, function(app) {
             app.get('/foo', function(request, response, next) {
               responses.push('second middleware');
               next();

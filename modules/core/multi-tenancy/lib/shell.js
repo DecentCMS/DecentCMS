@@ -299,8 +299,8 @@ Shell.prototype.handleRequest = function(request, response, next) {
   var profileId = 'shell-handle-request-'
     + (this._profileIndex = (this._profileIndex || 0) + 1);
   log.profile(profileId);
-  // Most events use the same payload structure
-  var payload = {
+  // Most events use the same context structure
+  var context = {
     shell: self,
     request: request,
     response: response
@@ -308,21 +308,21 @@ Shell.prototype.handleRequest = function(request, response, next) {
   // Mix-in scope into request
   scope('request', request, self.services, self);
   // Let services register themselves with the request
-  self.emit(Shell.startRequestEvent, payload);
+  self.emit(Shell.startRequestEvent, context);
 
   var lifecycle = request.lifecycle(
     'route-handler', 'handle',
     'storage-manager', 'fetchContent',
     'renderer', 'render'
   );
-  lifecycle(payload, function lifecycleDone(err) {
+  lifecycle(context, function lifecycleDone(err) {
     if (err) {
       self.emit(Shell.renderErrorPage, err);
       log.error(err.message);
       if (next) next(err);
     }
     // Tear down
-    self.emit(Shell.endRequestEvent, payload);
+    self.emit(Shell.endRequestEvent, context);
     request.tearDown();
     response.end('');
     log.profile(profileId, 'Handled request', {

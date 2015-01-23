@@ -12,8 +12,8 @@ var PreventTrailingSlashRouteHandler = {
   feature: 'prevent-trailing-slash',
   routePriority: 0,
   scope: 'shell',
-  register: function registerTrailingSlashMiddleware(scope, payload) {
-    payload.expressApp.register(PreventTrailingSlashRouteHandler.routePriority, function bindTrailingSlashMiddleware(app) {
+  register: function registerTrailingSlashMiddleware(scope, context) {
+    context.expressApp.register(PreventTrailingSlashRouteHandler.routePriority, function bindTrailingSlashMiddleware(app) {
       app.get('*', function trailingSlashMiddleware(request, response, next) {
         var p = request.path;
         if (p.length > 1 && p[p.length - 1] === '/') {

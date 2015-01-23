@@ -68,7 +68,7 @@ describe('File Content Store', function() {
     var itemCallback = function(err, item) {
       itemIdsRead.push(item.id);
     };
-    var payload = {
+    var context = {
       scope: scope,
       items: items,
       itemsToFetch: {
@@ -77,7 +77,7 @@ describe('File Content Store', function() {
       }
     };
 
-    fileContentStore.loadItems(payload, function() {
+    fileContentStore.loadItems(context, function() {
       expect(itemIdsRead)
         .to.deep.equal(['/', '/bar/baz', '/bar/baz']);
       expect(items['/'].title).to.equal('Home');
@@ -95,7 +95,7 @@ describe('File Content Store', function() {
     var itemCallback = function(err, item) {
       itemIdsRead.push(item.id);
     };
-    var payload = {
+    var context = {
       scope: scope,
       items: items,
       itemsToFetch: {
@@ -103,7 +103,7 @@ describe('File Content Store', function() {
       }
     };
 
-    fileContentStore.loadItems(payload, function() {
+    fileContentStore.loadItems(context, function() {
       expect(itemIdsRead)
         .to.deep.equal(['/bar/yaml']);
       expect(items['/bar/yaml'].title).to.equal('Foo YAML');
@@ -118,7 +118,7 @@ describe('File Content Store', function() {
     var itemCallback = function(err, item) {
       itemIdsRead.push(item.id);
     };
-    var payload = {
+    var context = {
       scope: scope,
       items: items,
       itemsToFetch: {
@@ -126,7 +126,7 @@ describe('File Content Store', function() {
       }
     };
 
-    fileContentStore.loadItems(payload, function() {
+    fileContentStore.loadItems(context, function() {
       expect(itemIdsRead)
         .to.deep.equal(['/bar/multipart']);
       expect(items['/bar/multipart'].title).to.equal('Foo multipart');
@@ -137,7 +137,7 @@ describe('File Content Store', function() {
 
   it('can load content items from alternative roots', function(done) {
     var items = {};
-    var payload = {
+    var context = {
       scope: scope,
       items: items,
       itemsToFetch: {
@@ -145,14 +145,14 @@ describe('File Content Store', function() {
       }
     };
 
-    fileContentStore.loadItems(payload, function() {
+    fileContentStore.loadItems(context, function() {
       expect(items['alt:foo'].body).to.equal('alt body');
       done();
     });
   });
 
   it('transmits errors to callbacks', function(done) {
-    var payload = {
+    var context = {
       scope: scope,
       items: {},
       itemsToFetch: {
@@ -160,14 +160,14 @@ describe('File Content Store', function() {
       }
     };
 
-    fileContentStore.loadItems(payload, function(err) {
+    fileContentStore.loadItems(context, function(err) {
       expect(err.message).to.equal('error');
       done();
     });
   });
 
   it("does nothing for items it can't find", function(done) {
-    var payload = {
+    var context = {
       scope: scope,
       items: {},
       itemsToFetch: {
@@ -175,10 +175,10 @@ describe('File Content Store', function() {
       }
     };
 
-    fileContentStore.loadItems(payload, function(err) {
+    fileContentStore.loadItems(context, function(err) {
       expect(err).to.not.be.ok;
-      expect(payload.itemsToFetch.doesntExist).to.be.ok;
-      expect(payload.items.doesntExist).to.not.be.ok;
+      expect(context.itemsToFetch.doesntExist).to.be.ok;
+      expect(context.items.doesntExist).to.not.be.ok;
       done();
     });
   });

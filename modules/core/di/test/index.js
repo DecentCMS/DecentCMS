@@ -230,17 +230,17 @@ describe('scope', function() {
     function ServiceClass(scope) {
       this.scope = scope;
     }
-    ServiceClass.prototype.method = function(payload, next) {
+    ServiceClass.prototype.method = function(context, next) {
       results.push('service');
-      results.push(payload.one);
+      results.push(context.one);
       next();
     };
     function SingletonClass(scope) {
       this.scope = scope;
     }
-    SingletonClass.prototype.method = function(payload, next) {
+    SingletonClass.prototype.method = function(context, next) {
       results.push('singleton');
-      results.push(payload.two);
+      results.push(context.two);
       next();
     };
     SingletonClass.isScopeSingleton = true;
@@ -260,17 +260,17 @@ describe('scope', function() {
     function ServiceClass(scope) {
       this.scope = scope;
     }
-    ServiceClass.prototype.method = function(payload, next) {
+    ServiceClass.prototype.method = function(context, next) {
       results.push('service');
-      results.push(payload.one);
+      results.push(context.one);
       next();
     };
     function SingletonClass(scope) {
       this.scope = scope;
     }
-    SingletonClass.prototype.method = function(payload, next) {
+    SingletonClass.prototype.method = function(context, next) {
       results.push('singleton');
-      results.push(payload.two);
+      results.push(context.two);
       next();
     };
     SingletonClass.isScopeSingleton = true;
@@ -281,9 +281,9 @@ describe('scope', function() {
 
     var lifecycle = scoped.lifecycle(
       'service', 'method',
-      function(payload, next) {
+      function(context, next) {
         results.push('anonymous');
-        results.push(payload.three);
+        results.push(context.three);
         next();
       },
       'service', 'method'

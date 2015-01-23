@@ -34,13 +34,13 @@ var fileContentStore = {
   service: 'content-store',
   feature: 'file-content-store',
   scope: 'shell',
-  loadItems: function loadItems(payload, nextStore) {
-    var scope = payload.scope;
+  loadItems: function loadItems(context, nextStore) {
+    var scope = context.scope;
     var shapeHelper = scope.require('shape');
     var shell = scope.require('shell');
 
-    var items = payload.items;
-    var itemsToFetch = payload.itemsToFetch;
+    var items = context.items;
+    var itemsToFetch = context.itemsToFetch;
 
     var handle = function handleItemData(id, filePath, item, callback) {
       // Default content type is page:

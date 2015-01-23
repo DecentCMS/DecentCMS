@@ -21,8 +21,8 @@ describe('Shape Item Promise Handler', function() {
           };
         },
         lifecycle: function() {
-          return function(payload, next) {
-            expect(payload.shape.temp.item).to.equal(item);
+          return function(context, next) {
+            expect(context.shape.temp.item).to.equal(item);
             next();
           }
         }

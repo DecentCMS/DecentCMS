@@ -24,9 +24,9 @@ function TemplateRenderingStrategy(scope) {
   }
   var shapeTemplates = scope.shapeTemplates = scope.shapeTemplates || {};
 
-  this.render = function(payload, done) {
-    var shape = payload.shape;
-    var renderer = payload.renderStream;
+  this.render = function(context, done) {
+    var shape = context.shape;
+    var renderer = context.renderStream;
     var temp = shapeHelper.temp(shape);
     if (temp.html) {
       renderer.write(temp.html);

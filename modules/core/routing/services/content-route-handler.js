@@ -11,8 +11,8 @@ var ContentRouteHandler = {
   feature: 'content-route-handler',
   routePriority: 9000,
   scope: 'shell',
-  register: function registerContentMiddleware(scope, payload) {
-    payload.expressApp.register(ContentRouteHandler.routePriority, function bindContentMiddleware(app) {
+  register: function registerContentMiddleware(scope, context) {
+    context.expressApp.register(ContentRouteHandler.routePriority, function bindContentMiddleware(app) {
       app.get('*', function contentMiddleware(request, response, next) {
         if (request.routed) {next();return;}
         var contentRenderer = request.require('renderer');

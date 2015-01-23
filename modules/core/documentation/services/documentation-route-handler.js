@@ -12,8 +12,8 @@ var DocumentationRouteHandler = {
   feature: 'documentation',
   routePriority: 10,
   scope: 'shell',
-  register: function registerDocumentationMiddleware(scope, payload) {
-    payload.expressApp.register(DocumentationRouteHandler.routePriority, function bindDocumentationMiddleware(app) {
+  register: function registerDocumentationMiddleware(scope, context) {
+    context.expressApp.register(DocumentationRouteHandler.routePriority, function bindDocumentationMiddleware(app) {
       app.get('/doc(/*)?', function documentationMiddleware(request, response, next) {
         if (request.routed) {next();return;}
         var contentRenderer = request.require('renderer');

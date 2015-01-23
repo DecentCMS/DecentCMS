@@ -53,14 +53,14 @@ describe('Content Renderer', function() {
     };
     request.lifecycle = function () {
       var args = arguments;
-      return function (payload, callback) {
+      return function (context, callback) {
         async.each(args, function (argument, next) {
           if (typeof(argument) === 'string') {
             servicesAndMethods.push(argument);
             next();
           }
           else {
-            argument(payload, next);
+            argument(context, next);
           }
         }, function () {
           callback();

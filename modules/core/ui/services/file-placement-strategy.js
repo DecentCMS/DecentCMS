@@ -81,9 +81,9 @@ FilePlacementStrategy.isScopeSingleton = true;
 FilePlacementStrategy.feature = 'file-placement-strategy';
 FilePlacementStrategy.dependencies = ['decent-core-io'];
 
-FilePlacementStrategy.prototype.placeShapes = function filePlace(payload, done) {
-  var rootShape = payload.shape;
-  var shapes = payload.shapes;
+FilePlacementStrategy.prototype.placeShapes = function filePlace(context, done) {
+  var rootShape = context.shape;
+  var shapes = context.shapes;
   if (!shapes) return;
   var shapeHelper = this.scope.require('shape');
   // Handlers have the priority on placing shapes
