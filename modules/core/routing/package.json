@@ -1,6 +1,6 @@
 {
   "name": "decent-core-routing",
-  "friendlyName": "Routing",
+  "friendlyName": "Core Routing",
   "version": "0.0.0",
   "description": "Core routes for DecentCMS content items",
   "features": {
@@ -19,8 +19,8 @@
       ]
     },
     "ensure-trailing-slash": {
-      "name": "Static Routes",
-      "description": "Serves static files from a set of folders configured in site settings.",
+      "name": "Ensure Trailing Slash",
+      "description": "Permanently redirects requests with a trailing slash in the URL to the same URL without the trailing slash.",
       "dependencies": [
         "decent-core-express"
       ]

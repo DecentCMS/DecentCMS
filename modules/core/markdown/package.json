@@ -1,5 +1,6 @@
 {
   "name": "decent-core-markdown",
+  "friendlyName": "Markdown",
   "version": "0.0.0",
   "description": "Markdown for DecentCMS",
   "features": {

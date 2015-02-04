@@ -1,6 +1,6 @@
 {
   "name": "decent-core-tokens",
-  "friendlyName": "Tokens",
+  "friendlyName": "Core Tokens",
   "version": "0.0.0",
   "description": "Token evaluation for DecentCMS",
   "features": {

@@ -1,5 +1,6 @@
 {
   "name": "decent-core-io",
+  "friendlyName": "Core I/O",
   "version": "0.0.0",
   "description": "I/O APIs for DecentCMS.",
   "features": {

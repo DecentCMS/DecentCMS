@@ -1,5 +1,6 @@
 {
   "name": "decent-core-navigation",
+  "friendlyName": "Core Navigation",
   "version": "0.0.0",
   "description": "Navigation menus for DecentCMS",
   "features": {

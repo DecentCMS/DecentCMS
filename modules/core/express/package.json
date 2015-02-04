@@ -1,5 +1,6 @@
 {
   "name": "decent-core-express",
+  "friendlyName": "Express",
   "version": "0.0.0",
   "description": "Integration of Express into DecentCMS.",
   "features": {

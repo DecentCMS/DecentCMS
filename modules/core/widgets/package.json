@@ -1,5 +1,6 @@
 {
   "name": "decent-core-widgets",
+  "friendlyName": "Core Widgets",
   "version": "0.0.0",
   "description": "Reusable blocks of content for DecentCMS.",
   "features": {

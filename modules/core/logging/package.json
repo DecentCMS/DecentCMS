@@ -1,5 +1,6 @@
 {
-  "name": "decent-core-winston",
+  "name": "decent-core-logging",
+  "friendlyName": "Core Logging",
   "version": "0.0.0",
   "description": "Logging for DecentCMS.",
   "features": {
