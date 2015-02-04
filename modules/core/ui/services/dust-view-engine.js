@@ -97,7 +97,7 @@ function getDustTemplate(templatePath) {
 
 dust.helpers.shape = function shapeDustHelper(chunk, context, bodies, params) {
   var shape = dust.helpers.tap(params.shape, chunk, context);
-  if (!shape) return;
+  if (!shape) return chunk.map(function renderEmpty(chunk) {chunk.end();});
   var tag = dust.helpers.tap(params.tag, chunk, context);
   var cssClass = dust.helpers.tap(params.class, chunk, context);
   var renderer = chunk.root['decent-renderer'];
