@@ -24,6 +24,10 @@ WidgetRouteHandler.prototype.handle = function handleForWidgets(context, next) {
     loadLayerContext, function onLayersLoaded(err) {
 
     var layers = loadLayerContext.layers;
+    if (!layers) {
+      next();
+      return;
+    }
     var ruleEvaluationScope = {};
     scope.callService('layer-rule-context-builder', 'buildContext',
       ruleEvaluationScope, function onRuleContextBuilt(err) {

@@ -70,11 +70,16 @@ if (runInCluster && cluster.isMaster) {
       } catch (er2) {
         // oh well, not much we can do at this point.
         console.error('Error sending 500!', er2.stack);
+        return;
       }
     });
     d.add(req);
     d.add(res);
     var shell = Shell.resolve(req);
+    if (!shell) {
+      console.error('Could not resolve shell.', {url: req.url, host: req.headers.host});
+      return;
+    }
     d.add(shell);
 
     // Now run the handler function in the domain.
