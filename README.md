@@ -1,6 +1,3 @@
-DecentCMS
-=========
-
 DecentCMS aims at being a decent CMS written in Node.
 Its design principles are inherited from Drupal and Orchard CMS.
 
