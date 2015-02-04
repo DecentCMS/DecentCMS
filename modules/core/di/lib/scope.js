@@ -1,6 +1,8 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
+// TODO: maybe, inject scope by property rather than constructor, to remove the requirement for service implementers to implement a constructor with scope as the parameter.
+
 var async = require('async');
 var util = require('util');
 
