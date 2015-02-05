@@ -152,10 +152,11 @@ Shell.prototype.canHandle = function(request) {
   var host = request.headers.host;
   return (
     (
-      ((this.https && this.port === 443) || this.port === 80)
+      ((this.https && this.port === 443) || this.port === 80 || this.port === '*')
       && this.host === host
     )
-    || (this.host + ':' + this.port === host)
+      || (this.port === '*' && host.substr(0, this.host.length) === this.host)
+      || (this.host + ':' + this.port === host)
   )
   && (
     !this.path

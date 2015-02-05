@@ -90,10 +90,17 @@ if (runInCluster && cluster.isMaster) {
 
   var httpServer;
   var httpsServers = {};
+  var server;
+
+  // If iisnode, only create one server
+  if (process.env.IISNODE_VERSION && port.substr(0, 9) === '\\\\.\\pipe\\') {
+    server = httpServer = httpServer || http.createServer(handler);
+    server.listen(port);
+    return;
+  }
   // Listen for each tenant
   for (var shellName in Shell.list) {
     var shell = Shell.list[shellName];
-    var server;
     if (shell.https) {
       var sslParamsId = (shell.key || "") + (shell.cert || "") + (shell.pfx || "");
       server = sslParamsId in httpsServers
@@ -107,10 +114,10 @@ if (runInCluster && cluster.isMaster) {
     else {
       server = httpServer = httpServer || http.createServer(handler);
     }
-    var hostAndPort = shell.host + ':' + shell.port;
+    var hostAndPort = shell.port !== '*' ? shell.host + ':' + shell.port : shell.host;
     server._hostsAndPorts = server._hostsAndPorts || {};
     if (!(hostAndPort in server._hostsAndPorts)) {
-      server.listen(shell.port, shell.host);
+      server.listen(shell.port === '*' ? port : shell.port, shell.host);
       server._hostsAndPorts[hostAndPort] = true;
     }
   }
