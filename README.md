@@ -80,4 +80,13 @@ Does this project take contributions?
 
 Yes, please.
 
+Links
+-----
+
+The source code for DecentCMS is hosted on Github:
+<https://github.com/DecentCMS/DecentCMS>.
+
+The web site for the project can be found here:
+<http://decentcms.org>
+
   [decent-consulting-site]: https://github.com/DecentCMS/DecentConsulting
