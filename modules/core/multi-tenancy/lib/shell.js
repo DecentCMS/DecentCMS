@@ -150,18 +150,22 @@ Shell.resolve = function(request) {
  */
 Shell.prototype.canHandle = function(request) {
   var host = request.headers.host;
-  return (
-    (
+  var hosts = Array.isArray(this.host) ? this.host : [this.host];
+  for (var i = 0; i < hosts.length; i++) {
+    var thisHost = hosts[i];
+    if ((
+      (
       ((this.https && this.port === 443) || this.port === 80 || this.port === '*')
-      && this.host === host
-    )
-      || (this.port === '*' && host.substr(0, this.host.length) === this.host)
-      || (this.host + ':' + this.port === host)
-  )
-  && (
+      && thisHost === host
+      )
+      || (this.port === '*' && host.substr(0, thisHost.length) === thisHost)
+      || (thisHost + ':' + this.port === host)
+    ) && (
     !this.path
     || request.url.substr(0, this.path.length) === this.path
-  );
+    )) return true;
+  }
+  return false;
 };
 
 /**

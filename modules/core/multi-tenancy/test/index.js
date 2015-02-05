@@ -165,6 +165,27 @@ describe('Shell', function() {
       expect(resolvedShell.name).to.equal('Site 1');
     });
 
+    it('is resolved by a host array and port match', function() {
+      Shell.list = {
+        default: new Shell({name: 'Default shell'}),
+        site1: new Shell({
+          name: 'Site 1',
+          port: 42,
+          host: ['host1', 'host2']
+        })
+      };
+      var req = new IncomingMessage();
+      req.headers.host = 'host1:42';
+      var resolvedShell = Shell.resolve(req);
+
+      expect(resolvedShell.name).to.equal('Site 1');
+
+      req.headers.host = 'host2:42';
+      var resolvedShell = Shell.resolve(req);
+
+      expect(resolvedShell.name).to.equal('Site 1');
+    });
+
     it('is resolved by a host, port, and path match', function() {
       Shell.list = {
         default: new Shell({name: 'Default shell'}),

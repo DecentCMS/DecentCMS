@@ -101,24 +101,28 @@ if (runInCluster && cluster.isMaster) {
   // Listen for each tenant
   for (var shellName in Shell.list) {
     var shell = Shell.list[shellName];
-    if (shell.https) {
-      var sslParamsId = (shell.key || "") + (shell.cert || "") + (shell.pfx || "");
-      server = sslParamsId in httpsServers
-        ? httpsServers[sslParamsId]
-        : httpsServers[sslParamsId] = https.createServer({
+    var hosts = Array.isArray(shell.host) ? shell.host : [shell.host];
+    for (i = 0; i < hosts.length; i++) {
+      var host = hosts[i];
+      if (shell.https) {
+        var sslParamsId = (shell.key || "") + (shell.cert || "") + (shell.pfx || "");
+        server = sslParamsId in httpsServers
+          ? httpsServers[sslParamsId]
+          : httpsServers[sslParamsId] = https.createServer({
           key: shell.key,
           cert: shell.cert,
           pfx: shell.pfx
         }, handler);
-    }
-    else {
-      server = httpServer = httpServer || http.createServer(handler);
-    }
-    var hostAndPort = shell.port !== '*' ? shell.host + ':' + shell.port : shell.host;
-    server._hostsAndPorts = server._hostsAndPorts || {};
-    if (!(hostAndPort in server._hostsAndPorts)) {
-      server.listen(shell.port === '*' ? port : shell.port, shell.host);
-      server._hostsAndPorts[hostAndPort] = true;
+      }
+      else {
+        server = httpServer = httpServer || http.createServer(handler);
+      }
+      var hostAndPort = shell.port !== '*' ? host + ':' + shell.port : host;
+      server._hostsAndPorts = server._hostsAndPorts || {};
+      if (!(hostAndPort in server._hostsAndPorts)) {
+        server.listen(shell.port === '*' ? port : shell.port, host);
+        server._hostsAndPorts[hostAndPort] = true;
+      }
     }
   }
 }
