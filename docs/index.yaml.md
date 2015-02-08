@@ -9,5 +9,6 @@ There is at this moment a runtime, but no dashboard.
 Table of contents
 -----------------
 
-* [Structure of a site](/docs/structure-of-a-site)
-* [Content module](/docs/decent-core-content)
+* [Structure of a site](/docs/decent-core-multi-tenancy/structure-of-a-site)
+* Modules
+  * [Content module](/docs/decent-core-content)
