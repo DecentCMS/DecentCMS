@@ -38,4 +38,15 @@ describe('JSON YAML MD File Parser', function() {
       done();
     });
   });
+
+  it("won't parse other types of files", function(done) {
+    var context = {
+      path: 'path/to/some-file-to-test.unknown',
+      data: 'foo'
+    };
+    parser.parse(context, function() {
+      expect(context.item).to.not.be.ok;
+      done();
+    });
+  });
 });
