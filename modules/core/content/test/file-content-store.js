@@ -46,6 +46,9 @@ var scope = {
   getServices: function(serviceName) {
     if (!services.hasOwnProperty(serviceName)) return [];
     return [services[serviceName]];
+  },
+  callService: function(serviceName, methodName, context, done) {
+    services[serviceName][methodName](context, done);
   }
 };
 
@@ -58,7 +61,8 @@ var services = {
   shell: {
     rootPath: 'foo'
   },
-  "id-to-path-map": new (require('../services/content-path-mapper'))(scope)
+  "id-to-path-map": new (require('../services/content-path-mapper'))(scope),
+  "content-file-parser": require('../services/json-yaml-md-file-parser')
 };
 
 describe('File Content Store', function() {

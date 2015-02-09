@@ -97,7 +97,6 @@ var fileContentStore = {
             found = true;
             fs.readFile(p, function readItemFile(err, data) {
               if (err) {nextStore(err); return;}
-              var ext = path.extname(p);
               var parserContext = {
                 scope: scope,
                 path: p,
