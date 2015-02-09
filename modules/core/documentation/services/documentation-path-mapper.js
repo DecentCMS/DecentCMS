@@ -17,7 +17,9 @@ DocumentationPathMapper.scope = 'shell';
  * Maps documentation topic ids onto the relevant file, in the right module.
  * @param {string} root The content root for documentation
  * (anything other than 'doc' will be ignored).
- * @param {string} id The topic's id.
+ * @param {string} id The topic's id. If top-level, that is the name of the documentation
+ * file, without extension. If it's a module documentation topic, it's
+ * [module-technical-name]/[topic-filename-without-extension].
  * @returns {string[]} The list of possible paths for a file describing the topic.
  */
 DocumentationPathMapper.prototype.mapIdToPath = function mapDocumentationIdToPath(root, id) {

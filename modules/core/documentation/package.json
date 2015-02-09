@@ -15,6 +15,9 @@
   },
   "author": "Bertrand Le Roy",
   "license": "MIT",
+  "dependencies": {
+    "jsdoc-to-markdown": "*"
+  },
   "devDependencies": {
     "chai": "*",
     "grunt-mocha-test": "*",

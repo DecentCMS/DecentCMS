@@ -4,23 +4,24 @@
 /**
  * @description
  * This handler registers itself as an Express middleware that handles
- * a catchall route under /docs/* with a normal priority, for documentation
- * content items.
+ * a catchall route under /docs/api/* with a normal priority, for
+ * API documentation extracted from the source code of modules.
  */
-var DocumentationRouteHandler = {
+var ApiDocumentationRouteHandler = {
   service: 'middleware',
   feature: 'documentation',
   routePriority: 10,
   scope: 'shell',
-  register: function registerDocumentationMiddleware(scope, context) {
-    context.expressApp.register(DocumentationRouteHandler.routePriority, function bindDocumentationMiddleware(app) {
-      app.get('/docs(/*)?', function documentationMiddleware(request, response, next) {
+  register: function registerApiDocumentationMiddleware(scope, context) {
+    context.expressApp.register(ApiDocumentationRouteHandler.routePriority,
+      function bindApiDocumentationMiddleware(app) {
+      app.get('/docs/api(/*)?', function apiDocumentationMiddleware(request, response, next) {
         if (request.routed) {next();return;}
         var contentRenderer = request.require('renderer');
         if (!contentRenderer) {next();return;}
         contentRenderer.promiseToRender({
           request: request,
-          id: 'docs:' + request.path.substr(6),
+          id: 'apidocs:' + request.path.substr(10),
           displayType: 'main'
         });
         request.routed = true;
@@ -30,4 +31,4 @@ var DocumentationRouteHandler = {
   }
 };
 
-module.exports = DocumentationRouteHandler;
+module.exports = ApiDocumentationRouteHandler;

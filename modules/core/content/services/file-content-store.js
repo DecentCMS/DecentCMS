@@ -3,28 +3,6 @@
 var path = require('path');
 var fs = require('fs');
 var async = require('async');
-var YAML = require('yamljs');
-var Snippable = require('snippable');
-var snippable = new Snippable();
-
-/**
- * @description
- * Parses a multipart YAML/Markdown document.
- * The YAML part becomes the item, and the Markdown
- * becomes the body part with a Markdown flavor.
- * @param {string} data The data to parse.
- * @returns {object} The parsed content item.
- */
-function parseYamlMarkdown(data) {
-  var parts = snippable.parse(data, ['yaml', 'md']);
-  var item = parts[0];
-  var md = parts[1];
-  item.body = {
-    flavor: 'markdown',
-    _data: md
-  };
-  return item;
-}
 
 /**
  * @description
@@ -120,12 +98,18 @@ var fileContentStore = {
             fs.readFile(p, function readItemFile(err, data) {
               if (err) {nextStore(err); return;}
               var ext = path.extname(p);
-              var item = ext === '.json'
-                ? JSON.parse(data.toString())
-                : ext === '.yaml'
-                ? YAML.parse(data.toString())
-                : parseYamlMarkdown(data.toString());
-              handle(id, p, item, next);
+              var parserContext = {
+                scope: scope,
+                path: p,
+                data: data.toString()
+              };
+              scope.callService(
+                'content-file-parser', 'parse',
+                parserContext,
+                function fileParsed() {
+                  var item = parserContext.item;
+                  handle(id, p, item, next);
+                });
             });
           }
         });
