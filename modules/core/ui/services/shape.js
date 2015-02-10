@@ -1,6 +1,6 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-
+// TODO: move all temp stuff into meta, get rid of temp
 /**
  * @description
  * An API to manipulate shapes.
@@ -64,6 +64,10 @@ var Shape = {
    */
   meta: function (shape) {
     return shape.meta ? shape.meta : shape.meta = {};
+  },
+  alternates: function(shape) {
+    var meta = Shape.meta(shape);
+    return meta.alternates ? meta.alternates : meta.alternates = [];
   },
   /**
    * @description

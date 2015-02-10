@@ -37,6 +37,10 @@ function RenderStream(scope, options) {
     next();
   };
 
+  this._onError = function onError(err) {
+    throw err;
+  };
+
   /**
    * @description
    * Writes a string, unencoded.

@@ -44,8 +44,16 @@ describe('File Placement Strategy', function() {
           path: 'content/header'
         },
         {
-          type: 'page', displayType: 'main',
+          type: '^page$', displayType: 'main',
           path: 'content', order: 'before'
+        },
+        {
+          name: '^named$',
+          path: 'zone2', order: '2'
+        },
+        {
+          'meta.item.meta.type': '^deep-.*',
+          path: 'zone2', order: '3'
         }
       ],
       'tag-cloud-widget': {path: 'footer'},
@@ -66,7 +74,7 @@ describe('File Placement Strategy', function() {
           proxyquire('../services/file-placement-strategy.js', stubs);
     var placementStrategy = new FilePlacementStrategy(scope);
     var layout = {};
-    var homePage, pageBaz, pageFooBar, post, htmlWidget1, htmlWidget2, tagCloudWidget, shape11, shape12, shape2, shape3, custom1, custom2;
+    var homePage, pageBaz, pageFooBar, post, htmlWidget1, htmlWidget2, tagCloudWidget, shape11, shape12, shape2, shape3, named, deep, custom1, custom2;
     var shapes = [
       homePage =       {meta: {type: 'page'}, temp: {displayType: 'main'}, id: '/'},
       pageBaz =        {meta: {type: 'page'}, temp: {displayType: 'main'}, id: '/baz'},
@@ -79,6 +87,8 @@ describe('File Placement Strategy', function() {
       shape12 =        {meta: {type: 'shape1'}, id: ':shape1:2'},
       shape2 =         {meta: {type: 'shape2'}, id: ':shape2:1'},
       shape3 =         {meta: {type: 'shape3'}, id: ':shape3:1'},
+      named =          {meta: {type: 'named-shape', name: 'named'}, id: ':named:1'},
+      deep =           {meta: {item: {meta: {type: 'deep-item'}}}},
       custom1 =        {meta: {type: 'custom'}, id: ':custom:1'},
       custom2 =        {meta: {type: 'custom'}, id: ':custom:2'},
       {meta: {type: 'wont-get-placed'}, id: ':wont-get-placed:'}
@@ -105,6 +115,8 @@ describe('File Placement Strategy', function() {
       expect(shape12.temp.parent).to.equal(layout.zone1);
       expect(shape2.temp.parent).to.equal(layout.zone1);
       expect(shape3.temp.parent).to.equal(layout.zone2);
+      expect(named.temp.parent).to.equal(layout.zone2);
+      expect(deep.temp.parent).to.equal(layout.zone2);
       expect(custom1.temp.parent).to.equal(layout['custom-zone']);
       expect(custom2.temp.parent).to.equal(layout['custom-zone']);
 
@@ -114,7 +126,7 @@ describe('File Placement Strategy', function() {
       expect(layout['custom-zone'].temp.items).to.deep.equal([custom2, custom1]);
       expect(layout.sidebar.temp.items).to.deep.equal([htmlWidget1, htmlWidget2, tagCloudWidget]);
       expect(layout.zone1.temp.items).to.deep.equal([shape2, shape11, shape12]);
-      expect(layout.zone2.temp.items).to.deep.equal([shape3]);
+      expect(layout.zone2.temp.items).to.deep.equal([shape3, named, deep]);
       done();
     });
   });

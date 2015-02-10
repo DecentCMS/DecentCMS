@@ -27,11 +27,19 @@ describe('Template Rendering Strategy', function() {
   };
   var fileResolver = {
     resolve: function (folder, file) {
-      if (file.source === 'zone\\.(ve1|ve2)') return 'path/to/zone.ve1';
-      return 'template.ve2';
+      switch(file.source) {
+        case 'zone\\.(ve1|ve2)':
+          return 'path/to/zone.ve1';
+        case 'alternate1\\.(ve1|ve2)':
+          return 'path/to/alternate1.ve1';
+        case 'shape1\\.(ve1|ve2)':
+          return 'template.ve2';
+        default:
+          return null;
+      }
     }
   };
-  var renderer = new require('stream').PassThrough();
+  var renderer = new (require('stream')).PassThrough();
   renderer.on('data', function (chunk) {
     html.push(chunk.toString());
   });
@@ -76,13 +84,61 @@ describe('Template Rendering Strategy', function() {
     });
   });
 
+  it('uses alternates before the shape name', function (done) {
+    templateRenderingStrategy.render({
+      shape: {
+        meta: {
+          type: 'shape1',
+          alternates: ['alternate1', 'alternate2']
+        }
+      },
+      renderStream: renderer
+    }, function () {
+      expect(html.join(''))
+        .to.equal('[ve1:shape1:path/to/alternate1.ve1]');
+      done();
+    });
+  });
+
+  it('resolves alternates in the order specified', function (done) {
+    templateRenderingStrategy.render({
+      shape: {
+        meta: {
+          type: 'shape1',
+          alternates: ['alternate0', 'alternate1']
+        }
+      },
+      renderStream: renderer
+    }, function () {
+      expect(html.join(''))
+        .to.equal('[ve1:shape1:path/to/alternate1.ve1]');
+      done();
+    });
+  });
+
+  it('reverts to the shape name if no alternate is found', function (done) {
+    templateRenderingStrategy.render({
+      shape: {
+        meta: {
+          type: 'shape1',
+          alternates: ['alternateA', 'alternateB']
+        }
+      },
+      renderStream: renderer
+    }, function () {
+      expect(html.join(''))
+        .to.equal('[ve2:shape1:template.ve2]');
+      done();
+    });
+  });
+
   it('renders a shape with temp.html directly without template', function (done) {
     templateRenderingStrategy.render({
       shape: {temp: {html: 'some html'}},
       renderStream: renderer
     }, function () {
       expect(html.join(''))
-        .to.equal('some html')
+        .to.equal('some html');
       done();
     });
   });

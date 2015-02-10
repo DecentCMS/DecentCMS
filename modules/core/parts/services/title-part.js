@@ -29,7 +29,7 @@ var TitlePart = {
           title;
     }
     temp.shapes.push({
-      meta: {type: 'title'},
+      meta: {type: 'title', item: item},
       temp: {displayType: temp.displayType},
       text: title
     });

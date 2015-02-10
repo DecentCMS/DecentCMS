@@ -1,6 +1,6 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-// TODO: alternates
+
 var fs = require('fs');
 var path = require('path');
 
@@ -37,28 +37,31 @@ function TemplateRenderingStrategy(scope) {
     if (!shapeName) {
       shapeName = meta.type = 'zone';
     }
-    var template = shapeTemplates[shapeName];
-    if (!template) {
-      var templatePath = fileResolver.resolve(
-        'views', new RegExp(shapeName + '\\.' + extensionExpression));
-      if (templatePath) {
-        var extension = path.extname(templatePath).substr(1);
-        var viewEngine = viewEngineMap[extension];
-        viewEngine.load(templatePath, function onTemplateLoaded(template) {
-          shapeTemplates[shapeName] = template;
-          template(shape, renderer, done);
-        });
-        return;
+    var alternates = shapeHelper.alternates(shape).slice();
+    alternates.push(shapeName);
+    for (var i = 0; i < alternates.length; i++) {
+      var alternate = alternates[i];
+      var template = shapeTemplates[alternate];
+      if (!template) {
+        var templatePath = fileResolver.resolve(
+          'views', new RegExp(alternate + '\\.' + extensionExpression));
+        if (templatePath) {
+          var extension = path.extname(templatePath).substr(1);
+          var viewEngine = viewEngineMap[extension];
+          viewEngine.load(templatePath, function onTemplateLoaded(template) {
+            shapeTemplates[alternate] = template;
+            template(shape, renderer, done);
+          });
+          return;
+        }
       }
       else {
-        done(new Error('Template for ' + shapeName + ' not found.'));
+        shapeTemplates[alternate] = template;
+        template(shape, renderer, done);
         return;
       }
     }
-    if (template) {
-      shapeTemplates[shapeName] = template;
-      template(shape, renderer, done);
-    }
+    done(new Error('Template for ' + alternate + ' not found.'));
   };
 }
 TemplateRenderingStrategy.service = 'rendering-strategy';

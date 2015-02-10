@@ -37,8 +37,19 @@ function FilePlacementStrategy(scope) {
         if (shape === 'matches') {
           placementObject.matches.forEach(function forEachMatch(match) {
             var idExpression = match.id ? new RegExp(match.id) : null;
+            var nameExpression = match.name ? new RegExp(match.name) : null;
             var shapeTypeExpression = match.type ? new RegExp(match.type) : null;
             var displayTypeExpression = match.displayType ? new RegExp(match.displayType) : null;
+            // Find other custom match properties
+            var customMatchExpressions = [];
+            Object.getOwnPropertyNames(match).forEach(function(propertyName) {
+              if (['path', 'order', 'id', 'name', 'type', 'displayType'].indexOf(propertyName) === -1) {
+                customMatchExpressions.push({
+                  propertyPath: propertyName.split('.'),
+                  expression: new RegExp(match[propertyName])
+                });
+              }
+            });
             var path = match.path;
             var order = match.order;
 
@@ -47,6 +58,11 @@ function FilePlacementStrategy(scope) {
                 var shapeToPlace = shapes[k];
                 if (idExpression
                   && (!shapeToPlace.id || !idExpression.test(shapeToPlace.id))) {
+                  continue;
+                }
+                if (nameExpression
+                  && (!shapeToPlace.meta || !shapeToPlace.meta.name
+                  || !nameExpression.test(shapeToPlace.meta.name))) {
                   continue;
                 }
                 if (shapeTypeExpression
@@ -61,6 +77,22 @@ function FilePlacementStrategy(scope) {
                   || !displayTypeExpression.test(shapeToPlace.temp.displayType))) {
                   continue;
                 }
+                // If any custom match
+                var customMatch = true;
+                for (var l = 0; l < customMatchExpressions.length; l++) {
+                  var customMatchExpression = customMatchExpressions[l];
+                  var propertyPath = customMatchExpression.propertyPath;
+                  var obj = shapeToPlace;
+                  for (var m = 0; m < propertyPath.length; m++) {
+                    obj = obj[propertyPath[m]];
+                    if (!obj) break;
+                  }
+                  if (!obj || !customMatchExpression.expression.test(obj)) {
+                    customMatch = false;
+                    break;
+                  }
+                }
+                if (!customMatch) continue;
                 // We have a match. Place the shape, and remove it from the list.
                 shapeHelper.place(rootShape, path, shapeToPlace, order);
                 shapes.splice(k--, 1);

@@ -15,6 +15,13 @@ describe('Shape', function() {
       .to.equal(42);
   });
 
+  it('can get and create alternate list', function() {
+    var shape = {};
+    var alternates = shapeHelper.alternates(shape);
+
+    expect(Array.isArray(alternates)).to.be.true;
+  });
+
   it('can get and create temp', function() {
     var shape = {};
     var temp = shapeHelper.temp(shape);

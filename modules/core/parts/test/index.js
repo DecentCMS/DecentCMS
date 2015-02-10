@@ -50,21 +50,21 @@ describe('Text Part Handler', function() {
       var newShapes = context.shape.temp.shapes;
       expect(newShapes[0])
         .to.deep.equal({
-          meta: {type: 'text', name: 'body'},
+          meta: {type: 'text', name: 'body', alternates: ['text-body'], item: item},
           temp: {displayType: 'summary'},
           text: 'Lorem ipsum',
           flavor: 'md'
         });
       expect(newShapes[1])
         .to.deep.equal({
-          meta: {type: 'text', name: 'summary'},
+          meta: {type: 'text', name: 'summary', alternates: ['text-summary'], item: item},
           temp: {displayType: 'summary'},
           text: 'Lorem',
           flavor: 'plain-text'
         });
       expect(newShapes[2])
         .to.deep.equal({
-          meta: {type: 'text', name: 'disclaimer'},
+          meta: {type: 'text', name: 'disclaimer', alternates: ['text-disclaimer'], item: item},
           temp: {displayType: 'summary'},
           text: 'Not my fault',
           flavor: 'strawberry'
@@ -96,7 +96,7 @@ describe('Title Part Handler', function() {
       var newShapes = context.shape.temp.shapes;
       expect(newShapes[0])
         .to.deep.equal({
-          meta: {type: 'title'},
+          meta: {type: 'title', item: item},
           temp: {displayType: 'summary'},
           text: 'Foo'
         });

@@ -60,7 +60,7 @@ FileResolution.prototype.getCacheKey = function(pathTokens) {
   return pathTokens.map(function(pathToken) {
     return pathToken instanceof RegExp ? pathToken.source : pathToken;
   }).join('/');
-}
+};
 
 /**
  * @description
