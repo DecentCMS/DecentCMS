@@ -1,0 +1,8 @@
+{
+  "matches": [
+    {
+      "type": "text", "name": "^(scope|feature|service)$",
+      "path": "main", "order": "0"
+    }
+  ]
+}
