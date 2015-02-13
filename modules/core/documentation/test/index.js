@@ -70,8 +70,8 @@ describe('Documentation path mapper', function() {
 });
 
 describe('Documentation Route Handler', function() {
+  var DocumentationRouteHandler = require('../services/documentation-route-handler');
   it('promises to render topics with the main display type', function(done) {
-    var DocumentationRouteHandler = require('../services/documentation-route-handler');
     var middleware = null;
     var context = {
       expressApp: {
@@ -111,6 +111,15 @@ describe('Documentation Route Handler', function() {
       done();
     });
   });
+
+  it("can build a topic's URL from its id", function() {
+    expect(DocumentationRouteHandler.getUrl('docs:foo/bar'))
+      .to.equal('/docs/foo/bar');
+    expect(DocumentationRouteHandler.getUrl('foo/bar/baz'))
+      .to.not.be.ok;
+    expect(DocumentationRouteHandler.getUrl('foo:bar/baz'))
+      .to.not.be.ok;
+  });
 });
 
 describe('API Documentation path mapper', function() {
@@ -143,8 +152,8 @@ describe('API Documentation path mapper', function() {
 });
 
 describe('API Documentation Route Handler', function() {
+  var ApiDocumentationRouteHandler = require('../services/api-documentation-route-handler');
   it('promises to render topics with the main display type', function(done) {
-    var ApiDocumentationRouteHandler = require('../services/api-documentation-route-handler');
     var middleware = null;
     var context = {
       expressApp: {
@@ -183,6 +192,15 @@ describe('API Documentation Route Handler', function() {
       expect(shape.displayType).to.equal('main');
       done();
     });
+  });
+
+  it("can build an API topic's URL from its id", function() {
+    expect(ApiDocumentationRouteHandler.getUrl('apidocs:foo/bar'))
+      .to.equal('/docs/api/foo/bar');
+    expect(ApiDocumentationRouteHandler.getUrl('foo/bar/baz'))
+      .to.not.be.ok;
+    expect(ApiDocumentationRouteHandler.getUrl('foo:bar/baz'))
+      .to.not.be.ok;
   });
 });
 

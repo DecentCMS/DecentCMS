@@ -5,8 +5,8 @@ var proxyquire = require('proxyquire');
 var path = require('path');
 
 describe('Content Route Handler', function() {
+  var ContentRouteHandler = require('../services/content-route-handler');
   it('promises to render content items with the main display type', function(done) {
-    var ContentRouteHandler = require('../services/content-route-handler');
     var middleware = null;
     var context = {
       expressApp: {
@@ -45,6 +45,13 @@ describe('Content Route Handler', function() {
       expect(shape.displayType).to.equal('main');
       done();
     });
+  });
+
+  it("can build an item's URL from its id", function() {
+    expect(ContentRouteHandler.getUrl('foo/bar/baz'))
+      .to.equal('/foo/bar/baz');
+    expect(ContentRouteHandler.getUrl('foo:bar/baz'))
+      .to.not.be.ok;
   });
 });
 

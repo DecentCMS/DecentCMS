@@ -28,6 +28,12 @@ var ApiDocumentationRouteHandler = {
         next();
       });
     });
+  },
+  getUrl: function getUrl(id) {
+    if (id.substr(0, 8) === 'apidocs:') {
+      return '/docs/api/' + id.substr(8);
+    }
+    return null;
   }
 };
 

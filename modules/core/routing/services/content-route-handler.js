@@ -26,6 +26,12 @@ var ContentRouteHandler = {
         next();
       });
     });
+  },
+  getUrl: function getUrl(id) {
+    if (id.indexOf(':') === -1) {
+      return '/' + id;
+    }
+    return null;
   }
 };
 

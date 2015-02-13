@@ -27,6 +27,12 @@ var DocumentationRouteHandler = {
         next();
       });
     });
+  },
+  getUrl: function getUrl(id) {
+    if (id.substr(0, 5) === 'docs:') {
+      return '/docs/' + id.substr(5);
+    }
+    return null;
   }
 };
 
