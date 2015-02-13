@@ -238,3 +238,195 @@ describe('JsDoc File Parser', function() {
     });
   });
 });
+
+// Define a fake file system's hierarchy.
+var fileSystem = {
+  name: '',
+  items: [
+    {name: 'docs', items: [
+      {name: 'index.json'},
+      {name: 'some-top-level-topic.yaml.md'}
+    ]},
+    {name: 'modules', items: [
+      {name: 'module1', items: [
+        {name: 'docs', items: [
+          {name: 'index.json'},
+          {name: 'some-topic.yaml.md'}
+        ]},
+        {name: 'lib', items: [
+          {name: 'library1.js'},
+          {name: 'library2.js'}
+        ]},
+        {name: 'services', items: [
+          {name: 'service1.js'},
+          {name: 'service2.js'}
+        ]}
+      ]},
+      {name: 'module2', items: [
+        {name: 'docs', items: [
+          {name: 'some-topic.yaml.md'}
+        ]},
+        {name: 'services', items: [
+          {name: 'service1.js'},
+          {name: 'service2.js'}
+        ]}
+      ]}
+    ]}
+  ]
+};
+var root = path.resolve('');
+function resolve(dirPath) {
+  if (dirPath.substr(0, root.length) === root) dirPath = dirPath.substr(root.length);
+  if (dirPath[0] === path.sep) dirPath = dirPath.substr(1);
+  var p = dirPath.split(path.sep);
+  var dir = fileSystem;
+  for (var i = 0; i < p.length; i++) {
+    var sub = p[i];
+    if (!dir.items) continue;
+    for (var j = 0; j < dir.items.length; j++) {
+      if (dir.items[j].name === sub) {
+        dir = dir.items[j];
+        break;
+      }
+    }
+  }
+  return dir;
+}
+var stubs = {
+  fs: {
+    readdirSync: function(dirPath) {
+      var dir = resolve(dirPath);
+      return dir.items.map(function(item) {return item.name;});
+    },
+    statSync: function(fileOrFolderPath) {
+      var fileOrFolder = resolve(fileOrFolderPath);
+      return fileOrFolder.items
+        ? {isDirectory: function() {return true;}, isFile: function() {return false;}}
+        : {isDirectory: function() {return false;}, isFile: function() {return true;}};
+    },
+    '@noCallThru': true
+  }
+};
+
+var scope = {
+  require: function() {
+    return {
+      moduleManifests: {
+        module1: {physicalPath: path.resolve('modules', 'module1')},
+        module2: {physicalPath: path.resolve('modules', 'module2')}
+      }
+    }
+  },
+  getServices: function(service) {
+    return [{extensions: ['.json', '.yaml.md']}];
+  },
+  callService: function(service, method, context, callback) {
+    Object.getOwnPropertyNames(context.itemsToFetch).forEach(function(itemId) {
+      context.items = context.items || {};
+      context.items[itemId] = {id: itemId};
+      delete context.itemsToFetch[itemId];
+    });
+    callback();
+  }
+};
+
+describe('Documentation Enumerator', function() {
+  var documentationEnumerator = proxyquire('../services/documentation-enumerator', stubs);
+
+  it('enumerates all topics in the system', function(done) {
+    var items = {};
+    var iterate = documentationEnumerator.getItemEnumerator({scope: scope});
+    var iterator = function(err, item) {
+      if (err) throw err;
+      if (item) {
+        items[item.id] = item;
+        iterate(iterator);
+      }
+      else {
+        expect(items).to.deep.equal({
+          "docs:": {id: "docs:"},
+          "docs:some-top-level-topic": {id: "docs:some-top-level-topic"},
+          "docs:module1": {id: "docs:module1"},
+          "docs:module1/some-topic": {id: "docs:module1/some-topic"},
+          "docs:module2/some-topic": {id: "docs:module2/some-topic"}
+        });
+        done();
+      }
+    };
+    iterate(iterator);
+  });
+
+  it('can filter by id', function(done) {
+    var items = {};
+    var iterate = documentationEnumerator.getItemEnumerator({
+      scope: scope,
+      idFilter: /^docs:module1.*$/
+    });
+    var iterator = function(err, item) {
+      if (err) throw err;
+      if (item) {
+        items[item.id] = item;
+        iterate(iterator);
+      }
+      else {
+        expect(items).to.deep.equal({
+          "docs:module1": {id: "docs:module1"},
+          "docs:module1/some-topic": {id: "docs:module1/some-topic"},
+        });
+        done();
+      }
+    };
+    iterate(iterator);
+  });
+});
+
+describe('API Documentation Enumerator', function() {
+  var apiDocumentationEnumerator = proxyquire('../services/api-documentation-enumerator', stubs);
+
+  it('enumerates all libraries and services in the system', function(done) {
+    var items = {};
+    var iterate = apiDocumentationEnumerator.getItemEnumerator({scope: scope});
+    var iterator = function(err, item) {
+      if (err) throw err;
+      if (item) {
+        items[item.id] = item;
+        iterate(iterator);
+      }
+      else {
+        expect(items).to.deep.equal({
+          "apidocs:module1/library1": {id: "apidocs:module1/library1"},
+          "apidocs:module1/library2": {id: "apidocs:module1/library2"},
+          "apidocs:module1/service1": {id: "apidocs:module1/service1"},
+          "apidocs:module1/service2": {id: "apidocs:module1/service2"},
+          "apidocs:module2/service1": {id: "apidocs:module2/service1"},
+          "apidocs:module2/service2": {id: "apidocs:module2/service2"}
+        });
+        done();
+      }
+    };
+    iterate(iterator);
+  });
+
+  it('can filter by id', function(done) {
+    var items = {};
+    var iterate = apiDocumentationEnumerator.getItemEnumerator({
+      scope: scope,
+      idFilter: /^apidocs:.*\/service1$/
+    });
+    var iterator = function(err, item) {
+      if (err) throw err;
+      if (item) {
+        items[item.id] = item;
+        iterate(iterator);
+      }
+      else {
+        expect(items).to.deep.equal({
+          "apidocs:module1/service1": {id: "apidocs:module1/service1"},
+          "apidocs:module2/service1": {id: "apidocs:module2/service1"}
+        });
+        done();
+      }
+    };
+    iterate(iterator);
+  });
+});

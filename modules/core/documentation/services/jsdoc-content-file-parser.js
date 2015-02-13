@@ -52,6 +52,7 @@ var jsDocContentFileParser = {
     resultStream.on('end', function() {
       // Build the content item.
       var service = require(path);
+      // TODO: add link to source
       context.item = {
         meta: {
           type: "api-documentation"
