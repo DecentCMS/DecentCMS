@@ -12,12 +12,26 @@ var fileContentStore = {
   service: 'content-store',
   feature: 'file-content-store',
   scope: 'shell',
+  /**
+   * Loads the items from context.itemsToFetch that can be found in the store
+   * and puts the results on context.items.
+   * @param {object} context The context object.
+   * @param {object} context.scope The scope.
+   * @param {object} context.itemsToFetch The ids of the items to fetch are the
+   *   property names on this object, and the values are arrays of callback
+   *   functions to be called once the item has been loaded. Those callback
+   *   functions should take an error and the item as their parameters.
+   * @param {object} context.items The fetched items. Property names are ids,
+   *   and values are the items themselves.
+   * @param {Function} nextStore The callback that will call into the next store.
+   *   It should take an error as its parameter.
+   */
   loadItems: function loadItems(context, nextStore) {
     var scope = context.scope;
     var shapeHelper = scope.require('shape');
     var shell = scope.require('shell');
 
-    var items = context.items;
+    var items = context.items = context.items || {};
     var itemsToFetch = context.itemsToFetch;
 
     var handle = function handleItemData(id, filePath, item, callback) {

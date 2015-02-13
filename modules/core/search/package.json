@@ -1,0 +1,36 @@
+{
+  "name": "decent-core-search",
+  "friendlyName": "Core Search",
+  "version": "0.0.0",
+  "description": "Search DecentCMS contents",
+  "features": {
+    "query": {
+      "name": "Query",
+      "description": "Map/reduce query infrastructure."
+    },
+    "file-index": {
+      "name": "File index",
+      "description": "File-based index persistence."
+    },
+    "lunr-full-text-search": {
+      "name": "Lunr full-text search",
+      "description": "Full-text search suitable for small sites."
+    }
+  },
+  "main": "./index",
+  "scripts": {
+    "test": "./test/index"
+  },
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "dependencies": {
+    "async": "*",
+    "lunr": "*"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "grunt-mocha-test": "*",
+    "mocha": "*",
+    "proxyquire": "*"
+  }
+}

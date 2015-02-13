@@ -23,6 +23,7 @@ ContentManager.isScopeSingleton = true;
  * @returns {object} The content type, or null if it can't be found.
  */
 ContentManager.prototype.getType = function getType(item) {
+  // TODO: allow for dynamic, single-use types defined directly in the item
   var typeName, type;
   if (!item
     || !item.meta

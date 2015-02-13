@@ -34,6 +34,7 @@ var jsonYamlMarkdownFileParser = {
   service: 'content-file-parser',
   feature: 'file-content-store',
   scope: 'shell',
+  extensions: ['.json', '.yaml', '.yaml.md'],
   parse: function parseJsonYamlMarkdown(context, nextParser) {
     var path = context.path;
     var ext = path.substr(-5);
