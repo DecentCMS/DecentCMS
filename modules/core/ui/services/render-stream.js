@@ -1,16 +1,9 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
+var util = require('util');
 
 // TODO: add automatic indentation
 // TODO: handle .min when not in debug, for stylesheets and scripts
-
-var stream = require('stream');
-var Transform = stream.Transform;
-var flasync = require('flasync');
-var util = require('util');
-var html = require('htmlencode');
-
-util.inherits(RenderStream, Transform);
 
 /**
  * @description
@@ -19,6 +12,9 @@ util.inherits(RenderStream, Transform);
  * @constructor
  */
 function RenderStream(scope, options) {
+  var flasync = require('flasync');
+  var html = require('htmlencode');
+
   var self = this;
   Transform.call(this, {
     objectMode: true
@@ -48,10 +44,10 @@ function RenderStream(scope, options) {
    */
   this.write = this.asyncify(this._write =
     function write(text) {
-
-    this.push(text);
-    return this;
-  });
+      this.push(text);
+      return this;
+    }
+  );
 
   /**
    * @description
@@ -60,10 +56,10 @@ function RenderStream(scope, options) {
    */
   this.writeEncoded = this.asyncify(this._writeEncoded =
     function writeEncoded(text) {
-
-    this.push(html.htmlEncode(text));
-    return this;
-  });
+      this.push(html.htmlEncode(text));
+      return this;
+    }
+  );
 
   /**
    * @description
@@ -72,11 +68,13 @@ function RenderStream(scope, options) {
    */
   this.writeLine = this.asyncify(this._writeLine =
     function writeLine(text) {
-
-    if (text) {this.push(text);}
-    this.push('\r\n');
-    return this;
-  });
+      if (text) {
+        this.push(text);
+      }
+      this.push('\r\n');
+      return this;
+    }
+  );
 
   /**
    * @description
@@ -85,11 +83,13 @@ function RenderStream(scope, options) {
    */
   this.writeEncodedLine = this.asyncify(this._writeEncodedLine =
     function writeEncodedLine(text) {
-
-    if (text) {this.push(html.htmlEncode(text));}
-    this.push('\r\n');
-    return this;
-  });
+      if (text) {
+        this.push(html.htmlEncode(text));
+      }
+      this.push('\r\n');
+      return this;
+    }
+  );
 
   /**
    * @description
@@ -97,10 +97,10 @@ function RenderStream(scope, options) {
    */
   this.br = this.asyncify(this._br =
     function br() {
-
-    this.push('<br/>\r\n');
-    return this;
-  });
+      this.push('<br/>\r\n');
+      return this;
+    }
+  );
 
   /**
    * @description
@@ -111,19 +111,19 @@ function RenderStream(scope, options) {
    */
   this.tag = this.asyncify(this._tag =
     function tag(tagName, attributes, content) {
-
-    if (typeof content === 'string') {
-      this._startTag(tagName, attributes);
-      this._writeEncoded(content);
-      this._endTag();
+      if (typeof content === 'string') {
+        this._startTag(tagName, attributes);
+        this._writeEncoded(content);
+        this._endTag();
+      }
+      else {
+        this.push('<' + tagName);
+        this._renderAttributes(attributes);
+        this.push('/>');
+      }
+      return this;
     }
-    else {
-      this.push('<' + tagName);
-      this._renderAttributes(attributes);
-      this.push('/>');
-    }
-    return this;
-  });
+  );
 
   /**
    * @description
@@ -132,14 +132,14 @@ function RenderStream(scope, options) {
    */
   this.renderAttributes = this.asyncify(this._renderAttributes =
     function renderAttributes(attributes) {
-
-    for (var attributeName in attributes) {
-      this.push(' ' + attributeName + '="' +
+      for (var attributeName in attributes) {
+        this.push(' ' + attributeName + '="' +
         html.htmlEncode(attributes[attributeName]) +
-      '"');
+        '"');
+      }
+      return this;
     }
-    return this;
-  });
+  );
 
   /**
    * @description
@@ -150,13 +150,13 @@ function RenderStream(scope, options) {
    */
   this.startTag = this.asyncify(this._startTag =
     function startTag(tagName, attributes) {
-
-    this.push('<' + tagName);
-    this._renderAttributes(attributes);
-    this.push('>');
-    this.tags.push(tagName);
-    return this;
-  });
+      this.push('<' + tagName);
+      this._renderAttributes(attributes);
+      this.push('>');
+      this.tags.push(tagName);
+      return this;
+    }
+  );
 
   /**
    * @description
@@ -164,11 +164,11 @@ function RenderStream(scope, options) {
    */
   this.endTag = this.asyncify(this._endTag =
     function endTag() {
-
-    var tagName = this.tags.pop();
-    this.push('</' + tagName + '>');
-    return this;
-  });
+      var tagName = this.tags.pop();
+      this.push('</' + tagName + '>');
+      return this;
+    }
+  );
 
   /**
    * @description
@@ -177,11 +177,12 @@ function RenderStream(scope, options) {
   this.endAllTags = this.asyncify(this._endAllTags =
     function endAllTags() {
 
-    while (this.tags.length) {
-      this._endTag();
+      while (this.tags.length) {
+        this._endTag();
+      }
+      return this;
     }
-    return this;
-  });
+  );
 
   /**
    * @description
@@ -246,10 +247,10 @@ function RenderStream(scope, options) {
    */
   this.doctype = this.asyncify(this._doctype =
     function doctype(type) {
-
-    this.push('<!DOCTYPE ' + (type || 'html') + '>');
-    return this;
-  });
+      this.push('<!DOCTYPE ' + (type || 'html') + '>');
+      return this;
+    }
+  );
 
 // TODO: handle minimized files
 
@@ -262,11 +263,11 @@ function RenderStream(scope, options) {
    */
   this.addStyleSheet = this.asyncify(this._addStyleSheet =
     function addStyleSheet(name) {
-
-    var url = '/css/' + name + '.css';
-    this._addExternalStyleSheet(url);
-    return this;
-  });
+      var url = '/css/' + name + '.css';
+      this._addExternalStyleSheet(url);
+      return this;
+    }
+  );
 
   /**
    * @description
@@ -275,12 +276,12 @@ function RenderStream(scope, options) {
    */
   this.addExternalStyleSheet = this.asyncify(this._addExternalStyleSheet =
     function addExternalStyleSheet(url) {
-
-    if (this.stylesheets.indexOf(url) === -1) {
-      this.stylesheets.push(url);
+      if (this.stylesheets.indexOf(url) === -1) {
+        this.stylesheets.push(url);
+      }
+      return this;
     }
-    return this;
-  });
+  );
 
   /**
    * @description
@@ -289,18 +290,18 @@ function RenderStream(scope, options) {
    */
   this.renderStyleSheets = this.asyncify(this._renderStyleSheets =
     function renderStyleSheets() {
-
-    for (var i = 0; i < this.stylesheets.length; i++) {
-      this.push('  ');
-      this._tag('link', {
-        href: this.stylesheets[i],
-        rel: 'stylesheet',
-        type: 'text/css'
-      });
-      this.push('\r\n');
+      for (var i = 0; i < this.stylesheets.length; i++) {
+        this.push('  ');
+        this._tag('link', {
+          href: this.stylesheets[i],
+          rel: 'stylesheet',
+          type: 'text/css'
+        });
+        this.push('\r\n');
+      }
+      return this;
     }
-    return this;
-  });
+  );
 
   /**
    * @description
@@ -311,11 +312,11 @@ function RenderStream(scope, options) {
    */
   this.addScript = this.asyncify(this._addScript =
     function addScript(name) {
-
-    var url = '/js/' + name + '.js';
-    this._addExternalScript(url);
-    return this;
-  });
+      var url = '/js/' + name + '.js';
+      this._addExternalScript(url);
+      return this;
+    }
+  );
 
   /**
    * @description
@@ -324,12 +325,12 @@ function RenderStream(scope, options) {
    */
   this.addExternalScript = this.asyncify(this._addExternalScript =
     function addExternalScript(url) {
-
-    if (this.scripts.indexOf(url) === -1) {
-      this.scripts.push(url);
+      if (this.scripts.indexOf(url) === -1) {
+        this.scripts.push(url);
+      }
+      return this;
     }
-    return this;
-  });
+  );
 
   /**
    * @description
@@ -338,17 +339,17 @@ function RenderStream(scope, options) {
    */
   this.renderScripts = this.asyncify(this._renderScripts =
     function renderScripts() {
-
-    for (var i = 0; i < this.scripts.length; i++) {
-      this.push('  ');
-      this._tag('script', {
-        src: this.scripts[i],
-        type: 'text/javascript'
-      }, '');
-      this.push('\r\n');
+      for (var i = 0; i < this.scripts.length; i++) {
+        this.push('  ');
+        this._tag('script', {
+          src: this.scripts[i],
+          type: 'text/javascript'
+        }, '');
+        this.push('\r\n');
+      }
+      return this;
     }
-    return this;
-  });
+  );
 
   /**
    * @description
@@ -360,14 +361,14 @@ function RenderStream(scope, options) {
    */
   this.addMeta = this.asyncify(this._addMeta =
     function addMeta(name, value, attributes) {
-
-    this.meta[name] = {
-      name: name,
-      value: value,
-      attributes: attributes
-    };
-    return this;
-  });
+      this.meta[name] = {
+        name: name,
+        value: value,
+        attributes: attributes
+      };
+      return this;
+    }
+  );
 
   /**
    * @description
@@ -375,19 +376,23 @@ function RenderStream(scope, options) {
    */
   this.renderMeta = this.asyncify(this._renderMeta =
     function renderMeta() {
-
-    for (var name in this.meta) {
-      var meta = this.meta[name];
-      var attributes = meta.attributes || {};
-      if (meta.name) attributes.name = meta.name;
-      if (meta.value) attributes.content = meta.value;
-      this.push('  ');
-      this.tag('meta', attributes);
-      this.push('\r\n');
+      for (var name in this.meta) {
+        var meta = this.meta[name];
+        var attributes = meta.attributes || {};
+        if (meta.name) attributes.name = meta.name;
+        if (meta.value) attributes.content = meta.value;
+        this.push('  ');
+        this.tag('meta', attributes);
+        this.push('\r\n');
+      }
+      return this;
     }
-    return this;
-  });
+  );
 };
+
+var stream = require('stream');
+var Transform = stream.Transform;
+util.inherits(RenderStream, Transform);
 
 RenderStream.feature = 'render-stream';
 RenderStream.scope = 'request';
