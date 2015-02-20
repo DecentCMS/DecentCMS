@@ -1,9 +1,6 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
-
 /**
  * @description
  * A rendering strategy that uses templates files, going through view engines.
@@ -11,6 +8,9 @@ var path = require('path');
  * @constructor
  */
 function TemplateRenderingStrategy(scope) {
+  var fs = require('fs');
+  var path = require('path');
+
   this.scope = scope;
   var fileResolver = scope.require('file-resolution');
   var shapeHelper = scope.require('shape');

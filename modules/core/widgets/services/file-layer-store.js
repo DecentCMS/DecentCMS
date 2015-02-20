@@ -1,9 +1,6 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-var path = require('path');
-var fs = require('fs');
-
 /**
  * @description
  * Gets the widget layers from the site's widget/index.json
@@ -42,6 +39,9 @@ function setLayers(context, layers, next) {
  * @param {function} next The next function in the call chain, called when the layers have been read.
  */
 FileLayerStore.prototype.loadLayers = function loadLayersFromFile(context, next) {
+  var path = require('path');
+  var fs = require('fs');
+
   if (this.layers) {
     setLayers(context, this.layers, next);
     return;

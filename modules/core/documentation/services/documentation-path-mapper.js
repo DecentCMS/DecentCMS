@@ -1,6 +1,5 @@
 // DecentCMS (c) 2015 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-var path = require('path');
 
 /**
  * Maps documentation topic ids onto the relevant file, in the right module.
@@ -23,6 +22,7 @@ DocumentationPathMapper.scope = 'shell';
  * @returns {string[]} The list of possible paths for a file describing the topic.
  */
 DocumentationPathMapper.prototype.mapIdToPath = function mapDocumentationIdToPath(root, id) {
+  var path = require('path');
   if (root !== 'docs') return null;
   var idParts = id.split('/');
   var moduleName = idParts[0];

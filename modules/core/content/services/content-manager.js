@@ -1,8 +1,6 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-var async = require('async');
-
 /**
  * @description
  * The ContentManager is responsible for facilitating the usage of content items,

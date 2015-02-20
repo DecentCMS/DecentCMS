@@ -1,9 +1,6 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-var express = require('express');
-var ExpressApp = require('../lib/express-app');
-
 /**
  * @description
  * A route handler that delegates to Express.
@@ -11,6 +8,9 @@ var ExpressApp = require('../lib/express-app');
  * @constructor
  */
 function ExpressRouteHandler(scope) {
+  var express = require('express');
+  var ExpressApp = require('../lib/express-app');
+
   var app = this.app = express();
   var expressApp = this.expressApp = new ExpressApp(app, scope);
   scope.register('express-app', expressApp);

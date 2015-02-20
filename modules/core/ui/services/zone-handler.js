@@ -1,8 +1,6 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-var async = require('async');
-
 /**
  * @description
  * The zone handler will render the child shapes found under
@@ -13,10 +11,12 @@ var ZoneHandler = {
   service: 'shape-handler',
   handle: function handleZone(context, done) {
     var request = context.scope;
+
     var zone = context.shape;
     if (!zone.temp) return;
 
     var items = zone.temp.items || [];
+    var async = require('async');
     async.each(
       items,
       function(item, next) {

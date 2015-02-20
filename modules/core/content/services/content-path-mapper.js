@@ -1,6 +1,5 @@
 // DecentCMS (c) 2015 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-var path = require('path');
 
 /**
  * Maps a content item's id to the list of file paths that could
@@ -22,7 +21,9 @@ ContentPathMapper.scope = 'shell';
  * @returns {string[]} The list of possible paths for a file describing the item.
  */
 ContentPathMapper.prototype.mapIdToPath = function mapContentIdToPath(root, id) {
+  var path = require('path');
   var shell = this.scope.require('shell');
+
   var siteDataRoot = shell.rootPath;
   var itemFolderPath = path.join(siteDataRoot, root, id);
   // First look for a id/index.json file, then id/index.yaml, then id/index.yaml.md,

@@ -1,9 +1,5 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-var path = require('path');
-var fs = require('fs');
-
-var sepExp = new RegExp(path.sep.replace(/\\/g, '\\\\'), 'g');
 
 /**
  * @description
@@ -23,6 +19,11 @@ var fileContentEnumerator = {
    *   It takes a callback function as its parameter
    */
   getItemEnumerator: function(context) {
+    var path = require('path');
+    var fs = require('fs');
+
+    var sepExp = new RegExp(path.sep.replace(/\\/g, '\\\\'), 'g');
+
     var scope = context.scope;
     var idFilter = typeof(context.idFilter) === 'string'
       ? new RegExp(context.idFilter)

@@ -1,6 +1,5 @@
 // DecentCMS (c) 2015 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-var path = require('path');
 
 /**
  * A service that translates file names into human-readable strings.
@@ -16,6 +15,7 @@ var fileNameToString = {
    * @returns {string} The human-readable string.
    */
   transform: function(fileName) {
+    var path = require('path');
     var fileNameWithoutExtension = path.basename(fileName, path.extname(fileName));
     return fileNameWithoutExtension[0].toUpperCase()
       + fileNameWithoutExtension.substr(1).replace(/-/g, ' ');

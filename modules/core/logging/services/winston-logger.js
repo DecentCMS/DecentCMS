@@ -3,14 +3,14 @@
 
 // TODO: querying the logs
 
-var winston = require('winston');
-
 /**
  * @description
  * A logging service that uses Winston.
  * @constructor
  */
 function WinstonLogger(scope) {
+  var winston = require('winston');
+
   var self = this;
   self.scope = scope;
   self.t = scope.require('localization');
