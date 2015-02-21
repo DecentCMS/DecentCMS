@@ -1,11 +1,5 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-var path = require('path');
-var fs = require('fs');
-var async = require('async');
-var YAML = require('yamljs');
-var Snippable = require('snippable');
-var snippable = new Snippable();
 
 /**
  * @description
@@ -16,12 +10,14 @@ var snippable = new Snippable();
  * @returns {object} The parsed content item.
  */
 function parseYamlMarkdown(data) {
+  var Snippable = require('snippable');
+  var snippable = new Snippable();
   var parts = snippable.parse(data, ['yaml', 'md']);
   var item = parts[0];
   var md = parts[1];
   item.body = {
     flavor: 'markdown',
-    _data: md
+    text: md
   };
   return item;
 }
@@ -36,14 +32,15 @@ var jsonYamlMarkdownFileParser = {
   scope: 'shell',
   extensions: ['.json', '.yaml', '.yaml.md'],
   parse: function parseJsonYamlMarkdown(context, nextParser) {
-    var path = context.path;
-    var ext = path.substr(-5);
+    var YAML = require('yamljs');
+    var filePath = context.path;
+    var ext = filePath.substr(-5);
     var data = context.data;
     var item = ext === '.json'
       ? JSON.parse(data)
       : ext === '.yaml'
       ? YAML.parse(data)
-      : path.substr(-8) === '.yaml.md'
+      : filePath.substr(-8) === '.yaml.md'
       ? parseYamlMarkdown(data)
       : null;
     if (item) {
