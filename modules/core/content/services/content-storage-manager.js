@@ -1,11 +1,9 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-var async = require('async');
-
 /**
  * @description
- * The ContentStorageManager is responsible for the content retrieval and rendering lifecycle.
+ * The ContentStorageManager is responsible for the content retrieval.
  */
 function ContentStorageManager(scope) {
   this.scope = scope;
