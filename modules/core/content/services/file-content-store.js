@@ -1,8 +1,5 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-var path = require('path');
-var fs = require('fs');
-var async = require('async');
 
 /**
  * @description
@@ -27,14 +24,25 @@ var fileContentStore = {
    *   It should take an error as its parameter.
    */
   loadItems: function loadItems(context, nextStore) {
+    var path = require('path');
+    var fs = require('fs');
+    var async = require('async');
+
     var scope = context.scope;
     var shapeHelper = scope.require('shape');
     var shell = scope.require('shell');
+    var log = scope.require('log');
 
     var items = context.items = context.items || {};
     var itemsToFetch = context.itemsToFetch;
 
     var handle = function handleItemData(id, filePath, item, callback) {
+      if (!item) {
+        var error = new Error("File content store can't process an undefined item.", filePath);
+        log.error(error);
+        callback(error);
+        return;
+      }
       // Default content type is page:
       var meta = item.meta = item.meta || {};
       meta.type = meta.type || 'page';
@@ -50,6 +58,7 @@ var fileContentStore = {
             var extraFilePath = path.join(path.dirname(filePath), part.src);
             fs.readFile(extraFilePath, function extraFileRead(err, data) {
               if (err) {
+                log.error("Couldn't read extra file from file content store.", err);
                 callback(err);
                 return;
               }
@@ -63,6 +72,7 @@ var fileContentStore = {
         },
         function allExtraFilesRead(err) {
           if (err) {
+            log.error("Error while reading extra files.", err);
             callback(err);
             return;
           }
@@ -110,7 +120,11 @@ var fileContentStore = {
           if (fs.existsSync(p)) {
             found = true;
             fs.readFile(p, function readItemFile(err, data) {
-              if (err) {nextStore(err); return;}
+              if (err) {
+                log.error("Couldn't read item file from file content store.", err);
+                nextStore(err);
+                return;
+              }
               var parserContext = {
                 scope: scope,
                 path: p,
@@ -119,7 +133,11 @@ var fileContentStore = {
               scope.callService(
                 'content-file-parser', 'parse',
                 parserContext,
-                function fileParsed() {
+                function fileParsed(err) {
+                  if (err) {
+                    log.error("File couldn't be parsed by the file content parser.", err);
+                    next(err);
+                  }
                   var item = parserContext.item;
                   handle(id, p, item, next);
                 });
