@@ -228,7 +228,6 @@ describe('File Index', function() {
         ]);
         done();
       });
-      done();
     });
   });
 
