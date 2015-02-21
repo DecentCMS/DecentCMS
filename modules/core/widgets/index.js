@@ -3,5 +3,6 @@
 
 module.exports = {
   FileLayerStore: require('./services/file-layer-store'),
-  WidgetRouteHandler: require('./services/widget-route-handler')
+  WidgetRouteHandler: require('./services/widget-route-handler'),
+  UrlLayerRule: require('./services/url-layer-rule-context-builder')
 };
