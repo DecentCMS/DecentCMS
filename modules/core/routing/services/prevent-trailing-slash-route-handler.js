@@ -18,6 +18,7 @@ var PreventTrailingSlashRouteHandler = {
         var p = request.path;
         if (p.length > 1 && p[p.length - 1] === '/') {
           response.redirect(301, p.substr(0, p.length - 1));
+          return;
         }
         next();
       });
