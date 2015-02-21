@@ -16,8 +16,9 @@ var async = require('async');
  *   the item that was used to build the index entries.
  * @param {Function} [orderBy] The function that defines the order
  *   on which the index entry should be sorted.
- *   It takes two index entries A and B, and returns -1 if A comes before B,
- *   and +1 if A comes after B.
+ *   The sort order can be a simple string, date, number, or it can be an array,
+ *   in which case the items in the array will be used one after the other.
+ *   It takes an index entry, and returns the sort order.
  * @constructor
  */
 function FileIndex(scope, idFilter, map, orderBy) {
@@ -40,13 +41,9 @@ function FileIndex(scope, idFilter, map, orderBy) {
   if (!fs.existsSync(indexPath)) {
     fs.mkdirSync(indexPath);
   }
-  var thatIndexPath = path.join(indexPath, this.name) + '.json';
+  var thatIndexPath = this.indexPath = path.join(indexPath, this.name) + '.json';
   if (fs.existsSync(thatIndexPath)) {
     this._index = require(thatIndexPath);
-  }
-  else {
-    // Otherwise, start building it
-    this.build();
   }
 }
 
@@ -139,6 +136,20 @@ FileIndex.prototype.reduce = function reduce(where, reduce, initialValue, done) 
   done(val);
 };
 
+FileIndex.prototype._compare = function compare(a, b) {
+  a = this.orderBy(a);
+  b = this.orderBy(b);
+  a = Array.isArray(a) ? a : [a];
+  b = Array.isArray(b) ? b : [b];
+  for (var i = 0; i < a.length && i < b.length; i++) {
+    var ai = a[i];
+    var bi = b[i];
+    if ((!ai && bi) || ai < bi) return -1;
+    if ((!bi && ai) || bi < ai) return 1;
+  }
+  return a.length - b.length;
+};
+
 /**
  * Adds index entries to the provided internal index.
  * @param {Array} index The internal index array to which the entries
@@ -160,7 +171,7 @@ FileIndex.prototype._addToIndex = function addToIndex(index, indexEntries, id, s
       indexEntries.forEach(function(newEntry) {
         for (var i = 0, existingEntry = index[0];
              i < index.length; i++, existingEntry = index[i]) {
-          if (self.orderBy(existingEntry, newEntry) === 1) {
+          if (self._compare(existingEntry, newEntry) > 0) {
             index.splice(i, 0, newEntry);
             break;
           }
@@ -181,6 +192,7 @@ FileIndex.prototype._addToIndex = function addToIndex(index, indexEntries, id, s
  */
 FileIndex.prototype.build = function build() {
   var self = this;
+  var log = self.scope.require('log');
   var unsortedIndex = self._unsortedIndex = [];
   var context = {
     scope: self.scope,
@@ -191,10 +203,12 @@ FileIndex.prototype.build = function build() {
     var iterate = store.getItemEnumerator(context);
     var iterator = function forEachItem(err, item) {
       if (err) {
+        log.error('Item enumeration failed.', {item: item ? item.id : 'unknown', iterating: iterate.name})
         next(err);
         return;
       }
       if (item) {
+        log.info('Indexing item', {item: item.id});
         var indexEntries = self.map(item);
         self._addToIndex(unsortedIndex, indexEntries, item.id);
         iterate(iterator);
@@ -206,7 +220,7 @@ FileIndex.prototype.build = function build() {
     iterate(iterator)
   }, function() {
     // We have all the items. Now sort.
-    self._index = unsortedIndex.sort(self.orderBy);
+    self._index = self.orderBy ? unsortedIndex.sort(self._compare.bind(self)) : unsortedIndex;
     self._unsortedIndex = null;
     // And finally, persist.
     self._persistIndex();
@@ -218,13 +232,7 @@ FileIndex.prototype.build = function build() {
  * @private
  */
 FileIndex.prototype._persistIndex = function() {
-  var shell = this.scope.require('shell');
-  var indexPath = path.resolve(shell.rootPath, 'index');
-  if (!fs.existsSync(indexPath)) {
-    fs.mkdirSync(indexPath);
-  }
-  var thatIndexPath = path.join(indexPath, this.name);
-  fs.writeFileSync(thatIndexPath + '.json', JSON.stringify(this._index, null, 0));
+  fs.writeFileSync(this.indexPath, JSON.stringify(this._index, null, 2));
 };
 
 /**
@@ -272,6 +280,7 @@ FileIndex.prototype.updateWith = function updateWith(item) {
     // Do the same with the index currently in use.
     this._removeExistingEntries(this._index, item.id);
     this._addToIndex(this._index, indexEntries, item.id, true);
+    this._persistIndex();
   }
 };
 
@@ -281,7 +290,10 @@ FileIndex.prototype.updateWith = function updateWith(item) {
  */
 FileIndex.prototype.remove = function remove(item) {
   if (this._unsortedIndex) this._removeExistingEntries(this._unsortedIndex, item.id);
-  if (this._index) this._removeExistingEntries(this._index, item.id);
+  if (this._index) {
+    this._removeExistingEntries(this._index, item.id);
+    this._persistIndex();
+  }
 };
 
 /**
@@ -329,15 +341,20 @@ FileIndexFactory.scope = 'shell';
  *   returns null, an index entry, or an array of index entries.
  * @param {Function} [orderBy] The function that defines the order
  *   on which the index entries should be sorted.
- *   It takes two index entries A and B, and returns -1 if A comes before B,
- *   zero if they are at the same sort order, and +1 if A comes after B.
+ *   It takes an index entry, and returns the sort order.
+ *   The sort order can be a simple string, date, number, or it can be an array,
+ *   in which case the items in the array will be used one after the other.
  *   It is recommended to name the order function.
  * @returns {object} The index object.
  */
 FileIndexFactory.prototype.getIndex = function getIndex(idFilter, map, orderBy) {
   var name = FileIndex._toName(idFilter, map, orderBy);
   if (this.indexes[name]) return this.indexes[name];
-  return this.indexes[name] = new FileIndex(this.scope, idFilter, map, orderBy);
+  var index = this.indexes[name] = new FileIndex(this.scope, idFilter, map, orderBy);
+  if (!index._index && !index._unsortedIndex) {
+    process.nextTick(index.build.bind(index));
+  }
+  return index;
 };
 
 FileIndexFactory._toName = FileIndex._toName;
