@@ -1,20 +1,18 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-var async = require('async');
-
 /**
  * @description
- * The ContentStorageManager is responsible for the content retrieval and rendering lifecycle.
+ * The ContentRenderer is responsible for the content item rendering lifecycle.
  */
-function ContentStorageManager(scope) {
+function ContentRenderer(scope) {
   this.scope = scope;
   scope.shapes = scope.shapes || [];
 }
-ContentStorageManager.feature = 'content';
-ContentStorageManager.service = 'renderer';
-ContentStorageManager.scope = 'request';
-ContentStorageManager.isScopeSingleton = true;
+ContentRenderer.feature = 'content';
+ContentRenderer.service = 'renderer';
+ContentRenderer.scope = 'request';
+ContentRenderer.isScopeSingleton = true;
 
 /**
  * @description
@@ -27,7 +25,7 @@ ContentStorageManager.isScopeSingleton = true;
  * @param {string} [options.displayType] The display type to use when
  * rendering the shape.
  */
-ContentStorageManager.prototype.promiseToRender = function promiseToRender(options) {
+ContentRenderer.prototype.promiseToRender = function promiseToRender(options) {
   var scope = this.scope;
   if (!scope.shapes) {
     scope.shapes = [];
@@ -70,8 +68,9 @@ ContentStorageManager.prototype.promiseToRender = function promiseToRender(optio
  * @param {ServerResponse}  [context.response] The response.
  * @param {Function} pageBuilt The function to call when the page has been rendered.
  */
-ContentStorageManager.prototype.render = function render(context, pageBuilt) {
+ContentRenderer.prototype.render = function render(context, pageBuilt) {
   var scope = this.scope;
+  var log = scope.require('log');
   var response = context.response;
   var shapes = scope.shapes;
   var layout = scope.layout = {
@@ -106,9 +105,9 @@ ContentStorageManager.prototype.render = function render(context, pageBuilt) {
     'shape-handler', 'handle',
     // Call for meta, script, and style sheet registration
     function registerMetaStyleAndScript(options, done) {
-      scope.emit(ContentStorageManager.registerMetaEvent, {renderStream: renderStream});
-      scope.emit(ContentStorageManager.registerStyleEvent, {renderStream: renderStream});
-      scope.emit(ContentStorageManager.registerScriptEvent, {renderStream: renderStream});
+      scope.emit(ContentRenderer.registerMetaEvent, {renderStream: renderStream});
+      scope.emit(ContentRenderer.registerStyleEvent, {renderStream: renderStream});
+      scope.emit(ContentRenderer.registerScriptEvent, {renderStream: renderStream});
       done();
     },
     // Render
@@ -120,17 +119,22 @@ ContentStorageManager.prototype.render = function render(context, pageBuilt) {
     shapes: shapes,
     renderStream: renderStream
   }, function contentRenderingDone(err) {
+    if (err) {
+      log.error('Error during content rendering', err);
+      pageBuilt(err);
+      return;
+    }
     // Tear down
     renderStream.end();
-    pageBuilt(err);
+    pageBuilt();
   });
 };
 
 /**
  * Calls for meta tag registering.
  */
-ContentStorageManager.registerMetaEvent = 'decent.core.register-meta';
-ContentStorageManager.registerMetaEvent.payload = {
+ContentRenderer.registerMetaEvent = 'decent.core.register-meta';
+ContentRenderer.registerMetaEvent_payload = {
   /**
    * The render stream that handles the html to render.
    */
@@ -140,8 +144,8 @@ ContentStorageManager.registerMetaEvent.payload = {
 /**
  * Calls for style sheet registering.
  */
-ContentStorageManager.registerStyleEvent = 'decent.core.register-style';
-ContentStorageManager.registerStyleEvent.payload = {
+ContentRenderer.registerStyleEvent = 'decent.core.register-style';
+ContentRenderer.registerStyleEvent_payload = {
   /**
    * The render stream that handles the html to render.
    */
@@ -151,12 +155,12 @@ ContentStorageManager.registerStyleEvent.payload = {
 /**
  * Calls for script registering.
  */
-ContentStorageManager.registerScriptEvent = 'decent.core.register-script';
-ContentStorageManager.registerScriptEvent.payload = {
+ContentRenderer.registerScriptEvent = 'decent.core.register-script';
+ContentRenderer.registerScriptEvent_payload = {
   /**
    * The render stream that handles the html to render.
    */
   renderStream: 'RenderStream'
 };
 
-module.exports = ContentStorageManager;
+module.exports = ContentRenderer;
