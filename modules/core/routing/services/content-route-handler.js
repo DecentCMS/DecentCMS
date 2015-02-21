@@ -20,7 +20,8 @@ var ContentRouteHandler = {
         contentRenderer.promiseToRender({
           request: request,
           id: request.path,
-          displayType: 'main'
+          displayType: 'main',
+          place: 'main:1'
         });
         request.routed = true;
         next();
