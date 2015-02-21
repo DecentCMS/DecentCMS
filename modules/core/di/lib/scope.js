@@ -1,6 +1,7 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
+// TODO: enable global require for non-DecentCMS dependencies, so we can load them only once, save on memory and ramp-up times. Should be fine for common libraries such as async.
 // TODO: maybe, inject scope by property rather than constructor, to remove the requirement for service implementers to implement a constructor with scope as the parameter.
 
 var async = require('async');
@@ -281,22 +282,6 @@ function scope(name, objectToScope, services, parentScope) {
     return function lifecycle(options, done) {
       async.applyEachSeries(methodArray, options, done);
     };
-  };
-
-  /**
-   * @description
-   * Removes all the members that were mixed-in by the original call to scope.
-   */
-  objectToScope.tearDown = function tearDown() {
-    delete this.services;
-    delete this.instances;
-    this.require = function() {return null;};
-    this.getServices = function() {return [];};
-    this.callService = function(s, m, c, done) {done();};
-    this.lifecycle = function() {return function(c, done) {done();};};
-    delete this.tearDown;
-    delete this._scopeInitialized;
-    this.isTornDown = true;
   };
 
   objectToScope.instances = {};
