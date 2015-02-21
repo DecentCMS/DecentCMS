@@ -62,7 +62,7 @@ var fileContentStore = {
                 callback(err);
                 return;
               }
-              part._data = data.toString();
+              part.text = data.toString();
               next();
             });
           }

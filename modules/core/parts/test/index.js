@@ -13,7 +13,7 @@ describe('Text Part Handler', function() {
       title: 'Foo',
       body: {
         src: 'body.md',
-        _data: 'Lorem ipsum'
+        text: 'Lorem ipsum'
       },
       summary: 'Lorem',
       disclaimer: {

@@ -240,7 +240,7 @@ describe('JsDoc File Parser', function() {
       expect(context.item.feature).to.equal('some feature');
       expect(context.item.service).to.equal('some service');
       expect(context.item.body.flavor).to.equal('markdown');
-      expect(context.item.body._data).to.equal('<a name=\"foo\"></a>\n## foo()\nA function\n\n');
+      expect(context.item.body.text).to.equal('<a name=\"foo\"></a>\n## foo()\nA function\n\n');
       done();
     });
   });

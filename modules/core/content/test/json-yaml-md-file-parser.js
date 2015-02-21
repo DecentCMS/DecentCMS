@@ -34,7 +34,7 @@ describe('JSON YAML MD File Parser', function() {
     parser.parse(context, function() {
       expect(context.item.foo).to.equal('bar');
       expect(context.item.body.flavor).to.equal('markdown');
-      expect(context.item.body._data).to.equal('Some *Markdown*');
+      expect(context.item.body.text).to.equal('Some *Markdown*');
       done();
     });
   });

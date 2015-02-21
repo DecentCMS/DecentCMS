@@ -93,7 +93,7 @@ var jsDocContentFileParser = {
         source: source,
         body: {
           flavor: 'markdown',
-          _data: md.join()
+          text: md.join()
         }
       };
       nextStore();

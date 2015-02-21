@@ -27,9 +27,6 @@ var TextPart = {
       var text = typeof(part) === 'string'
         ? part
         : part.text;
-      if (!text && part._data) {
-        text = part._data;
-      }
       var flavor = part.flavor
         || (part.src ? path.extname(part.src).substr(1) : 'plain-text');
       temp.shapes.push({

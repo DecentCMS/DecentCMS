@@ -149,7 +149,7 @@ describe('File Content Store', function() {
       expect(items['/'].meta.type).to.equal('page');
       expect(items['/bar/baz'].title).to.equal('Foo');
       expect(items['/bar/baz'].meta.type).to.equal('other-type');
-      expect(items['/bar/baz'].body._data).to.equal('*markdown*');
+      expect(items['/bar/baz'].body.text).to.equal('*markdown*');
       done();
     });
   });
@@ -172,7 +172,7 @@ describe('File Content Store', function() {
       expect(itemIdsRead)
         .to.deep.equal(['/bar/yaml']);
       expect(items['/bar/yaml'].title).to.equal('Foo YAML');
-      expect(items['/bar/yaml'].body._data).to.equal('YAML *markdown*');
+      expect(items['/bar/yaml'].body.text).to.equal('YAML *markdown*');
       done();
     });
   });
@@ -195,7 +195,7 @@ describe('File Content Store', function() {
       expect(itemIdsRead)
         .to.deep.equal(['/bar/multipart']);
       expect(items['/bar/multipart'].title).to.equal('Foo multipart');
-      expect(items['/bar/multipart'].body._data).to.equal('multipart *markdown*');
+      expect(items['/bar/multipart'].body.text).to.equal('multipart *markdown*');
       done();
     });
   });
@@ -273,7 +273,7 @@ describe('File Content Enumerator', function() {
           },
           "bar/baz": {
             "body": {
-              "_data": "*markdown*",
+              "text": "*markdown*",
               "src": "baz.md"
             },
             "id": "bar/baz",
@@ -287,7 +287,7 @@ describe('File Content Enumerator', function() {
           },
           "bar/multipart": {
             "body": {
-              "_data": "multipart *markdown*",
+              "text": "multipart *markdown*",
               "flavor": "markdown"
             },
             "id": "bar/multipart",
@@ -301,7 +301,7 @@ describe('File Content Enumerator', function() {
           },
           "bar/yaml": {
             "body": {
-              "_data": "YAML *markdown*",
+              "text": "YAML *markdown*",
               "src": "yaml.md"
             },
             "id": "bar/yaml",
