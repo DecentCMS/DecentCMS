@@ -11,7 +11,7 @@ describe('Dust View Engine', function() {
     done(null, template);
   };
   readFile['@noCallThru'] = true;
-  var dustViewEngine = proxyquire('../services/dust-view-engine', {
+  var DustViewEngine = proxyquire('../services/dust-view-engine', {
     fs: {
       readFile: readFile
     }
@@ -36,6 +36,7 @@ describe('Dust View Engine', function() {
       }
     }
   };
+  var dustViewEngine = new DustViewEngine(scope);
   var html;
   var renderer = new RenderStream(scope);
   renderer.on('data', function(chunk) {

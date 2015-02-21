@@ -148,21 +148,21 @@ describe('Prevent trailing slash route handler', function() {
       }
     };
     handler({path: '/foo/bar/baz/'}, response, function () {
-      expect(redirect.code).to.equal(301);
-      expect(redirect.url).to.equal('/foo/bar/baz');
+    });
+    expect(redirect.code).to.equal(301);
+    expect(redirect.url).to.equal('/foo/bar/baz');
+
+    redirect = {};
+    handler({path: '/foo/bar/baz'}, response, function () {
+      expect(redirect.code).to.not.be.ok;
+      expect(redirect.url).to.not.be.ok;
 
       redirect = {};
-      handler({path: '/foo/bar/baz'}, response, function () {
+      handler({path: '/'}, response, function() {
         expect(redirect.code).to.not.be.ok;
         expect(redirect.url).to.not.be.ok;
 
-        redirect = {};
-        handler({path: '/'}, response, function() {
-          expect(redirect.code).to.not.be.ok;
-          expect(redirect.url).to.not.be.ok;
-
-          done();
-        });
+        done();
       });
     });
   });

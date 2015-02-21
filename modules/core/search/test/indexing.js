@@ -76,10 +76,8 @@ describe('File Index', function() {
   }
   // Order by function that will return the items starting
   // with the second, then adds the first to the end.
-  var orderBy = function orderByIndexOffByOne(item1, item2) {
-    var index1 = (item1.index + 1) % nbItems;
-    var index2 = (item2.index + 1) % nbItems;
-    return index1 < index2 ? -1 : index1 === index2 ? 0 : 1;
+  var orderBy = function orderByIndexOffByOne(item) {
+    return (item.index + 1) % nbItems;
   };
   // A map function that returns null
   var mapNull = function mapNull() {return null;};
@@ -112,6 +110,7 @@ describe('File Index', function() {
   // Stub services
   var services = {
     shell: shell,
+    log: {info: function() {}},
     'content-enumerator': {
       getItemEnumerator: function(context) {
         return function(iterator) {
@@ -147,13 +146,16 @@ describe('File Index', function() {
     indexFactory.indexes = {};
   });
 
-  it("builds the index if it doesn't exist on disk", function() {
+  it("builds the index if it doesn't exist on disk", function(done) {
     var index = indexFactory.getIndex(mapNull, orderBy);
 
-    expect(newDir).to.equal(path.resolve(shell.rootPath, 'index'));
-    expect(newFiles[nullPath]).to.equal('[]');
-    expect(index._index).to.deep.equal([]);
-    expect(index._unsortedIndex).to.not.be.ok;
+    process.nextTick(function() {
+      expect(newDir).to.equal(path.resolve(shell.rootPath, 'index'));
+      expect(newFiles[nullPath]).to.equal('[]');
+      expect(index._index).to.deep.equal([]);
+      expect(index._unsortedIndex).to.not.be.ok;
+      done();
+    });
   });
 
   it("yields the same index for the same map and order", function() {
@@ -170,50 +172,62 @@ describe('File Index', function() {
     expect(index._index.val).to.equal('null index cache');
   });
 
-  it("builds the index from content items in the right order", function() {
+  it("builds the index from content items in the right order", function(done) {
     var index = indexFactory.getIndex(mapSingleEntry, orderBy);
 
-    expect(index._index).to.deep.equal([
-      {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
-      {indexedFoo: 'fooitem3', itemId: 'item3', index: 3},
-      {indexedFoo: 'fooitem1', itemId: 'item1', index: 1}
-    ]);
+    process.nextTick(function() {
+      expect(index._index).to.deep.equal([
+        {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
+        {indexedFoo: 'fooitem3', itemId: 'item3', index: 3},
+        {indexedFoo: 'fooitem1', itemId: 'item1', index: 1}
+      ]);
+      done();
+    });
   });
 
-  it("can get multiple entries from each item", function() {
+  it("can get multiple entries from each item", function(done) {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
 
-    expect(index._index).to.deep.equal([
-      {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
-      {indexedFoo: 'baritem2', itemId: 'item2', index: 2},
-      {indexedFoo: 'fooitem3', itemId: 'item3', index: 3},
-      {indexedFoo: 'baritem3', itemId: 'item3', index: 3},
-      {indexedFoo: 'fooitem1', itemId: 'item1', index: 1},
-      {indexedFoo: 'baritem1', itemId: 'item1', index: 1}
-    ]);
+    process.nextTick(function() {
+      expect(index._index).to.deep.equal([
+        {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
+        {indexedFoo: 'baritem2', itemId: 'item2', index: 2},
+        {indexedFoo: 'fooitem3', itemId: 'item3', index: 3},
+        {indexedFoo: 'baritem3', itemId: 'item3', index: 3},
+        {indexedFoo: 'fooitem1', itemId: 'item1', index: 1},
+        {indexedFoo: 'baritem1', itemId: 'item1', index: 1}
+      ]);
+      done();
+    });
   });
 
-  it("can filter ids", function() {
+  it("can filter ids", function(done) {
     var index = indexFactory.getIndex(
       /^item(2|1)$/, mapSingleEntry, orderBy);
 
-    expect(index._index).to.deep.equal([
-      {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
-      {indexedFoo: 'fooitem1', itemId: 'item1', index: 1}
-    ]);
+    process.nextTick(function() {
+      expect(index._index).to.deep.equal([
+        {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
+        {indexedFoo: 'fooitem1', itemId: 'item1', index: 1}
+      ]);
+      done();
+    });
   });
 
   it('can filter the index', function(done) {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
 
-    index.filter(function(entry) {
-      return entry.indexedFoo.substr(0, 3) === 'bar';
-    }, function(entries) {
-      expect(entries).to.deep.equal([
-        {indexedFoo: 'baritem2', itemId: 'item2', index: 2},
-        {indexedFoo: 'baritem3', itemId: 'item3', index: 3},
-        {indexedFoo: 'baritem1', itemId: 'item1', index: 1}
-      ]);
+    process.nextTick(function() {
+      index.filter(function(entry) {
+        return entry.indexedFoo.substr(0, 3) === 'bar';
+      }, function(entries) {
+        expect(entries).to.deep.equal([
+          {indexedFoo: 'baritem2', itemId: 'item2', index: 2},
+          {indexedFoo: 'baritem3', itemId: 'item3', index: 3},
+          {indexedFoo: 'baritem1', itemId: 'item1', index: 1}
+        ]);
+        done();
+      });
       done();
     });
   });
@@ -221,141 +235,168 @@ describe('File Index', function() {
   it('can specify a start index for a filtered index', function(done) {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
 
-    index.filter(function(entry) {
-      return entry.indexedFoo.substr(0, 3) === 'bar';
-    }, 1, function(entries) {
-      expect(entries).to.deep.equal([
-        {indexedFoo: 'baritem3', itemId: 'item3', index: 3},
-        {indexedFoo: 'baritem1', itemId: 'item1', index: 1}
-      ]);
-      done();
+    process.nextTick(function() {
+      index.filter(function(entry) {
+        return entry.indexedFoo.substr(0, 3) === 'bar';
+      }, 1, function(entries) {
+        expect(entries).to.deep.equal([
+          {indexedFoo: 'baritem3', itemId: 'item3', index: 3},
+          {indexedFoo: 'baritem1', itemId: 'item1', index: 1}
+        ]);
+        done();
+      });
     });
   });
 
   it('can specify a range for a filtered index', function(done) {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
 
-    index.filter(function(entry) {
-      return entry.index < 3;
-    }, 1, 2, function(entries) {
-      expect(entries).to.deep.equal([
-        {indexedFoo: 'baritem2', itemId: 'item2', index: 2},
-        {indexedFoo: 'fooitem1', itemId: 'item1', index: 1}
-      ]);
-      done();
+    process.nextTick(function() {
+      index.filter(function(entry) {
+        return entry.index < 3;
+      }, 1, 2, function(entries) {
+        expect(entries).to.deep.equal([
+          {indexedFoo: 'baritem2', itemId: 'item2', index: 2},
+          {indexedFoo: 'fooitem1', itemId: 'item1', index: 1}
+        ]);
+        done();
+      });
     });
   });
 
   it('can reduce an index', function(done) {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
 
-    index.reduce(function(val, entry) {
-      return val + entry.index;
-    }, 0, function(aggregated) {
-      expect(aggregated).to.equal(12);
-      done();
+    process.nextTick(function() {
+      index.reduce(function(val, entry) {
+        return val + entry.index;
+      }, 0, function(aggregated) {
+        expect(aggregated).to.equal(12);
+        done();
+      });
     });
   });
 
   it('can filter while reducing', function(done) {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
 
-    index.reduce(
-      function(entry) {
-        return entry.itemId === 'item3';
-      },
-      function(val, entry) {
-        return val + entry.index;
-      }, 0,
-      function(aggregated) {
-        expect(aggregated).to.equal(6);
-        done();
-      }
-    );
+    process.nextTick(function() {
+      index.reduce(
+        function(entry) {
+          return entry.itemId === 'item3';
+        },
+        function(val, entry) {
+          return val + entry.index;
+        }, 0,
+        function(aggregated) {
+          expect(aggregated).to.equal(6);
+          done();
+        }
+      );
+    });
   });
 
-  it('can add a new item', function() {
+  it('can add a new item', function(done) {
     var index = indexFactory.getIndex(mapSingleEntry, orderBy);
-    index._unsortedIndex = [
-      {indexedFoo: 'fooitem1', itemId: 'item1', index: 1},
-      {indexedFoo: 'fooitem2', itemId: 'item2', index: 2}
-    ];
 
-    index.updateWith({id: 'item6', index: 6});
+    process.nextTick(function() {
+      index._unsortedIndex = [
+        {indexedFoo: 'fooitem1', itemId: 'item1', index: 1},
+        {indexedFoo: 'fooitem2', itemId: 'item2', index: 2}
+      ];
 
-    expect(index._index).to.deep.equal([
-      {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
-      {indexedFoo: 'fooitem3', itemId: 'item3', index: 3},
-      {indexedFoo: 'fooitem6', itemId: 'item6', index: 6},
-      {indexedFoo: 'fooitem1', itemId: 'item1', index: 1}
-    ]);
-    expect(index._unsortedIndex).to.deep.equal([
-      {indexedFoo: 'fooitem1', itemId: 'item1', index: 1},
-      {indexedFoo: 'fooitem2', itemId: 'item2', index: 2}
-    ]);
+      index.updateWith({id: 'item6', index: 6});
+
+      expect(index._index).to.deep.equal([
+        {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
+        {indexedFoo: 'fooitem3', itemId: 'item3', index: 3},
+        {indexedFoo: 'fooitem6', itemId: 'item6', index: 6},
+        {indexedFoo: 'fooitem1', itemId: 'item1', index: 1}
+      ]);
+      expect(index._unsortedIndex).to.deep.equal([
+        {indexedFoo: 'fooitem1', itemId: 'item1', index: 1},
+        {indexedFoo: 'fooitem2', itemId: 'item2', index: 2}
+      ]);
+      done();
+    });
   });
 
-  it('can modify an existing item', function() {
+  it('can modify an existing item', function(done) {
     var index = indexFactory.getIndex(mapSingleEntry, orderBy);
-    index._unsortedIndex = [
-      {indexedFoo: 'olditem1', itemId: 'item1', index: 1},
-      {indexedFoo: 'olditem2', itemId: 'item2', index: 2},
-      {indexedFoo: 'olditem3', itemId: 'item3', index: 3}
-    ];
-    index._index.forEach(function(oldItem) {oldItem.indexedFoo = 'old';});
 
-    index.updateWith({id: 'item2', index: 2});
+    process.nextTick(function() {
+      index._unsortedIndex = [
+        {indexedFoo: 'olditem1', itemId: 'item1', index: 1},
+        {indexedFoo: 'olditem2', itemId: 'item2', index: 2},
+        {indexedFoo: 'olditem3', itemId: 'item3', index: 3}
+      ];
+      index._index.forEach(function(oldItem) {oldItem.indexedFoo = 'old';});
 
-    expect(index._index).to.deep.equal([
-      {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
-      {indexedFoo: 'old', itemId: 'item3', index: 3},
-      {indexedFoo: 'old', itemId: 'item1', index: 1}
-    ]);
-    expect(index._unsortedIndex).to.deep.equal([
-      {indexedFoo: 'olditem1', itemId: 'item1', index: 1},
-      {indexedFoo: 'olditem3', itemId: 'item3', index: 3},
-      {indexedFoo: 'fooitem2', itemId: 'item2', index: 2}
-    ]);
+      index.updateWith({id: 'item2', index: 2});
+
+      expect(index._index).to.deep.equal([
+        {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
+        {indexedFoo: 'old', itemId: 'item3', index: 3},
+        {indexedFoo: 'old', itemId: 'item1', index: 1}
+      ]);
+      expect(index._unsortedIndex).to.deep.equal([
+        {indexedFoo: 'olditem1', itemId: 'item1', index: 1},
+        {indexedFoo: 'olditem3', itemId: 'item3', index: 3},
+        {indexedFoo: 'fooitem2', itemId: 'item2', index: 2}
+      ]);
+      done();
+    });
   });
 
-  it('can remove an item', function() {
+  it('can remove an item', function(done) {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
-    index._unsortedIndex = [
-      {indexedFoo: 'olditem1', itemId: 'item1', index: 1},
-      {indexedFoo: 'olditem2', itemId: 'item2', index: 2},
-      {indexedFoo: 'olditem3', itemId: 'item3', index: 3}
-    ];
 
-    index.remove({id: 'item2', index: 2});
+    process.nextTick(function() {
+      index._unsortedIndex = [
+        {indexedFoo: 'olditem1', itemId: 'item1', index: 1},
+        {indexedFoo: 'olditem2', itemId: 'item2', index: 2},
+        {indexedFoo: 'olditem3', itemId: 'item3', index: 3}
+      ];
 
-    expect(index._index).to.deep.equal([
-      {indexedFoo: 'fooitem3', itemId: 'item3', index: 3},
-      {indexedFoo: 'baritem3', itemId: 'item3', index: 3},
-      {indexedFoo: 'fooitem1', itemId: 'item1', index: 1},
-      {indexedFoo: 'baritem1', itemId: 'item1', index: 1}
-    ]);
-    expect(index._unsortedIndex).to.deep.equal([
-      {indexedFoo: 'olditem1', itemId: 'item1', index: 1},
-      {indexedFoo: 'olditem3', itemId: 'item3', index: 3}
-    ]);
+      index.remove({id: 'item2', index: 2});
+
+      expect(index._index).to.deep.equal([
+        {indexedFoo: 'fooitem3', itemId: 'item3', index: 3},
+        {indexedFoo: 'baritem3', itemId: 'item3', index: 3},
+        {indexedFoo: 'fooitem1', itemId: 'item1', index: 1},
+        {indexedFoo: 'baritem1', itemId: 'item1', index: 1}
+      ]);
+      expect(index._unsortedIndex).to.deep.equal([
+        {indexedFoo: 'olditem1', itemId: 'item1', index: 1},
+        {indexedFoo: 'olditem3', itemId: 'item3', index: 3}
+      ]);
+      done();
+    });
   });
 
-  it('can monitor progress of indexing', function() {
+  it('can monitor progress of indexing', function(done) {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
-    index._unsortedIndex = [
-      {indexedFoo: 'olditem1', itemId: 'item1', index: 1},
-      {indexedFoo: 'olditem2', itemId: 'item2', index: 2},
-      {indexedFoo: 'olditem3', itemId: 'item3', index: 3}
-    ];
 
-    expect(index.getLength()).to.equal(6);
-    expect(index.getProgress()).to.equal(3);
+    process.nextTick(function() {
+      index._unsortedIndex = [
+        {indexedFoo: 'olditem1', itemId: 'item1', index: 1},
+        {indexedFoo: 'olditem2', itemId: 'item2', index: 2},
+        {indexedFoo: 'olditem3', itemId: 'item3', index: 3}
+      ];
+
+      expect(index.getLength()).to.equal(6);
+      expect(index.getProgress()).to.equal(3);
+      done();
+    });
   });
 
-  it('shows index length if no indexing in progress', function() {
+  it('shows index length if no indexing in progress', function(done) {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
 
-    expect(index.getLength()).to.equal(6);
-    expect(index.getProgress()).to.equal(6);
+    process.nextTick(function() {
+      expect(index.getLength()).to.equal(6);
+      expect(index.getProgress()).to.equal(6);
+      done();
+    });
   });
 });

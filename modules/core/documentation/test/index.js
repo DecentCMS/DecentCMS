@@ -220,6 +220,7 @@ describe('JsDoc File Parser', function() {
   });
 
   it('parses JavaScript files for JsDoc', function(done) {
+    this.timeout(3000);
     var context = {
       path: 'path/to/some-file-to-test.js',
       data: js,
@@ -300,7 +301,7 @@ function resolve(dirPath) {
   var dir = fileSystem;
   for (var i = 0; i < p.length; i++) {
     var sub = p[i];
-    if (!dir.items) continue;
+    if (!dir.items) return null;
     for (var j = 0; j < dir.items.length; j++) {
       if (dir.items[j].name === sub) {
         dir = dir.items[j];
@@ -312,6 +313,9 @@ function resolve(dirPath) {
 }
 var stubs = {
   fs: {
+    existsSync: function(fileOrFolderPath) {
+      return !!resolve(fileOrFolderPath);
+    },
     readdirSync: function(dirPath) {
       var dir = resolve(dirPath);
       return dir.items.map(function(item) {return item.name;});
@@ -327,12 +331,19 @@ var stubs = {
 };
 
 var scope = {
-  require: function() {
-    return {
-      moduleManifests: {
-        module1: {physicalPath: path.resolve('modules', 'module1')},
-        module2: {physicalPath: path.resolve('modules', 'module2')}
-      }
+  require: function(service) {
+    switch(service) {
+      case 'shell':
+        return {
+          moduleManifests: {
+            module1: {physicalPath: path.resolve('modules', 'module1')},
+            module2: {physicalPath: path.resolve('modules', 'module2')}
+          }
+        };
+      case 'log':
+        return {
+          info: function() {}
+        };
     }
   },
   getServices: function(service) {

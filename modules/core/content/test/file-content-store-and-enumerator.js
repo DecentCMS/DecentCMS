@@ -123,7 +123,10 @@ var services = {
   },
   "id-to-path-map": new (require('../services/content-path-mapper'))(scope),
   "content-file-parser": require('../services/json-yaml-md-file-parser'),
-  "content-store": fileContentStore
+  "content-store": fileContentStore,
+  log: {
+    error: function() {}
+  }
 };
 
 describe('File Content Store', function() {
@@ -336,7 +339,7 @@ describe('File Content Enumerator', function() {
         expect(items).to.deep.equal({
           "bar/baz": {
             "body": {
-              "_data": "*markdown*",
+              "text": "*markdown*",
               "src": "baz.md"
             },
             "id": "bar/baz",
@@ -350,7 +353,7 @@ describe('File Content Enumerator', function() {
           },
           "bar/yaml": {
             "body": {
-              "_data": "YAML *markdown*",
+              "text": "YAML *markdown*",
               "src": "yaml.md"
             },
             "id": "bar/yaml",
