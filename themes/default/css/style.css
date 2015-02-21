@@ -6729,6 +6729,90 @@ body {
   padding-top: 70px;
   padding-bottom: 30px;
 }
+.layout-lmr.left-sidebar {
+  position: relative;
+  min-height: 1px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+@media (min-width: 1200px) {
+  .layout-lmr.left-sidebar {
+    float: left;
+    width: 16.66666667%;
+  }
+}
+.layout-lmr.main {
+  position: relative;
+  min-height: 1px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+@media (min-width: 1200px) {
+  .layout-lmr.main {
+    float: left;
+    width: 66.66666667%;
+  }
+}
+.layout-lmr.right-sidebar {
+  position: relative;
+  min-height: 1px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+@media (min-width: 1200px) {
+  .layout-lmr.right-sidebar {
+    float: left;
+    width: 16.66666667%;
+  }
+}
+.layout-mr.main {
+  position: relative;
+  min-height: 1px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+@media (min-width: 1200px) {
+  .layout-mr.main {
+    float: left;
+    width: 75%;
+  }
+}
+.layout-mr.right-sidebar {
+  position: relative;
+  min-height: 1px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+@media (min-width: 1200px) {
+  .layout-mr.right-sidebar {
+    float: left;
+    width: 25%;
+  }
+}
+.layout-lm.left-sidebar {
+  position: relative;
+  min-height: 1px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+@media (min-width: 1200px) {
+  .layout-lm.left-sidebar {
+    float: left;
+    width: 25%;
+  }
+}
+.layout-lm.main {
+  position: relative;
+  min-height: 1px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+@media (min-width: 1200px) {
+  .layout-lm.main {
+    float: left;
+    width: 75%;
+  }
+}
 .navbar-brand {
   padding: 3px 15px;
 }

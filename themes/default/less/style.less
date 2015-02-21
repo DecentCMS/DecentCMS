@@ -8,6 +8,41 @@ body {
   padding-bottom: 30px;
 }
 
+.layout-lmr {
+  &.left-sidebar {
+    .make-lg-column(2);
+  }
+  &.main {
+    .make-lg-column(8);
+  }
+  &.right-sidebar {
+    .make-lg-column(2);
+  }
+}
+
+.layout-mr {
+  &.main {
+    .make-lg-column(9);
+  }
+  &.right-sidebar {
+    .make-lg-column(3);
+  }
+}
+
+.layout-lm {
+  &.left-sidebar {
+    .make-lg-column(3);
+  }
+  &.main {
+    .make-lg-column(9);
+  }
+}
+
+.layout-m {
+  &.main {
+  }
+}
+
 .navbar-brand {
   padding: 3px 15px;
   > img {
