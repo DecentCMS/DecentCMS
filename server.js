@@ -1,5 +1,8 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT license. See license.txt for licensing details.
 'use strict';
+
+// TODO: move all require statements closer to usage in order to speed up startup time. Services are required when the server boots, which slows down things for complex dependencies.
+
 var domain = require('domain');
 var http = require('http');
 var https = require('https');
@@ -23,6 +26,9 @@ if (runInCluster && cluster.isMaster) {
   });
 } else {
   var bootDomain = domain.create();
+  bootDomain.on('error', function(err) {
+    console.error('Error at boot', err.stack || err.message || err);
+  });
   bootDomain.run(function() {
     // TODO: make even booting the shells asynchronous. Incoming requests can be queued until it's done.
     // Discover all modules in the system
@@ -42,8 +48,8 @@ if (runInCluster && cluster.isMaster) {
 
   var handler = function(req, res) {
     var d = domain.create();
-    d.on('error', function(er) {
-      console.error('error', er.stack);
+    d.on('error', function(err) {
+      console.error('Unrecoverable error', err.stack || err.message || err);
       try {
         // Close down within 30 seconds
         var killTimer = setTimeout(function() {
@@ -61,12 +67,13 @@ if (runInCluster && cluster.isMaster) {
         if (runInCluster) {
           cluster.worker.disconnect();
         }
-
-        // try to send an error to the request that triggered the problem
-        res.statusCode = 500;
-        // TODO: let route handlers set headers, including powered by.
-        res.end('Oops, the server choked on this request!\n');
-        // TODO: broadcast the error to give loggers a chance to use it.
+        if (res && !res.finished) {
+          // try to send an error to the request that triggered the problem
+          res.statusCode = 500;
+          // TODO: let route handlers set headers, including powered by.
+          res.end('Oops, the server choked on this request!\n');
+          // TODO: broadcast the error to give loggers a chance to use it.
+        }
       } catch (er2) {
         // oh well, not much we can do at this point.
         console.error('Error sending 500!', er2.stack);
@@ -84,7 +91,9 @@ if (runInCluster && cluster.isMaster) {
 
     // Now run the handler function in the domain.
     d.run(function() {
-      shell.handleRequest(req, res);
+      shell.handleRequest(req, res, function() {
+        res.end('');
+      });
     });
   };
 
@@ -106,7 +115,7 @@ if (runInCluster && cluster.isMaster) {
       var host = hosts[i];
       if (shell.https) {
         var sslParamsId = (shell.key || "") + (shell.cert || "") + (shell.pfx || "");
-        server = sslParamsId in httpsServers
+        server = httpsServers.hasOwnProperty(sslParamsId)
           ? httpsServers[sslParamsId]
           : httpsServers[sslParamsId] = https.createServer({
           key: shell.key,
@@ -117,11 +126,11 @@ if (runInCluster && cluster.isMaster) {
       else {
         server = httpServer = httpServer || http.createServer(handler);
       }
-      var hostAndPort = shell.port !== '*' ? host + ':' + shell.port : host;
-      server._hostsAndPorts = server._hostsAndPorts || {};
-      if (!(hostAndPort in server._hostsAndPorts)) {
-        server.listen(shell.port === '*' ? port : shell.port, host);
-        server._hostsAndPorts[hostAndPort] = true;
+      var currentPort = shell.port !== '*' ? shell.port : port;
+      server._portsInUse = server._portsInUse || {};
+      if (!server._portsInUse.hasOwnProperty('p' + currentPort)) {
+        server._portsInUse['p' + currentPort] = true;
+        server.listen(currentPort);
       }
     }
   }
