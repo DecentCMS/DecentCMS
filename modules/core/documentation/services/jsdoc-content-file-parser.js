@@ -1,11 +1,6 @@
 // DecentCMS (c) 2015 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-var jsdoc2md = require('jsdoc-to-markdown');
-var stream = require('stream');
-var Readable = stream.Readable;
-var PassThrough = stream.PassThrough;
-
 /**
  * @description
  * A content store that uses the JsDoc inside source files.
@@ -31,14 +26,48 @@ var jsDocContentFileParser = {
    * @param {function} nextStore The callback.
    */
   parse: function parseJsDoc(context, nextStore) {
-    var path = context.path;
-    if (path.substr(-3) !== '.js') {
+    var jsdoc2md = require('jsdoc-to-markdown');
+    var stream = require('stream');
+    var path = require('path');
+    var fs = require('fs');
+    var Readable = stream.Readable;
+    var PassThrough = stream.PassThrough;
+
+    var filePath = context.path;
+    if (filePath.substr(-3) !== '.js') {
       nextStore();
       return;
     }
+    var root = path.resolve('');
+    var relativeFilePath = path.resolve(filePath).substr(root.length).replace(/\\/g, '/');
 
+    // Generate a title from the file name.
     var fileNameToString = context.scope.require('filename-to-string').transform;
-    var title = fileNameToString(path);
+    var title = fileNameToString(filePath);
+
+    // Find the closest manifest that has a repository URL
+    var currentPath = path.dirname(filePath);
+    var source = null;
+    while (currentPath.substr(0, root.length) === root.length) {
+      var repoPath = path.join(currentPath, 'package.json');
+      if (fs.existsSync(repoPath)) {
+        var repo = require(repoPath);
+        if (repo && repo.repository && repo.repository.url) {
+          var repoUrl = repo.repository.url;
+          var format = repo.repository.pathFormat
+            || '{repo-no-ext}/blob/master/{path}';
+          var tokens = context.scope.require('tokens');
+          source = tokens.interpolate(format, {
+            repo: repoUrl,
+            'repo-no-ext': repoUrl.substr(0,
+              repoUrl.length - path.extname(repoUrl).length),
+            path: relativeFilePath
+          });
+          break;
+        }
+      }
+      currentPath = path.dirname(currentPath);
+    }
 
     // Make a readable stream out of the contents of the file.
     var stringStream = new Readable();
@@ -51,8 +80,7 @@ var jsDocContentFileParser = {
     resultStream.on('data', function(data) {md.push(data);});
     resultStream.on('end', function() {
       // Build the content item.
-      var service = require(path);
-      // TODO: add link to source
+      var service = require(filePath);
       context.item = {
         meta: {
           type: "api-documentation"
@@ -61,6 +89,8 @@ var jsDocContentFileParser = {
         scope: service.scope,
         service: service.service,
         feature: service.feature,
+        path: relativeFilePath,
+        source: source,
         body: {
           flavor: 'markdown',
           _data: md.join()

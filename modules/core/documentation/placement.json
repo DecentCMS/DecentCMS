@@ -1,8 +1,9 @@
 {
   "matches": [
     {
-      "type": "text", "name": "^(scope|feature|service)$",
+      "type": "^(text|url)$", "name": "^(scope|feature|service|path|url)$",
       "path": "main", "order": "0"
     }
-  ]
+  ],
+  "documentation-toc": {"path": "main", "order": "0"}
 }

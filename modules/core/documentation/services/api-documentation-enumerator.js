@@ -1,7 +1,5 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-var path = require('path');
-var fs = require('fs');
 
 /**
  * @description
@@ -21,28 +19,34 @@ var documentationEnumerator = {
    *   It takes a callback function as its parameter
    */
   getItemEnumerator: function(context) {
+    var path = require('path');
+    var fs = require('fs');
     var scope = context.scope;
-    var idFilter = typeof(context.idFilter) === 'string'
-      ? new RegExp(context.idFilter)
-      : context.idFilter;
+    var log = scope.require('log');
     var shell = scope.require('shell');
     var modules = shell.moduleManifests;
     var moduleNames = Object.getOwnPropertyNames(shell.moduleManifests);
-    var libDirectories = moduleNames.map(function(moduleName) {
-        var manifest = modules[moduleName];
-        return {
-          name: moduleName,
-          path: path.join(manifest.physicalPath, 'lib')
-        };
-      });
-    var servicesDirectories = moduleNames.map(function(moduleName) {
+    var allDirectories = [];
+    var idFilter = typeof(context.idFilter) === 'string'
+      ? new RegExp(context.idFilter)
+      : context.idFilter;
+    moduleNames.forEach(function forEachModule(moduleName) {
       var manifest = modules[moduleName];
-      return {
-        name: moduleName,
-        path: path.join(manifest.physicalPath, 'services')
-      };
+      var libPath = path.join(manifest.physicalPath, 'lib');
+      if (fs.existsSync(libPath)) {
+        allDirectories.push({
+          name: moduleName,
+          path: libPath
+        });
+      }
+      var servicesPath = path.join(manifest.physicalPath, 'services');
+      if (fs.existsSync(servicesPath)) {
+        allDirectories.push({
+          name: moduleName,
+          path: servicesPath
+        });
+      }
     });
-    var allDirectories = libDirectories.concat(servicesDirectories);
     var currentModule = allDirectories[0];
     var currentDir = fs.readdirSync(currentModule.path);
     var directoryIndex = 0;
@@ -88,6 +92,7 @@ var documentationEnumerator = {
           // Look at the next directory
           directoryIndex++;
           currentModule = allDirectories[directoryIndex];
+          log.info("Scanning for API documentation topics.", currentModule.path);
           currentDir = fs.readdirSync(currentModule.path);
           topicIndex = 0;
         }
@@ -105,10 +110,12 @@ var documentationEnumerator = {
       itemsToFetch[id] = [];
       var loadContext = {
         scope: scope,
-        itemsToFetch: itemsToFetch
+        itemsToFetch: itemsToFetch,
+        items: {}
       };
       scope.callService('content-store', 'loadItems', loadContext, function(err) {
         if (err) {
+          log("Error loading item from API documentation enumerator.", err);
           callback(err);
           return;
         }

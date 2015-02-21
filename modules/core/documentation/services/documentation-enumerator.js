@@ -1,7 +1,5 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-var path = require('path');
-var fs = require('fs');
 
 /**
  * @description
@@ -20,21 +18,29 @@ var documentationEnumerator = {
    * @returns {Function} The function that gets the next item.
    *   It takes a callback function as its parameter
    */
-  getItemEnumerator: function(context) {
+  getItemEnumerator: function getDocumentationItemEnumerator(context) {
+    var path = require('path');
+    var fs = require('fs');
     var scope = context.scope;
+    var log = scope.require('log');
+    var shell = scope.require('shell');
+    var modules = shell.moduleManifests;
+    var docDirectories = [];
     var idFilter = typeof(context.idFilter) === 'string'
       ? new RegExp(context.idFilter)
       : context.idFilter;
-    var shell = scope.require('shell');
-    var modules = shell.moduleManifests;
-    var docDirectories = Object.getOwnPropertyNames(shell.moduleManifests)
-      .map(function(moduleName) {
+    Object.getOwnPropertyNames(shell.moduleManifests)
+      .forEach(function forEachModule(moduleName) {
         var manifest = modules[moduleName];
-        return {
-          name: moduleName,
-          path: path.join(manifest.physicalPath, 'docs')
-        };
+        var docPath = path.join(manifest.physicalPath, 'docs');
+        if (fs.existsSync(docPath)) {
+          docDirectories.push({
+            name: moduleName,
+            path: docPath
+          });
+        }
       });
+    log.info("Scanning /docs for documentation topics.");
     docDirectories.unshift({
       name: '',
       path: path.resolve('docs')
@@ -46,7 +52,7 @@ var documentationEnumerator = {
     var currentPath;
     var extensions = Array.prototype.concat.apply([],
       scope.getServices('content-file-parser')
-        .map(function(service) {return service.extensions;}));
+        .map(function getServiceExtensions(service) {return service.extensions;}));
     /**
      * Looks for the next item in the store.
      * @param {Function} callback the function that gets called
@@ -103,6 +109,7 @@ var documentationEnumerator = {
           // Look at the next directory
           directoryIndex++;
           currentModule = docDirectories[directoryIndex];
+          log.info("Scanning for documentation topics.", currentModule.path);
           currentDir = fs.readdirSync(currentModule.path);
           topicIndex = 0;
         }
@@ -120,10 +127,12 @@ var documentationEnumerator = {
       itemsToFetch[id] = [];
       var loadContext = {
         scope: scope,
-        itemsToFetch: itemsToFetch
+        itemsToFetch: itemsToFetch,
+        items: {}
       };
       scope.callService('content-store', 'loadItems', loadContext, function(err) {
         if (err) {
+          log.error('Error loading item from documentation enumerator.', err);
           callback(err);
           return;
         }

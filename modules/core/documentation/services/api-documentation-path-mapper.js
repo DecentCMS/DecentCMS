@@ -1,6 +1,5 @@
 // DecentCMS (c) 2015 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-var path = require('path');
 
 /**
  * Maps API documentation topic ids onto the relevant file, in the right module.
@@ -24,6 +23,7 @@ ApiDocumentationPathMapper.scope = 'shell';
  * JsDoc comments to be extracted.
  */
 ApiDocumentationPathMapper.prototype.mapIdToPath = function mapApiDocumentationIdToPath(root, id) {
+  var path = require('path');
   if (root !== 'apidocs') return null;
   var idParts = id.split('/');
   var moduleName = idParts[0];
@@ -35,6 +35,9 @@ ApiDocumentationPathMapper.prototype.mapIdToPath = function mapApiDocumentationI
   var rootServicePath = path.resolve(module.physicalPath, 'services');
   var rootLibPath = path.resolve(module.physicalPath, 'lib');
   var topic = idParts[1];
+  if (!topic) {
+    return null;
+  }
   var topicServicePath = path.join(rootServicePath, topic);
   var topicLibPath = path.join(rootLibPath, topic);
   return [

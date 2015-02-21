@@ -21,7 +21,8 @@ var DocumentationRouteHandler = {
         contentRenderer.promiseToRender({
           request: request,
           id: 'docs:' + request.path.substr(6),
-          displayType: 'main'
+          displayType: 'main',
+          place: 'main:1'
         });
         request.routed = true;
         next();
@@ -29,6 +30,7 @@ var DocumentationRouteHandler = {
     });
   },
   getUrl: function getUrl(id) {
+    if (id === 'docs:') return '/docs';
     if (id.substr(0, 5) === 'docs:') {
       return '/docs/' + id.substr(5);
     }

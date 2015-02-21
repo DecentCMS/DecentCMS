@@ -49,7 +49,7 @@ FileResolution.isScopeSingleton = true;
  * Builds a cache key from the string and regular expression path tokens
  * that are passed as arguments.
  *
- * @param {(String|RegExp)[]} pathTokens The local path under the module's
+ * @param {Array} pathTokens The local path under the module's
  *  root of the file to find, or the pattern to match. More than one
  *  argument may be passed, each of which can be a string or regular
  *  expression representing the name of parent folders.

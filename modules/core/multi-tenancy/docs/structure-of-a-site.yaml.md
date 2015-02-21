@@ -37,7 +37,7 @@ The media folder
 The media folder contains all asset files for the site.
 Those assets are served directly under the `/media` path.
 For example, `/sites/mysite/media/logos/logo.svg` will
-be served when `media/logos/logo/svg` is requested.
+be served when `media/logos/logo.svg` is requested.
 
 The navigation folder
 ---------------------

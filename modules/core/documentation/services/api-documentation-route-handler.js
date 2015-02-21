@@ -22,7 +22,8 @@ var ApiDocumentationRouteHandler = {
         contentRenderer.promiseToRender({
           request: request,
           id: 'apidocs:' + request.path.substr(10),
-          displayType: 'main'
+          displayType: 'main',
+          place: 'main:1'
         });
         request.routed = true;
         next();
