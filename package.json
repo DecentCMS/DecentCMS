@@ -1,12 +1,21 @@
 {
   "name": "DecentCMS",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A Decent CMS written in Node",
+  "keywords": ["cms", "content management system"],
+  "homepage": "http://decentcms.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DecentCMS/DecentCMS.git"
+  },
+  "bugs": "https://github.com/DecentCMS/DecentCMS/issues",
+  "license": "MIT",
   "main": "server.js",
-  "engines": {"node": "0.10.x"},
+  "engines": {"node": ">=0.10.x"},
   "author": {
     "name": "Bertrand Le Roy",
-    "email": "bertrand@decentcms.com"
+    "email": "bertrand@decentcms.com",
+    "url": "http://weblogs.asp.net/bleroy"
   },
   "dependencies": {},
   "devDependencies": {
