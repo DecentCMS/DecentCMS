@@ -135,7 +135,7 @@ Shell.resolve = function(request) {
     if (shell.active && shell.canHandle(request)) {
       return shell;
     }
-  };
+  }
   // Unresolved requests should not go to a default shell
   // if there's more than one.
   return null;
@@ -328,7 +328,6 @@ Shell.prototype.handleRequest = function(request, response, next) {
     // Tear down
     self.emit(Shell.endRequestEvent, context);
     if (request.tearDown) request.tearDown();
-    response.end('');
     log.profile(profileId, 'Handled request', {
       tenant: self.name,
       url: request.url,
@@ -345,7 +344,7 @@ Shell.prototype.handleRequest = function(request, response, next) {
  * @type {string}
  */
 Shell.startRequestEvent = 'decent.core.shell.start-request';
-Shell.startRequestEvent.payload = {
+Shell.startRequestEvent_payload = {
   shell: 'Shell',
   request: 'IncomingMessage',
   response: 'ServerResponse'
@@ -358,7 +357,7 @@ Shell.startRequestEvent.payload = {
  * @type {string}
  */
 Shell.endRequestEvent = 'decent.core.shell.end-request';
-Shell.endRequestEvent.payload = {
+Shell.endRequestEvent_payload = {
   shell: 'Shell',
   request: 'IncomingMessage',
   response: 'ServerResponse'
@@ -370,7 +369,7 @@ Shell.endRequestEvent.payload = {
  * @type {string}
  */
 Shell.renderPageEvent = 'decent.core.shell.render-page';
-Shell.renderPageEvent.payload = {
+Shell.renderPageEvent_payload = {
   shell: 'Shell',
   request: 'IncomingMessage',
   response: 'ServerResponse'
@@ -386,6 +385,6 @@ Shell.renderErrorPage = 'decent.core.shell.render-error';
  * @description
  * The payload is the error object.
  */
-Shell.renderErrorPage.payload = {};
+Shell.renderErrorPage_payload = {};
 
 module.exports = Shell;
