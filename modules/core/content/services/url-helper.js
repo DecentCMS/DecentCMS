@@ -4,9 +4,9 @@
 function UrlHelper(scope) {
   this.scope = scope;
 }
-UrlHelper.prototype.feature = 'content';
-UrlHelper.prototype.service = 'url-helper';
-UrlHelper.prototype.scope = 'shell';
+UrlHelper.feature = 'content';
+UrlHelper.service = 'url-helper';
+UrlHelper.scope = 'shell';
 UrlHelper.prototype.getUrl = function getUrl(id) {
   var middlewares = this.scope.getServices('middleware')
     .sort(function(m1, m2) {
