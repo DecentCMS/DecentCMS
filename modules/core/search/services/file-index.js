@@ -54,19 +54,19 @@ function FileIndex(scope, idFilter, map, orderBy) {
  * @returns {string} A valid name built from the objects passed in.
  */
 FileIndex._toName = FileIndex.prototype._toName = function toName() {
-  var objectOrFunctionToName = function objectOrFunctionToName(obj) {
-    return obj
-      ? (obj.name || 'i') + obj.toString()
-        .split('')
-        .reduce(function(a, b){
-          a=((a << 5) - a) + b.charCodeAt(0);
-          return a & a;
-        }, 0)
-      : '';
-  };
-  return Array.prototype.slice.apply(arguments)
-    .map(objectOrFunctionToName)
+  var args = Array.prototype.slice.apply(arguments);
+  var names = args
+    .filter(function(arg) {return arg && arg.name;})
+    .map(function(arg) {return arg.name || '';})
     .join('-');
+  var hash = args
+    .map(function(arg) {return arg ? arg.toString() : '';})
+    .join('').split('')
+    .reduce(function(a, b){
+      a=((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+  return 'index-' + names + '-' + hash;
 };
 
 /**
