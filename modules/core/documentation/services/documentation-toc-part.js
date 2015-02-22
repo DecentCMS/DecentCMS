@@ -70,7 +70,7 @@ var DocumentationTocPart = {
                 : isIndex
                 ? 'index'
                 : splitId[0],
-              section: topic.section,
+              section: topic.section || null,
               number: topic.number || isIndex ? '0' : '9000',
               url: urlHelper.getUrl(topic.id)
             };

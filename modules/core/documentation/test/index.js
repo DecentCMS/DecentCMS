@@ -330,6 +330,18 @@ var stubs = {
   }
 };
 
+var itemsToIndex = [
+  {id: 'docs:top1', title: 'Top 1'},
+  {id: 'foo:bar'},
+  {id: 'docs:', title: 'Root'},
+  {id: 'docs:module1/topic2', title: 'Module 1 topic 2'},
+  {id: 'docs:top2', title: 'Top 2'},
+  {id: 'docs:module1', title: 'Module 1 index'},
+  {id: 'apidocs:module1/service1', title: 'Module 1 service 1'},
+  {id: 'docs:module1/topic1', title: 'Module 1 topic 1'},
+  {id: 'docs:module2', title: 'Module 2 index'}
+];
+
 var scope = {
   require: function(service) {
     switch(service) {
@@ -344,6 +356,48 @@ var scope = {
         return {
           info: function() {}
         };
+      case 'content-manager':
+        return {
+          getParts: function() {
+            return ['toc'];
+          }
+        };
+      case 'url-helper':
+        return {
+          getUrl: function(id) {return 'url:' + id;}
+        };
+      case 'index':
+        return {
+          getIndex: function(context) {
+            var index = [];
+            itemsToIndex.forEach(function(item) {
+              if (!context.idFilter.test(item.id)) return;
+              var entry = context.map(item);
+              entry.itemId = item.id;
+              index.push(entry);
+            });
+            index.sort(function compare(a, b) {
+              a = context.orderBy(a);
+              b = context.orderBy(b);
+              for (var i = 0; i < a.length && i < b.length; i++) {
+                var ai = a[i], bi = b[i];
+                if ((!ai && bi) || ai < bi) return -1;
+                if ((!bi && ai) || bi < ai) return 1;
+              }
+              return a.length - b.length;
+            });
+            return {
+              reduce: function(fun, seed, done) {
+                index.forEach(function(entry) {
+                  seed = fun(seed, entry);
+                });
+                done(seed);
+              }
+            };
+          }
+        };
+      default:
+        return null;
     }
   },
   getServices: function(service) {
@@ -457,5 +511,47 @@ describe('API Documentation Enumerator', function() {
       }
     };
     iterate(iterator);
+  });
+});
+
+describe('Documentation TOC part', function() {
+  var tocPart = require('../services/documentation-toc-part');
+
+  it('creates top-level and local tables of contents, as well as breadcrumbs and previous/next', function(done) {
+    var tocItem = {
+      meta: {type: 'content'},
+      temp: {shapes: []},
+      toc: {}
+    };
+    tocItem.temp.item = tocItem;
+    scope.itemId = 'apidocs:module1/service1';
+    tocPart.handle({
+      scope: scope,
+      shape: tocItem
+    }, function() {
+      expect(tocItem.toc.topLevelTOC).to.deep.equal([
+        {itemId: 'docs:', module: null, section: null, name: '', number: '9000', title: 'Root', url: 'url:docs:'},
+        {itemId: 'docs:top1', module: null, section: null, name: 'top1', number: '9000', title: 'Top 1', url: 'url:docs:top1'},
+        {itemId: 'docs:top2', module: null, section: null, name: 'top2', number: '9000', title: 'Top 2', url: 'url:docs:top2'},
+        {itemId: 'docs:module1', isModuleIndex: true, module: 'module1', section: null, name: 'index', number: '0', title: 'Module 1 index', url: 'url:docs:module1'},
+        {itemId: 'docs:module2', isModuleIndex: true, module: 'module2', section: null, name: 'index', number: '0', title: 'Module 2 index', url: 'url:docs:module2'}
+      ]);
+      expect(tocItem.toc.localTOC).to.deep.equal([
+        {itemId: 'docs:module1/topic1', module: 'module1', section: null, name: 'topic1', number: '9000', title: 'Module 1 topic 1', url: 'url:docs:module1/topic1'},
+        {itemId: 'docs:module1/topic2', module: 'module1', section: null, name: 'topic2', number: '9000', title: 'Module 1 topic 2', url: 'url:docs:module1/topic2'},
+        {itemId: 'apidocs:module1/service1', module: 'module1', section: null, name: 'service1', number: '9000', title: 'Module 1 service 1', url: 'url:apidocs:module1/service1'}
+      ]);
+      expect(tocItem.toc.breadcrumbs).to.deep.equal([
+        {itemId: 'docs:module1', isModuleIndex: true, module: 'module1', section: null, name: 'index', number: '0', title: 'Module 1 index', url: 'url:docs:module1'},
+        {itemId: 'apidocs:module1/service1', module: 'module1', section: null, name: 'service1', number: '9000', title: 'Module 1 service 1', url: 'url:apidocs:module1/service1'}
+      ]);
+      expect(tocItem.toc.previous).to.deep.equal(
+        {itemId: 'docs:module1/topic2', module: 'module1', section: null, name: 'topic2', number: '9000', title: 'Module 1 topic 2', url: 'url:docs:module1/topic2'}
+      );
+      expect(tocItem.toc.next).to.deep.equal(
+        {itemId: 'docs:module2', isModuleIndex: true, module: 'module2', section: null, name: 'index', number: '0', title: 'Module 2 index', url: 'url:docs:module2'}
+      );
+      done();
+    });
   });
 });
