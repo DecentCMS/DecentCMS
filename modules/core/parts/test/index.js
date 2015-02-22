@@ -4,8 +4,10 @@ var expect = require('chai').expect;
 
 var TextPart = require('../services/text-part');
 var TitlePart = require('../services/title-part');
+var UrlPart = require('../services/url-part');
 var TextView = require('../views/text');
 var TitleView = require('../views/title');
+var UrlView = require('../views/url');
 
 describe('Text Part Handler', function() {
   it('adds shapes for each text part', function(done) {
@@ -139,6 +141,74 @@ describe('Title Part Handler', function() {
   });
 });
 
+describe('URL Part Handler', function() {
+  it('adds shapes for each url part', function(done) {
+    var item = {
+      title: 'Foo',
+      permalink: {
+        url: 'http://weblogs.asp.net/bleroy',
+        text: 'Tales From The Evil Empire'
+      },
+      body: {
+        src: 'body.md',
+        text: 'Lorem ipsum'
+      },
+      summary: 'Lorem',
+      disclaimer: {
+        flavor: 'strawberry',
+        text: 'Not my fault'
+      },
+      license: {
+        url: 'http://opensource.org/licenses/MIT',
+        text: 'MIT'
+      },
+      tags: ['foo', 'bar']
+    };
+    var context = {
+      shape: {
+        meta: {
+          type: 'content'
+        },
+        temp: {
+          item: item,
+          displayType: 'summary',
+          shapes: []
+        }
+      },
+      scope: {
+        require: function require(service) {
+          if (service === 'content-manager') {
+            return {
+              getParts: function() {
+                return ['permalink', 'license'];
+              }
+            };
+          }
+        }
+      }
+    };
+
+    UrlPart.handle(context, function() {
+      var newShapes = context.shape.temp.shapes;
+      expect(newShapes[0])
+        .to.deep.equal({
+          meta: {type: 'url', name: 'permalink', alternates: ['url-permalink'], item: item},
+          temp: {displayType: 'summary'},
+          text: 'Tales From The Evil Empire',
+          url: 'http://weblogs.asp.net/bleroy'
+        });
+      expect(newShapes[1])
+        .to.deep.equal({
+          meta: {type: 'url', name: 'license', alternates: ['url-license'], item: item},
+          temp: {displayType: 'summary'},
+          text: 'MIT',
+          url: 'http://opensource.org/licenses/MIT'
+        });
+      done();
+    });
+  });
+});
+
 describe('Text Part View', function() {
   var text = 'Lorem\r\n<b>ipsum</b>.';
   var html = '';
@@ -208,6 +278,43 @@ describe('Title Part View', function() {
     TitleView({text: 'foo du fa fa'}, renderer, function() {
       expect(html)
         .to.equal('[h1:foo du fa fa]');
+      done();
+    });
+  });
+});
+
+describe('URL Part View', function() {
+  var text = 'Lorem ipsum';
+  var url = 'http://decentcms.org';
+  var html = '';
+  var renderer = {
+    tag: function tag(tagName, attributes, content) {
+      html += '<' + tagName;
+      Object.getOwnPropertyNames(attributes).forEach(function(attributeName) {
+        html += ' ' + attributeName + '="' + attributes[attributeName] + '"';
+      });
+      html += '>' + content + '</' + tagName + '>';
+      return renderer;
+    },
+    finally: function final(callback) {
+      callback();
+    }
+  };
+
+  beforeEach(function() {
+    html = '';
+  });
+
+  it('renders a link', function(done) {
+    UrlView({text: text, url: url}, renderer, function() {
+      expect(html).to.equal('<a href="http://decentcms.org">Lorem ipsum</a>');
+      done();
+    });
+  });
+
+  it("uses the url if text can't be found", function(done) {
+    UrlView({url: url}, renderer, function() {
+      expect(html).to.equal('<a href="http://decentcms.org">http://decentcms.org</a>');
       done();
     });
   });

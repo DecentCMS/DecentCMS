@@ -5,5 +5,4 @@ module.exports = function urlTemplate(urlPart, renderer, done) {
   renderer
     .tag('a', {href: urlPart.url}, urlPart.text || urlPart.url)
     .finally(done);
-    done();
 };
