@@ -517,7 +517,7 @@ describe('API Documentation Enumerator', function() {
 describe('Documentation TOC part', function() {
   var tocPart = require('../services/documentation-toc-part');
 
-  it('creates top-level and local tables of contents, as well as breadcrumbs and previous/next', function(done) {
+  it('creates top-level and local tables of contents, as well as breadcrumbs and previous/current/next', function(done) {
     var tocItem = {
       meta: {type: 'content'},
       temp: {shapes: []},
@@ -547,6 +547,9 @@ describe('Documentation TOC part', function() {
       ]);
       expect(tocItem.toc.previous).to.deep.equal(
         {itemId: 'docs:module1/topic2', module: 'module1', section: null, name: 'topic2', number: '9000', title: 'Module 1 topic 2', url: 'url:docs:module1/topic2'}
+      );
+      expect(tocItem.toc.current).to.deep.equal(
+        {itemId: 'apidocs:module1/service1', module: 'module1', section: null, name: 'service1', number: '9000', title: 'Module 1 service 1', url: 'url:apidocs:module1/service1'}
       );
       expect(tocItem.toc.next).to.deep.equal(
         {itemId: 'docs:module2', isModuleIndex: true, module: 'module2', section: null, name: 'index', number: '0', title: 'Module 2 index', url: 'url:docs:module2'}

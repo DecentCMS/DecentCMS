@@ -50,6 +50,7 @@ var DocumentationTocPart = {
           shape.breadcrumbs = cachedToc.breadcrumbs;
           shape.previous = cachedToc.previous;
           shape.next = cachedToc.next;
+          shape.current = cachedToc.current;
           temp.shapes.push(shape);
           done();
           return;
@@ -220,13 +221,15 @@ var DocumentationTocPart = {
             shape.breadcrumbs = breadcrumbs;
             shape.previous = previousTopic;
             shape.next = nextTopic;
+            shape.current = entryForCurrent;
             // Cache that data on the request
             scope.documentationToc = {
               topLevelTOC: topLevelTOC,
               localTOC: localTOC,
               breadcrumbs: breadcrumbs,
               previous: previousTopic,
-              next: nextTopic
+              next: nextTopic,
+              current: entryForCurrent
             };
             // Now add this new shape to the list to be rendered.
             temp.shapes.push(shape);
