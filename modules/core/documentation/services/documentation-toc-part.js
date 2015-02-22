@@ -137,6 +137,9 @@ var DocumentationTocPart = {
                 breadcrumbs = [entry];
                 // Restart the local TOC if it's not finished building.
               }
+              else if (entryForCurrent === entry) {
+                breadcrumbs = [entry];
+              }
               if (!lockLocalTOC) {
                 if (foundCurrent && entryForCurrent !== entry) {
                   lockLocalTOC = true;
