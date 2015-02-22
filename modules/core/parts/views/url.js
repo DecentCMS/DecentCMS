@@ -3,6 +3,6 @@
 
 module.exports = function urlTemplate(urlPart, renderer, done) {
   renderer
-    .tag('a', {href: urlPart.url}, urlPart.text || urlPart.url)
+    .tag('a', {href: urlPart.url}, urlPart.text)
     .finally(done);
 };
