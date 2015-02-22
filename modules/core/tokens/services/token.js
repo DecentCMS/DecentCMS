@@ -17,6 +17,8 @@ var Token = function(scope) {
   scope.emit(Token.registerPipesEvent, this.pipes);
 };
 Token.feature = 'tokens';
+Token.service = 'tokens';
+Token.scope = 'shell';
 
 /**
  * @describe

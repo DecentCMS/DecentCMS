@@ -1,7 +1,7 @@
 {
   "matches": [
     {
-      "type": "^(text|url)$", "name": "^(scope|feature|service|path|url)$",
+      "type": "^(text|url)$", "name": "^(scope|feature|service|path|source)$",
       "path": "main", "order": "0"
     }
   ],

@@ -6,9 +6,20 @@ module.exports = function apiFieldTemplate(apiFieldShape, renderer, done) {
     renderer
       .startTag('p', {"class": "api-field"})
       .tag('label', null, apiFieldShape.meta.name)
-      .write(': ')
-      .tag('span', null, apiFieldShape.text)
+      .write(': ');
+    if (apiFieldShape.meta.type === 'text') {
+      renderer
+        .tag('span', null, apiFieldShape.text);
+    }
+    else if (apiFieldShape.meta.type === 'url') {
+      renderer
+        .tag('a', {href: apiFieldShape.url}, apiFieldShape.text);
+    }
+    renderer
       .endTag()
       .finally(done)
+  }
+  else {
+    done();
   }
 };

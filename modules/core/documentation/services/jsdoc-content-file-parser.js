@@ -48,25 +48,27 @@ var jsDocContentFileParser = {
     // Find the closest manifest that has a repository URL
     var currentPath = path.dirname(filePath);
     var source = null;
-    while (currentPath.substr(0, root.length) === root.length) {
-      var repoPath = path.join(currentPath, 'package.json');
-      if (fs.existsSync(repoPath)) {
-        var repo = require(repoPath);
-        if (repo && repo.repository && repo.repository.url) {
-          var repoUrl = repo.repository.url;
-          var format = repo.repository.pathFormat
-            || '{repo-no-ext}/blob/master/{path}';
-          var tokens = context.scope.require('tokens');
-          source = tokens.interpolate(format, {
-            repo: repoUrl,
-            'repo-no-ext': repoUrl.substr(0,
-              repoUrl.length - path.extname(repoUrl).length),
-            path: relativeFilePath
-          });
-          break;
+    var tokens = context.scope.require('tokens');
+    if (tokens) {
+      while (currentPath.substr(0, root.length) === root) {
+        var repoPath = path.join(currentPath, 'package.json');
+        if (fs.existsSync(repoPath)) {
+          var repo = require(repoPath);
+          if (repo && repo.repository && repo.repository.url) {
+            var repoUrl = repo.repository.url;
+            var format = repo.repository.pathFormat
+              || '{{repo-no-ext}}/blob/master{{path}}';
+            source = tokens.interpolate(format, {
+              repo: repoUrl,
+              'repo-no-ext': repoUrl.substr(0,
+                repoUrl.length - path.extname(repoUrl).length),
+              path: relativeFilePath
+            });
+            break;
+          }
         }
+        currentPath = path.dirname(currentPath);
       }
-      currentPath = path.dirname(currentPath);
     }
 
     // Make a readable stream out of the contents of the file.
