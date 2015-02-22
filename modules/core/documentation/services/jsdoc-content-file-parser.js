@@ -7,7 +7,7 @@
  */
 var jsDocContentFileParser = {
   service: 'content-file-parser',
-  feature: 'documentation',
+  feature: 'api-documentation',
   scope: 'shell',
   /**
    * @description

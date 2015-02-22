@@ -8,7 +8,7 @@
  */
 module.exports = {
   service: 'shape-handler',
-  feature: 'documentation',
+  feature: 'api-documentation',
   scope: 'shell',
   /**
    * Adds text-scope, text-feature, text-path, url-source,

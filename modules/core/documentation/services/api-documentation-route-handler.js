@@ -9,7 +9,7 @@
  */
 var ApiDocumentationRouteHandler = {
   service: 'middleware',
-  feature: 'documentation',
+  feature: 'api-documentation',
   routePriority: 10,
   scope: 'shell',
   register: function registerApiDocumentationMiddleware(scope, context) {

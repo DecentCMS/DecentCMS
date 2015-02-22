@@ -9,7 +9,7 @@ var ApiDocumentationPathMapper = function ApiDocumentationPathMapper(scope) {
   this.scope = scope;
 };
 ApiDocumentationPathMapper.service = 'id-to-path-map';
-ApiDocumentationPathMapper.feature = 'documentation';
+ApiDocumentationPathMapper.feature = 'api-documentation';
 ApiDocumentationPathMapper.scope = 'shell';
 
 /**

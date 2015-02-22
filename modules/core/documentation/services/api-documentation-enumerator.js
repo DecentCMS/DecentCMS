@@ -7,7 +7,7 @@
  */
 var documentationEnumerator = {
   service: 'content-enumerator',
-  feature: 'documentation',
+  feature: 'api-documentation',
   scope: 'shell',
   /**
    * Gets an asynchronous enumerator for all API documentation topics.
