@@ -185,6 +185,21 @@ describe('File Index', function() {
     });
   });
 
+  it("can order by multiple criteria", function(done) {
+    var index = indexFactory.getIndex(mapSingleEntry, function multipleOrderBy(item) {
+      return [1, 'a', item.index % 2, item.index];
+    });
+
+    process.nextTick(function() {
+      expect(index._index).to.deep.equal([
+        {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
+        {indexedFoo: 'fooitem1', itemId: 'item1', index: 1},
+        {indexedFoo: 'fooitem3', itemId: 'item3', index: 3}
+      ]);
+      done();
+    });
+  });
+
   it("can get multiple entries from each item", function(done) {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
 
