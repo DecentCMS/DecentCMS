@@ -3,3 +3,4 @@
 sites/
 iisnode/
 iisnode.yml
+modules/core/documentation/cache/
