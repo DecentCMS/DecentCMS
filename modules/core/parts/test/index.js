@@ -159,8 +159,7 @@ describe('URL Part Handler', function() {
         text: 'Not my fault'
       },
       license: {
-        url: 'http://opensource.org/licenses/MIT',
-        text: 'MIT'
+        url: 'http://opensource.org/licenses/MIT'
       },
       tags: ['foo', 'bar']
     };
@@ -201,7 +200,7 @@ describe('URL Part Handler', function() {
         .to.deep.equal({
           meta: {type: 'url', name: 'license', alternates: ['url-license'], item: item},
           temp: {displayType: 'summary'},
-          text: 'MIT',
+          text: 'http://opensource.org/licenses/MIT',
           url: 'http://opensource.org/licenses/MIT'
         });
       done();
@@ -308,13 +307,6 @@ describe('URL Part View', function() {
   it('renders a link', function(done) {
     UrlView({text: text, url: url}, renderer, function() {
       expect(html).to.equal('<a href="http://decentcms.org">Lorem ipsum</a>');
-      done();
-    });
-  });
-
-  it("uses the url if text can't be found", function(done) {
-    UrlView({url: url}, renderer, function() {
-      expect(html).to.equal('<a href="http://decentcms.org">http://decentcms.org</a>');
       done();
     });
   });
