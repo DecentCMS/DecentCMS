@@ -67,7 +67,13 @@ module.exports = function documentationTocTemplate(toc, renderer, done) {
           isActive = entry.itemId === (toc.current ? toc.current.itemId : null);
           renderer
             .startTag('li', isActive ? {class: 'active'} : null)
-            .tag('a', {href: entry.url}, entry.title)
+            .startTag('a', {href: entry.url})
+            .write(entry.title + '&nbsp;');
+          if (entry.itemId.substr(0, 8) === 'apidocs:') {
+            renderer.startTag('span', {class: 'glyphicon glyphicon-wrench'}).endTag();
+          }
+          renderer
+            .endTag()
             .endTag();
         });
         renderer
