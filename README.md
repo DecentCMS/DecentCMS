@@ -21,8 +21,10 @@ The following features are implemented:
 * Themes
 * Multi-tenancy
 * Navigation menus
+* Querying
 * Content type system
 * Widgets
+* Documentation
 * Express compatibility
 * File-based content store
 * Markdown
@@ -36,7 +38,6 @@ The following features are implemented:
 Future features include:
 
 * Document database as the content store
-* Documentation site
 * Localization implementation
 * Dashboard
 * Authentication
@@ -51,9 +52,16 @@ and contributor feedback.
 
 Near future milestones are:
 
-* First publicly accessible web site running DecentCMS
 * Authentication and basic dashboard infrastructure
-* Documentation and community site running DecentCMS
+* Documentation up-to-date with code
+* All features manageable through dashboard
+
+Past milestones:
+
+* First publicly accessible web site running DecentCMS:
+  http://decentconsulting.com
+* Documentation and community site running DecentCMS:
+  http://decentcms.org
 
 Installation
 ------------
