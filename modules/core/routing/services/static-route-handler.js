@@ -8,13 +8,45 @@ var fs = require('fs');
 /**
  * @description
  * This handler registers itself as an Express middleware that handles
- * routes for static files.
+ * routes for static files. It scans enabled modules and themes for folders
+ * with the configured names, and exposes their contents under a common
+ * route that is user-friendly and enables for easily overriding static
+ * resources.
+ *
+ * For example, if a module exposes a 'css/style.css' file this way, the file
+ * will be available under the URL '/css/style.css' and can be referenced as
+ * such in view templates. If another module or theme exposes the same file,
+ * dependency order and priorities will determine what file gets served.
+ *
+ * A `/favicon.ico` route also gets registered in case the theme's layout
+ * doesn't properly specify a favicon. The default DecentCMS icon at the
+ * root of the application gets served by this route.
+ *
+ * The handler can be configured for each site through its `settings.json`
+ * file:
+ *
+ *     "static-route-handler": {
+ *        "staticFolders": ["css", "js", "img", "fonts"],
+ *        "mediaFolder": "media"
+ *     }
+ *
+ * The `staticFolders` property specifies what folders will get exposed as static
+ * resource folders.
+ *
+ * The `mediaFolder` property specifies what folder under the site's folder
+ * will be exposed as site-specific static assets.
  */
 var StaticRouteHandler = {
   service: 'middleware',
   feature: 'static-route-handler',
   routePriority: 0,
   scope: 'shell',
+  /**
+   * Registers the static route middleware.
+   * @param {object} scope The scope.
+   * @param {object} context The context.
+   * @param {object} context.expressApp The Express application object.
+   */
   register: function registerStaticRoutesMiddleware(scope, context) {
     var express = context.express;
     context.expressApp.register(StaticRouteHandler.routePriority, function bindStaticMiddleware(app) {

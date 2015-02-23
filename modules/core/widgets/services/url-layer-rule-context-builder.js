@@ -2,13 +2,13 @@
 'use strict';
 
 /**
- * A layer rule context builder the exposes the current URL
+ * A layer rule context builder that exposes the current URL
  * to layer rules.
  * @constructor
  */
-function UrlLayerRuleContextBuilder(scope) {
+var UrlLayerRuleContextBuilder = function UrlLayerRuleContextBuilder(scope) {
   this.scope = scope;
-}
+};
 UrlLayerRuleContextBuilder.scope = 'request';
 UrlLayerRuleContextBuilder.service = 'layer-rule-context-builder';
 UrlLayerRuleContextBuilder.feature = 'widgets';

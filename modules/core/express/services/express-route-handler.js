@@ -32,6 +32,13 @@ ExpressRouteHandler.feature = 'express';
 ExpressRouteHandler.isScopeSingleton = true;
 ExpressRouteHandler.scope = 'shell';
 
+/**
+ * Handles a request by passing it over to the Express pipeline.
+ * @param {object} context The context.
+ * @param {IncomingMessage} context.request The request.
+ * @param {ServerResponse} context.response The response.
+ * @param {Function} next The callback.
+ */
 ExpressRouteHandler.prototype.handle = function expressHandle(context, next) {
   // Handle the request (using private API for a good cause)
   this.expressApp.app.handle(context.request, context.response, next);

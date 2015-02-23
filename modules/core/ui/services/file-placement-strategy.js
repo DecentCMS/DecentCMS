@@ -7,13 +7,16 @@
  * @description
  * Uses placement.js and placement.json files found at the
  * root of modules to dispatch shapes into.
+ *
  * The placement.js files should export a function(scope, rootShape, shapes)
  * that should splice shapes out of the shapes array if and when it decides
  * to place them on the rootShape.
+ *
  * The placement.json files contain an object that may have one "matches"
  * property that contains an array of objects that must expose a path and
  * an order property. They can have any combination of id, type, and
  * displayType regular expressions that shapes will be matched against.
+ *
  * Besides the matches array, the top object in the placement.json file
  * can have properties whose names are shape types, that have a path and
  * an order properties.
@@ -113,6 +116,16 @@ FilePlacementStrategy.isScopeSingleton = true;
 FilePlacementStrategy.feature = 'file-placement-strategy';
 FilePlacementStrategy.dependencies = ['decent-core-io'];
 
+/**
+ * Dispatches a list of shapes under a root shape, by handing over the task
+ * to the placement strategies discovered by the constructor.
+ * @param {object} context The context.
+ * @param {object} context.shape
+ * The root shape under which the shapes must be placed.
+ * @param {Array} context.shapes
+ * The list of shapes that must be placed.
+ * @param {Function} done The callback.
+ */
 FilePlacementStrategy.prototype.placeShapes = function filePlace(context, done) {
   var rootShape = context.shape;
   var shapes = context.shapes;

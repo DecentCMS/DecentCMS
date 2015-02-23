@@ -18,10 +18,10 @@ ContentStorageManager.isScopeSingleton = true;
 /**
  * @description
  * Promises to get one or several content items.
- * @param {string|Array} id the id or ids of the items to fetch.
- * @param {Function} [callback] A function with signature (err, item)
- *                              that will get called once per item once
- *                              the item has been loaded.
+ * @param {string|Array}
+ * id the id or ids of the items to fetch.
+ * @param {Function} [callback]
+ * A function with signature (err, item) that will get called once per item once the item has been loaded.
  */
 ContentStorageManager.prototype.promiseToGet = function promiseToGet(id, callback) {
   var self = this;

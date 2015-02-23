@@ -7,8 +7,16 @@
  * there is a reasonable fallback if no service of that
  * type is registered.
  */
-var nullServices = {
+var NullServices = {
+  /**
+   * A trivial localization service that returns the string unchanged.
+   * @param {string} s The string to localize.
+   * @returns {string} The unchanged string.
+   */
   localization: function(s) {return s;},
+  /**
+   * A trivial log service that does nothing.
+   */
   log: {
     log: function() {},
     verbose: function() {},
@@ -20,4 +28,4 @@ var nullServices = {
   }
 };
 
-module.exports = nullServices;
+module.exports = NullServices;

@@ -1,10 +1,21 @@
 // DecentCMS (c) 2015 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
+/**
+ * Handler for a part that builds a table of contents for documentation.
+ * This depends on an index service to be active.
+ */
 var DocumentationTocPart = {
   feature: 'documentation',
   service: 'shape-handler',
   scope: 'request',
+  /**
+   * Build a shape for the TOC by querying the index for documentation topics.
+   * @param {object} context The context object.
+   * @param {object} context.shape The content shape that has the TOC part.
+   * @param {object} context.scope The scope.
+   * @param {Function} done The callback.
+   */
   handle: function documentationTocPart(context, done) {
     var content = context.shape;
     if (!content.meta

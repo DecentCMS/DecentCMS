@@ -19,8 +19,8 @@ var ExpressApp = function(app, scope) {
  * Adds a prioritized registration function.
  * Registration functions will be added in order of growing priority.
  * @param {Number} priority The priority of the registration.
- * @param {Function} registration The function that does the registration.
- *                                Takes the Express app as its parameter.
+ * @param {Function} registration
+ * The function that does the registration. Takes the Express app as its parameter.
  */
 ExpressApp.prototype.register = function(priority, registration) {
   if (this.locked) {

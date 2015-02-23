@@ -18,12 +18,12 @@ ContentRenderer.isScopeSingleton = true;
  * @description
  * Adds a shape or a content item to the list of shapes for the request.
  * @param options
- * @param {string} [options.id]          The id of an item to fetch and add
- *                                       as a shape.
- * @param {object} [options.shape]       A shape to add to the list of shapes
- *                                       to render.
- * @param {string} [options.displayType] The display type to use when
- * rendering the shape.
+ * @param {string} [options.id]
+ * The id of an item to fetch and add as a shape.
+ * @param {object} [options.shape]
+ * A shape to add to the list of shapes to render.
+ * @param {string} [options.displayType]
+ * The display type to use when rendering the shape.
  */
 ContentRenderer.prototype.promiseToRender = function promiseToRender(options) {
   var scope = this.scope;

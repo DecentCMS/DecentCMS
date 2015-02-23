@@ -12,6 +12,12 @@ var ApiDocumentationRouteHandler = {
   feature: 'api-documentation',
   routePriority: 10,
   scope: 'shell',
+  /**
+   * Registers the API documentation middleware.
+   * @param {object} scope The scope.
+   * @param {object} context The context.
+   * @param {object} context.expressApp The Express application object.
+   */
   register: function registerApiDocumentationMiddleware(scope, context) {
     context.expressApp.register(ApiDocumentationRouteHandler.routePriority,
       function bindApiDocumentationMiddleware(app) {
@@ -30,6 +36,11 @@ var ApiDocumentationRouteHandler = {
       });
     });
   },
+  /**
+   * Gets the URL for an API documentation topic (id prefix 'apidocs:').
+   * @param {string} id The topic content item's id.
+   * @returns {string} The URL for the topic.
+   */
   getUrl: function getUrl(id) {
     if (id.substr(0, 8) === 'apidocs:') {
       return '/docs/api/' + id.substr(8);

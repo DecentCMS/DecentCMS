@@ -12,6 +12,12 @@ var DocumentationRouteHandler = {
   feature: 'documentation',
   routePriority: 10,
   scope: 'shell',
+  /**
+   * Registers the documentation middleware.
+   * @param {object} scope The scope.
+   * @param {object} context The context.
+   * @param {object} context.expressApp The Express application object.
+   */
   register: function registerDocumentationMiddleware(scope, context) {
     context.expressApp.register(DocumentationRouteHandler.routePriority, function bindDocumentationMiddleware(app) {
       app.get('/docs(/*)?', function documentationMiddleware(request, response, next) {
@@ -29,6 +35,11 @@ var DocumentationRouteHandler = {
       });
     });
   },
+  /**
+   * Gets the URL for a documentation topic (id prefix 'docs:').
+   * @param {string} id The topic content item's id.
+   * @returns {string} The URL for the topic.
+   */
   getUrl: function getUrl(id) {
     if (id === 'docs:') return '/docs';
     if (id.substr(0, 5) === 'docs:') {

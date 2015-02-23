@@ -17,6 +17,8 @@
  * -
  * Makes the enclosed string localizable.
  *
+ *     {@t}Text to localize{/t}
+ *
  * Shape
  * -----
  * It adds a 'shape' helper that enables the rendering of
@@ -24,23 +26,33 @@
  * that should point to the shape object to render.
  * Optional parameters are tag and class.
  *
+ *     {@shape shape=footer tag="footer" class="main-footer"/}
+ *
  * Style
  * -----
  * Registers a style sheet.
  * Use the non-minimized name, without extension, as the name parameter.
  *
+ *     {@style name="style"/}
+ *
  * Styles
  * ------
  * Renders the list of registered styles.
+ *
+ *     {@styles/}
  *
  * Script
  * ------
  * Registers a script.
  * Use the non-minimized name, without extension, as the name parameter.
  *
+ *     {@script name="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.js"/}
+ *
  * Scripts
  * -------
  * Renders the list of registered scripts.
+ *
+ *     {@scripts/}
  *
  * Meta
  * ----
@@ -49,11 +61,15 @@
  * value: the value of the tag (rendered as the content attribute)
  * Additional attributes will be rendered as-is.
  *
+ *     {@meta name="generator" value="DecentCMS"/}
+ *
  * Metas
  * -----
  * Renders registered meta tags.
+ *
+ *     {@metas/}
  */
-function CodeViewEngine(scope) {
+var CodeViewEngine = function CodeViewEngine(scope) {
   this.scope = scope;
 
   var RenderStream = require('./render-stream');
@@ -222,7 +238,7 @@ function CodeViewEngine(scope) {
       done(getDustTemplate(templatePath));
     });
   };
-}
+};
 CodeViewEngine.service = 'view-engine';
 CodeViewEngine.feature = 'dust-view-engine';
 CodeViewEngine.scope = 'shell';

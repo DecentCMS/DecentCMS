@@ -3,12 +3,21 @@
 
 /**
  * @description
- * The zone handler will render the child shapes found under
- * temp.items and temp.zones of any shape (not just zones).
+ * The zone handler will render the child shapes found
+ * under `temp.items` and `temp.zones` of any shape (not just zones).
  */
 var ZoneHandler = {
   feature: 'zone-handler',
   service: 'shape-handler',
+  /**
+   * Handles all shapes that have sub-shapes under `temp.items`
+   * or `temp.zones`, and recursively handles those.
+   *
+   * @param {object} context The context.
+   * @param {object} context.scope The scope.
+   * @param {object} context.shape The shape.
+   * @param {object} context.renderStream The render stream.
+   */
   handle: function handleZone(context, done) {
     var request = context.scope;
 

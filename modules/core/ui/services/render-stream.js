@@ -93,7 +93,7 @@ function RenderStream(scope, options) {
 
   /**
    * @description
-   * Renders a <br/> tag.
+   * Renders a &lt;br/&gt; tag.
    */
   this.br = this.asyncify(this._br =
     function br() {

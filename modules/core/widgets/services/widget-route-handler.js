@@ -12,6 +12,14 @@ WidgetRouteHandler.feature = 'widgets';
 WidgetRouteHandler.isScopeSingleton = true;
 WidgetRouteHandler.scope = 'request';
 
+/**
+ * Calls into layer stores and evaluates their rules in context,
+ * in order to determine what layers should be active for the current request.
+ * The widgets in those layers are then promised to be rendered.
+ * 
+ * @param {object} context The context.
+ * @param {Function} next The callback.
+ */
 WidgetRouteHandler.prototype.handle = function handleForWidgets(context, next) {
   var scope = this.scope;
   var shell = scope.require('shell');

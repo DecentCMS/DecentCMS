@@ -11,6 +11,12 @@ var ContentRouteHandler = {
   feature: 'content-route-handler',
   routePriority: 9000,
   scope: 'shell',
+  /**
+   * Registers the default content middleware.
+   * @param {object} scope The scope.
+   * @param {object} context The context.
+   * @param {object} context.expressApp The Express application object.
+   */
   register: function registerContentMiddleware(scope, context) {
     context.expressApp.register(ContentRouteHandler.routePriority, function bindContentMiddleware(app) {
       app.get('*', function contentMiddleware(request, response, next) {
@@ -28,6 +34,11 @@ var ContentRouteHandler = {
       });
     });
   },
+  /**
+   * Gets the URL for a regular content item (no id prefix).
+   * @param {string} id The topic content item's id.
+   * @returns {string} The URL for the topic.
+   */
   getUrl: function getUrl(id) {
     if (id.indexOf(':') === -1) {
       return '/' + id;

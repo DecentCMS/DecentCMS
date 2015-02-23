@@ -6,12 +6,29 @@
  * This shape is the place holder that the content manager puts into
  * the shape tree when only the id is known, so we don't fetch content
  * items earlier than necessary.
+ *
  * This handler replaces the promise shape with a content shape with
  * local zones under it that carry the placed part shapes.
  */
 var ShapeItemPromiseHandler = {
   feature: 'shape',
   service: 'shape-handler',
+  /**
+   * Adds an actual content shape for the content item from
+   * its `shape-item-promise` shape.
+   *
+   * It then executes a local lifecycle for the new content
+   * shape, that goes through the following phases:
+   * * `shape-handler.handle`: gives a chance for handlers to handle
+   *   the new shapes and create new ones.
+   * * `placement-strategy.placeShapes`: the new shapes created above
+   *   can be dispatched to zones.
+   *
+   * @param {object} context The context.
+   * @param {object} context.scope The scope.
+   * @param {object} context.shape The promise shape.
+   * @param {object} context.renderStream The render stream.
+   */
   handle: function handleShapeItemPromise(context, done) {
     var scope = context.scope;
     var itemShape = context.shape;

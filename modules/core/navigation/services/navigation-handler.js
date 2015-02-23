@@ -3,6 +3,12 @@
 
 var async = require('async');
 
+/**
+ * A handler that adds the default navigation menu to the top-level
+ * 'navigation' zone.
+ * @param {object} scope The scope.
+ * @constructor
+ */
 function NavigationHandler(scope) {
   this.scope = scope;
 }
@@ -10,6 +16,16 @@ NavigationHandler.feature = 'navigation';
 NavigationHandler.service = 'shape-handler';
 NavigationHandler.scope = 'request';
 
+/**
+ * Queries navigation providers to build the default menu, then adds
+ * the resulting shape to the 'navigation' top-level zone under the layout
+ * shape.
+ * @param {object} context The context.
+ * @param {object} context.shape
+ * The shape being handled. If this is not the layout shape, the method does nothing.
+ * @param {Function} done The callback.
+ * @returns {*}
+ */
 NavigationHandler.prototype.handle = function handleNavigation(context, done) {
   var layout = context.shape;
   if (!layout.meta || layout.meta.type !== 'layout') return done();

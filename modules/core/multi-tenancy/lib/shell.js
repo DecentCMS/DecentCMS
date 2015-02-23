@@ -12,7 +12,7 @@ var path = require('path');
 var fs = require('fs');
 var async = require('async');
 var scope = require('decent-core-dependency-injection').scope;
-var nullServices = require('./null-services');
+var NullServices = require('./null-services');
 
 /**
  * @description
@@ -97,9 +97,10 @@ Shell.load = function(sitePath, defaults) {
  * @description
  * Discovers all tenants in the ./sites directory.
  * 
- * @param {Object} defaults  Default settings for the shells.
- * @param {String} rootPath  The root path where to look for shell settings files.
- *                           Defaults to ./sites
+ * @param {Object} defaults
+ * Default settings for the shells.
+ * @param {String} rootPath
+ * The root path where to look for shell settings files. Defaults to ./sites
  */
 Shell.discover = function(defaults, rootPath) {
   rootPath = rootPath || './sites';
@@ -202,9 +203,9 @@ Shell.prototype.load = function() {
   // The shell exposes itself as a service
   this.register('shell', this);
   // Register null services if no better one exists
-  for (var nullServiceName in nullServices) {
+  for (var nullServiceName in NullServices) {
     if (!this.services.hasOwnProperty(nullServiceName)) {
-      var nullService = nullServices[nullServiceName];
+      var nullService = NullServices[nullServiceName];
       nullService.isStatic = true;
       this.services[nullServiceName] = [nullService];
     }

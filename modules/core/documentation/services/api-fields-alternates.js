@@ -6,7 +6,7 @@
  * and text-service to the alternates for the text fields
  * of the same names on api-documentation items.
  */
-module.exports = {
+var ShapeHandler = {
   service: 'shape-handler',
   feature: 'api-documentation',
   scope: 'shell',
@@ -34,3 +34,5 @@ module.exports = {
     done();
   }
 };
+
+module.exports = ShapeHandler;
