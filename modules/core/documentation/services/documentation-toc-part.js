@@ -73,7 +73,7 @@ var DocumentationTocPart = {
           map: function mapDocToc(topic) {
             var splitId = topic.id.split(':')[1].split('/');
             var hasModule = moduleManifests.hasOwnProperty(splitId[0]);
-            var isIndex = splitId.length < 2 && hasModule;
+            var isIndex = topic.id === 'docs:' || (splitId.length < 2 && hasModule);
             return {
               title: topic.title,
               module: hasModule ? splitId[0] : null,
@@ -83,7 +83,7 @@ var DocumentationTocPart = {
                 ? 'index'
                 : splitId[0],
               section: topic.section || null,
-              number: topic.number || isIndex ? '0' : '9000',
+              number: '' + (topic.number || (isIndex ? '0' : '9000')),
               url: urlHelper.getUrl(topic.id)
             };
           },
@@ -94,7 +94,7 @@ var DocumentationTocPart = {
             result.push(entry.section);
             if (entry.number) {
               Array.prototype.push.apply(result,
-                entry.number.split('.').map(parseInt));
+                ('' + entry.number).split('.').map(parseInt));
             }
             if (entry.name) result.push(entry.name);
             return result;
