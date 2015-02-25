@@ -1,4 +1,5 @@
 title: Getting started with DecentCMS
+number: 1
 
 -8<------------------------------------------------------------------
 
