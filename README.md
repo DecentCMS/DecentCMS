@@ -82,5 +82,3 @@ The source code for DecentCMS is hosted on Github:
 
 The web site for the project can be found here:
 <http://decentcms.org>
-
-  [decent-consulting-site]: https://github.com/DecentCMS/DecentConsulting
