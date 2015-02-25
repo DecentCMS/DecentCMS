@@ -68,7 +68,7 @@ Installation
 
 There is an experimental installation procedure for the moment:
 
-* Install Node.js
+* Install the latest Node.js (it should come with npm, but make sure your `npm --version` is more than 2; if not, npm install -g npm should fix it)
 * npm install -g grunt-cli
 * Clone the repository
 * From the root of the clone, npm install
