@@ -13,9 +13,11 @@ There is only an experimental installation procedure for the moment:
   your `npm --version` is more than 2;
   if not, `npm install -g npm` should fix it)
 * `npm install -g grunt-cli`
-* Clone the repository
+* Clone the repository `git clone https://github.com/DecentCMS/DecentCMS.git`
 * From the root of the clone, `npm install`
 * From the root of the clone, `grunt install`
+* `cd modules/core/multi-tenancy`, then `npm install`. This step will
+  disappear in the near future, but is necessary at this point.
 * Create a web site or clone an existing one under `sites/default`
   (for example from [this sample site][decent-consulting-site]).
 
