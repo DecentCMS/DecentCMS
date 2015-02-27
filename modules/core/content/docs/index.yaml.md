@@ -148,3 +148,7 @@ Some kinds of items have an id prefix that is an identifier followed
 with a colon.
 For example, widgets are identified by strings of the form:
 `widget:name-of-the-widget`.
+
+#### Related
+
+[Content item identity in Orchard and DecentCMS](https://weblogs.asp.net/bleroy/content-item-identity-in-orchard-and-decentcms)
