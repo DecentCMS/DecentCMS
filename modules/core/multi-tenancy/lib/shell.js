@@ -113,7 +113,7 @@ Shell.discover = function(defaults, rootPath) {
     }
     catch(ex) {
       ex.path = resolvedSitePath;
-      ex.message = 'Failed to load site settings from ' + settingsPath;
+      ex.message = 'Failed to load site settings for ' + siteName;
       throw ex;
     }
   });
