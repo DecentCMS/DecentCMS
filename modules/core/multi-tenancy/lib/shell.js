@@ -106,6 +106,7 @@ Shell.discover = function(defaults, rootPath) {
   rootPath = rootPath || './sites';
   var siteNames = fs.readdirSync(rootPath);
   siteNames.forEach(function(siteName) {
+    if (siteName[0] === '.') return;
     var resolvedSitePath = path.resolve(rootPath, siteName);
     try {
       var shell = Shell.load(resolvedSitePath, defaults);
