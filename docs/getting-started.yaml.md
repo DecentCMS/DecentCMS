@@ -19,7 +19,8 @@ There is only an experimental installation procedure for the moment:
 * `cd modules/core/multi-tenancy`, then `npm install`. This step will
   disappear in the near future, but is necessary at this point.
 * Create a web site or clone an existing one under `sites/default`
-  (for example from [this sample site][decent-consulting-site]).
+  (for example from [this sample site][decent-consulting-site],
+  or from [the DecentCMS web site][decent-cms-site]).
 
 You can then run the server: node server, and navigate to localhost:1337.
 
@@ -27,3 +28,6 @@ Otherwise, you can manually install by cloning the repository,
 adding a sites/default folder (for example from
 [this sample site][decent-consulting-site]), and then `npm install`
 from the root and from every single module and theme folder.
+
+  [decent-consulting-site]: https://github.com/DecentCMS/DecentConsulting
+  [decent-cms-site]: https://github.com/DecentCMS/DecentCMS-WebSite
