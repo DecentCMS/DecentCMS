@@ -270,7 +270,8 @@ describe('File Content Enumerator', function() {
               "type": "page"
             },
             "temp": {
-              "filePath": "foo\\content\\index.json"
+              "filePath": "foo\\content\\index.json",
+              "name": "index"
             },
             "title": "Home"
           },
@@ -284,7 +285,8 @@ describe('File Content Enumerator', function() {
               "type": "other-type"
             },
             "temp": {
-              "filePath": "foo\\content\\bar\\baz.json"
+              "filePath": "foo\\content\\bar\\baz.json",
+              "name": "baz"
             },
             "title": "Foo"
           },
@@ -298,7 +300,8 @@ describe('File Content Enumerator', function() {
               "type": "page"
             },
             "temp": {
-              "filePath": "foo\\content\\bar\\multipart.yaml.md"
+              "filePath": "foo\\content\\bar\\multipart.yaml.md",
+              "name": "multipart"
             },
             "title": "Foo multipart"
           },
@@ -312,7 +315,8 @@ describe('File Content Enumerator', function() {
               "type": "page"
             },
             "temp": {
-              "filePath": "foo\\content\\bar\\yaml.yaml"
+              "filePath": "foo\\content\\bar\\yaml.yaml",
+              "name": "yaml"
             },
             "title": "Foo YAML"
           }
@@ -347,7 +351,8 @@ describe('File Content Enumerator', function() {
               "type": "other-type"
             },
             "temp": {
-              "filePath": "foo\\content\\bar\\baz.json"
+              "filePath": "foo\\content\\bar\\baz.json",
+              "name": "baz"
             },
             "title": "Foo"
           },
@@ -361,7 +366,8 @@ describe('File Content Enumerator', function() {
               "type": "page"
             },
             "temp": {
-              "filePath": "foo\\content\\bar\\yaml.yaml"
+              "filePath": "foo\\content\\bar\\yaml.yaml",
+              "name": "yaml"
             },
             "title": "Foo YAML"
           }

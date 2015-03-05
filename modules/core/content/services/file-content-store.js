@@ -76,9 +76,12 @@ var fileContentStore = {
             callback(err);
             return;
           }
-          // Add the file path to temp meta data
+          // Add the file path and name to temp meta data
           var temp = shapeHelper.temp(item);
           temp.filePath = filePath;
+          var baseName = path.basename(filePath);
+          var extensionIndex = baseName.indexOf('.');
+          temp.name = extensionIndex >= 0 ? baseName.substr(0, extensionIndex) : baseName;
           // Add to the items list
           items[id] = item;
           // Set the id property on the item
