@@ -4,6 +4,10 @@ var expect = require('chai').expect;
 var proxyquire = require('proxyquire');
 var path = require('path');
 
+function clearIndexOrderCache(index) {
+  index.forEach(function(entry) {delete entry._order;});
+}
+
 describe('Index', function() {
   var Index = require('../services/index');
   it('can get indexes by map function and order', function() {
@@ -176,6 +180,7 @@ describe('File Index', function() {
     var index = indexFactory.getIndex(mapSingleEntry, orderBy);
 
     process.nextTick(function() {
+      clearIndexOrderCache(index._index);
       expect(index._index).to.deep.equal([
         {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
         {indexedFoo: 'fooitem3', itemId: 'item3', index: 3},
@@ -191,6 +196,7 @@ describe('File Index', function() {
     });
 
     process.nextTick(function() {
+      clearIndexOrderCache(index._index);
       expect(index._index).to.deep.equal([
         {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
         {indexedFoo: 'fooitem1', itemId: 'item1', index: 1},
@@ -204,6 +210,7 @@ describe('File Index', function() {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
 
     process.nextTick(function() {
+      clearIndexOrderCache(index._index);
       expect(index._index).to.deep.equal([
         {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
         {indexedFoo: 'baritem2', itemId: 'item2', index: 2},
@@ -221,6 +228,7 @@ describe('File Index', function() {
       /^item(2|1)$/, mapSingleEntry, orderBy);
 
     process.nextTick(function() {
+      clearIndexOrderCache(index._index);
       expect(index._index).to.deep.equal([
         {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
         {indexedFoo: 'fooitem1', itemId: 'item1', index: 1}
@@ -233,6 +241,7 @@ describe('File Index', function() {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
 
     process.nextTick(function() {
+      clearIndexOrderCache(index._index);
       index.filter(function(entry) {
         return entry.indexedFoo.substr(0, 3) === 'bar';
       }, function(entries) {
@@ -250,6 +259,7 @@ describe('File Index', function() {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
 
     process.nextTick(function() {
+      clearIndexOrderCache(index._index);
       index.filter(function(entry) {
         return entry.indexedFoo.substr(0, 3) === 'bar';
       }, 1, function(entries) {
@@ -266,6 +276,7 @@ describe('File Index', function() {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
 
     process.nextTick(function() {
+      clearIndexOrderCache(index._index);
       index.filter(function(entry) {
         return entry.index < 3;
       }, 1, 2, function(entries) {
@@ -320,6 +331,8 @@ describe('File Index', function() {
       ];
 
       index.updateWith({id: 'item6', index: 6});
+      clearIndexOrderCache(index._index);
+      clearIndexOrderCache(index._unsortedIndex);
 
       expect(index._index).to.deep.equal([
         {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
@@ -347,6 +360,8 @@ describe('File Index', function() {
       index._index.forEach(function(oldItem) {oldItem.indexedFoo = 'old';});
 
       index.updateWith({id: 'item2', index: 2});
+      clearIndexOrderCache(index._index);
+      clearIndexOrderCache(index._unsortedIndex);
 
       expect(index._index).to.deep.equal([
         {indexedFoo: 'fooitem2', itemId: 'item2', index: 2},
@@ -373,6 +388,8 @@ describe('File Index', function() {
       ];
 
       index.remove({id: 'item2', index: 2});
+      clearIndexOrderCache(index._index);
+      clearIndexOrderCache(index._unsortedIndex);
 
       expect(index._index).to.deep.equal([
         {indexedFoo: 'fooitem3', itemId: 'item3', index: 3},

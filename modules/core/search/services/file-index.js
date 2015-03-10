@@ -137,8 +137,8 @@ FileIndex.prototype.reduce = function reduce(where, reduce, initialValue, done) 
 };
 
 FileIndex.prototype._compare = function compare(a, b) {
-  a = this.orderBy(a);
-  b = this.orderBy(b);
+  a = a._order || (a._order = this.orderBy(a));
+  b = b._order || (b._order = this.orderBy(b));
   a = Array.isArray(a) ? a : [a];
   b = Array.isArray(b) ? b : [b];
   for (var i = 0; i < a.length && i < b.length; i++) {
@@ -221,6 +221,7 @@ FileIndex.prototype.build = function build() {
   }, function() {
     // We have all the items. Now sort.
     self._index = self.orderBy ? unsortedIndex.sort(self._compare.bind(self)) : unsortedIndex;
+    // Reset unsorted index.
     self._unsortedIndex = null;
     // And finally, persist.
     self._persistIndex();
