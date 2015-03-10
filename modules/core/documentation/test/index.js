@@ -6,19 +6,42 @@ var path = require('path');
 var DocumentationPathMapper = require('../services/documentation-path-mapper');
 var ApiDocumentationPathMapper = require('../services/api-documentation-path-mapper');
 
+// Require jsdoc2md eagerly, because this library is horribly slow to load, and can cause tests to timeouts.
+require('jsdoc-to-markdown');
+
 // Define a fake file system's hierarchy.
 var fileSystem = {
   name: '',
   items: [
     {name: 'docs', items: [
       {name: 'index.json'},
-      {name: 'some-top-level-topic.yaml.md'}
+      {name: 'some-top-level-topic.yaml.md'},
+      {name: 'top-section1', items: [
+        {name: 'index.yaml.md'},
+        {name: 'topic-under-top-section1-1.yaml.md'},
+        {name: 'topic-under-top-section1-2.yaml.md'}
+      ]},
+      {name: 'top-section2', items: [
+        {name: 'index.yaml.md'},
+        {name: 'topic-under-top-section2-1.yaml.md'},
+        {name: 'topic-under-top-section2-2.yaml.md'}
+      ]}
     ]},
     {name: 'modules', items: [
       {name: 'module1', items: [
         {name: 'docs', items: [
           {name: 'index.json'},
-          {name: 'some-topic.yaml.md'}
+          {name: 'some-topic.yaml.md'},
+          {name: 'section1-of-module1', items: [
+            {name: 'index.yaml.md'},
+            {name: 'topic-under-section1-1.yaml.md'},
+            {name: 'topic-under-section1-2.yaml.md'}
+          ]},
+          {name: 'section2-of-module1', items: [
+            {name: 'index.yaml.md'},
+            {name: 'topic-under-section2-1.yaml.md'},
+            {name: 'topic-under-section2-2.yaml.md'}
+          ]}
         ]},
         {name: 'lib', items: [
           {name: 'library1.js'},
@@ -31,6 +54,7 @@ var fileSystem = {
       ]},
       {name: 'module2', items: [
         {name: 'docs', items: [
+          {name: 'index.yaml.md'},
           {name: 'some-topic.yaml.md'}
         ]},
         {name: 'services', items: [
@@ -81,15 +105,23 @@ var stubs = {
 };
 
 var itemsToIndex = [
-  {id: 'docs:top1', title: 'Top 1'},
-  {id: 'foo:bar'},
-  {id: 'docs:', title: 'Root'},
-  {id: 'docs:module1/topic2', title: 'Module 1 topic 2'},
-  {id: 'docs:top2', title: 'Top 2'},
-  {id: 'docs:module1', title: 'Module 1 index'},
-  {id: 'apidocs:module1/service1', title: 'Module 1 service 1'},
-  {id: 'docs:module1/topic1', title: 'Module 1 topic 1'},
-  {id: 'docs:module2', title: 'Module 2 index'}
+  {id: 'docs:top1', title: 'Top 1', temp: {name: 'top1'}},
+  {id: 'docs:module1/section1/topic2', title: 'Module 1 section 1 topic 2', temp: {name: 'topic2'}},
+  {id: 'foo:bar', temp: {name: 'bar'}},
+  {id: 'docs:', title: 'Root', temp: {name: 'index'}},
+  {id: 'docs:section1/topic1', title: 'Section 1 topic 1', temp: {name: 'topic1'}},
+  {id: 'docs:module1/topic2', title: 'Module 1 topic 2', temp: {name: 'topic2'}},
+  {id: 'docs:module1/section1', title: 'Module 1 section 1 index', temp: {name: 'index'}},
+  {id: 'docs:top2', title: 'Top 2', temp: {name: 'top2'}},
+  {id: 'docs:section1', title: 'Section 1 index', temp: {name: 'index'}},
+  {id: 'docs:module1/section1/topic1', title: 'Module 1 section 1 topic 1', temp: {name: 'topic1'}},
+  {id: 'docs:section2', title: 'Section 2 index', temp: {name: 'index'}},
+  {id: 'docs:module1', title: 'Module 1 index', temp: {name: 'index'}},
+  {id: 'docs:section1/topic2', title: 'Section 1 topic 2', temp: {name: 'topic2'}},
+  {id: 'apidocs:module1/service1', title: 'Module 1 service 1', temp: {name: 'service1'}},
+  {id: 'docs:module1/topic1', title: 'Module 1 topic 1', temp: {name: 'topic1'}},
+  {id: 'docs:section2/topic1', title: 'Section 2 topic 1', temp: {name: 'topic1'}},
+  {id: 'docs:module2', title: 'Module 2 index', temp: {name: 'index'}}
 ];
 
 var scope = {
@@ -378,7 +410,6 @@ describe('JsDoc File Parser', function() {
   });
 
   it('parses JavaScript files for JsDoc', function(done) {
-    this.timeout(5000);
     var context = {
       path: 'path/to/some-file-to-test.js',
       data: js,
@@ -429,13 +460,30 @@ describe('Documentation Enumerator', function() {
         iterate(iterator);
       }
       else {
-        expect(items).to.deep.equal({
-          "docs:": {id: "docs:"},
-          "docs:some-top-level-topic": {id: "docs:some-top-level-topic"},
-          "docs:module1": {id: "docs:module1"},
-          "docs:module1/some-topic": {id: "docs:module1/some-topic"},
-          "docs:module2/some-topic": {id: "docs:module2/some-topic"}
-        });
+        var expected = {};
+        [
+          '', 'some-top-level-topic',
+          'top-section1',
+          'top-section1/topic-under-top-section1-1',
+          'top-section1/topic-under-top-section1-2',
+          'top-section2',
+          'top-section2/topic-under-top-section2-1',
+          'top-section2/topic-under-top-section2-2',
+          'module1',
+          'module1/some-topic',
+          'module1/section1-of-module1',
+          'module1/section1-of-module1/topic-under-section1-1',
+          'module1/section1-of-module1/topic-under-section1-2',
+          'module1/section2-of-module1',
+          'module1/section2-of-module1/topic-under-section2-1',
+          'module1/section2-of-module1/topic-under-section2-2',
+          'module2',
+          'module2/some-topic'
+        ].forEach(function(id) {
+            id = 'docs:' + id;
+            expected[id] = {id: id};
+          });
+        expect(items).to.deep.equal(expected);
         done();
       }
     };
@@ -455,10 +503,21 @@ describe('Documentation Enumerator', function() {
         iterate(iterator);
       }
       else {
-        expect(items).to.deep.equal({
-          "docs:module1": {id: "docs:module1"},
-          "docs:module1/some-topic": {id: "docs:module1/some-topic"},
-        });
+        var expected = {};
+        [
+          'module1',
+          'module1/some-topic',
+          'module1/section1-of-module1',
+          'module1/section1-of-module1/topic-under-section1-1',
+          'module1/section1-of-module1/topic-under-section1-2',
+          'module1/section2-of-module1',
+          'module1/section2-of-module1/topic-under-section2-1',
+          'module1/section2-of-module1/topic-under-section2-2',
+        ].forEach(function(id) {
+            id = 'docs:' + id;
+            expected[id] = {id: id};
+          });
+        expect(items).to.deep.equal(expected);
         done();
       }
     };
@@ -533,15 +592,18 @@ describe('Documentation TOC part', function() {
       shape: tocItem
     }, function() {
       expect(tocItem.toc.topLevelTOC).to.deep.equal([
-        {itemId: 'docs:', module: null, section: null, name: '', number: '9000', title: 'Root', url: 'url:docs:'},
+        {itemId: 'docs:', module: null, section: null, name: 'index', number: '0', title: 'Root', url: 'url:docs:'},
         {itemId: 'docs:top1', module: null, section: null, name: 'top1', number: '9000', title: 'Top 1', url: 'url:docs:top1'},
         {itemId: 'docs:top2', module: null, section: null, name: 'top2', number: '9000', title: 'Top 2', url: 'url:docs:top2'},
+        {itemId: 'docs:section1', isSectionIndex: true, module: null, section: 'section1', name: 'index', number: '0', title: 'Section 1 index', url: 'url:docs:section1'},
+        {itemId: 'docs:section2', isSectionIndex: true, module: null, section: 'section2', name: 'index', number: '0', title: 'Section 2 index', url: 'url:docs:section2'},
         {itemId: 'docs:module1', isModuleIndex: true, module: 'module1', section: null, name: 'index', number: '0', title: 'Module 1 index', url: 'url:docs:module1'},
         {itemId: 'docs:module2', isModuleIndex: true, module: 'module2', section: null, name: 'index', number: '0', title: 'Module 2 index', url: 'url:docs:module2'}
       ]);
       expect(tocItem.toc.localTOC).to.deep.equal([
         {itemId: 'docs:module1/topic1', module: 'module1', section: null, name: 'topic1', number: '9000', title: 'Module 1 topic 1', url: 'url:docs:module1/topic1'},
         {itemId: 'docs:module1/topic2', module: 'module1', section: null, name: 'topic2', number: '9000', title: 'Module 1 topic 2', url: 'url:docs:module1/topic2'},
+        {itemId: 'docs:module1/section1', isSectionIndex: true, module: 'module1', section: 'section1', name: 'index', number: '0', title: 'Module 1 section 1 index', url: 'url:docs:module1/section1'},
         {itemId: 'apidocs:module1/service1', module: 'module1', section: null, name: 'service1', number: '9000', title: 'Module 1 service 1', url: 'url:apidocs:module1/service1'}
       ]);
       expect(tocItem.toc.breadcrumbs).to.deep.equal([
@@ -549,7 +611,7 @@ describe('Documentation TOC part', function() {
         {itemId: 'apidocs:module1/service1', module: 'module1', section: null, name: 'service1', number: '9000', title: 'Module 1 service 1', url: 'url:apidocs:module1/service1'}
       ]);
       expect(tocItem.toc.previous).to.deep.equal(
-        {itemId: 'docs:module1/topic2', module: 'module1', section: null, name: 'topic2', number: '9000', title: 'Module 1 topic 2', url: 'url:docs:module1/topic2'}
+        {itemId: 'docs:module1/section1/topic2', module: 'module1', section: 'section1', name: 'topic2', number: '9000', title: 'Module 1 section 1 topic 2', url: 'url:docs:module1/section1/topic2'}
       );
       expect(tocItem.toc.current).to.deep.equal(
         {itemId: 'apidocs:module1/service1', module: 'module1', section: null, name: 'service1', number: '9000', title: 'Module 1 service 1', url: 'url:apidocs:module1/service1'}
@@ -559,5 +621,66 @@ describe('Documentation TOC part', function() {
       );
       done();
     });
+  });
+
+  it('Creates the right local TOC, breadcrumbs, and next/previous for all possible current topics', function(done) {
+    var async = require('async');
+    function getId(entry) {return entry ? entry.itemId : null;}
+    function check(id) {
+      var toc = tocItem.toc;
+      var c = cases[id];
+      expect(toc.localTOC.map(getId)).to.deep.equal(c.local);
+      expect(toc.breadcrumbs.map(getId)).to.deep.equal(c.crumbs);
+      expect(getId(toc.previous)).to.equal(c.previous);
+      expect(getId(toc.current)).to.equal(id);
+      expect(getId(toc.next)).to.equal(c.next);
+    }
+
+    var topTOC = ['docs:', 'docs:top1', 'docs:top2', 'docs:section1', 'docs:section2', 'docs:module1', 'docs:module2'];
+    var section1TOC = ['docs:section1/topic1', 'docs:section1/topic2'];
+    var section2TOC = ['docs:section2/topic1'];
+    var module1TOC = ['docs:module1/topic1', 'docs:module1/topic2', 'docs:module1/section1', 'apidocs:module1/service1'];
+    var module1section1TOC = ['docs:module1/section1/topic1', 'docs:module1/section1/topic2'];
+    var cases = {
+      'docs:': {local: [], crumbs: ['docs:'], previous: null, next: 'docs:top1'},
+      'docs:top1': {local: [], crumbs: ['docs:top1'], previous: 'docs:', next: 'docs:top2'},
+      'docs:top2': {local: [], crumbs: ['docs:top2'], previous: 'docs:top1', next: 'docs:section1'},
+      'docs:section1': {local: section1TOC, crumbs: ['docs:section1'], previous: 'docs:top2', next: 'docs:section1/topic1'},
+      'docs:section1/topic1': {local: section1TOC, crumbs: ['docs:section1', 'docs:section1/topic1'], previous: 'docs:section1', next: 'docs:section1/topic2'},
+      'docs:section1/topic2': {local: section1TOC, crumbs: ['docs:section1', 'docs:section1/topic2'], previous: 'docs:section1/topic1', next: 'docs:section2'},
+      'docs:section2': {local: section2TOC, crumbs: ['docs:section2'], previous: 'docs:section1/topic2', next: 'docs:section2/topic1'},
+      'docs:section2/topic1': {local: section2TOC, crumbs: ['docs:section2', 'docs:section2/topic1'], previous: 'docs:section2', next: 'docs:module1'},
+      'docs:module1': {local: module1TOC, crumbs: ['docs:module1'], previous: 'docs:section2/topic1', next: 'docs:module1/topic1'},
+      'docs:module1/topic1': {local: module1TOC, crumbs: ['docs:module1', 'docs:module1/topic1'], previous: 'docs:module1', next: 'docs:module1/topic2'},
+      'docs:module1/topic2': {local: module1TOC, crumbs: ['docs:module1', 'docs:module1/topic2'], previous: 'docs:module1/topic1', next: 'docs:module1/section1'},
+      'docs:module1/section1': {local: module1section1TOC, crumbs: ['docs:module1', 'docs:module1/section1'], previous: 'docs:module1/topic2', next: 'docs:module1/section1/topic1'},
+      'docs:module1/section1/topic1': {local: module1section1TOC, crumbs: ['docs:module1', 'docs:module1/section1', 'docs:module1/section1/topic1'], previous: 'docs:module1/section1', next: 'docs:module1/section1/topic2'},
+      'docs:module1/section1/topic2': {local: module1section1TOC, crumbs: ['docs:module1', 'docs:module1/section1', 'docs:module1/section1/topic2'], previous: 'docs:module1/section1/topic1', next: 'apidocs:module1/service1'},
+      'apidocs:module1/service1': {local: module1TOC, crumbs: ['docs:module1', 'apidocs:module1/service1'], previous: 'docs:module1/section1/topic2', next: 'docs:module2'},
+      'docs:module2': {local: [], crumbs: ['docs:module2'], previous: 'apidocs:module1/service1', next: null}
+    };
+
+    var tocItem = {
+      meta: {type: 'content'},
+      temp: {shapes: []},
+      toc: {}
+    };
+    tocItem.temp.item = tocItem;
+    async.each(
+      Object.getOwnPropertyNames(cases),
+      function forEachCase(id, next) {
+        scope.itemId = id;
+        delete scope.documentationTOC;
+        tocItem.toc = {};
+        tocPart.handle({
+          scope: scope,
+          shape: tocItem
+        }, function() {
+          expect(tocItem.toc.topLevelTOC.map(getId)).to.deep.equal(topTOC);
+          check(id);
+          next();
+        });
+      },
+      done);
   });
 });

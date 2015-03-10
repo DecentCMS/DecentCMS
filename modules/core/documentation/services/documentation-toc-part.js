@@ -1,6 +1,7 @@
 // DecentCMS (c) 2015 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
+// TODO: add link to edit a topic
 /**
  * Handler for a part that builds a table of contents for documentation.
  * This depends on an index service to be active.
@@ -54,7 +55,7 @@ var DocumentationTocPart = {
         };
         shape.temp = {displayType: temp.displayType};
         // Lookup the cache on the request.
-        var cachedToc = scope.documentationToc;
+        var cachedToc = scope.documentationTOC;
         if (cachedToc) {
           shape.topLevelTOC = cachedToc.topLevelTOC;
           shape.localTOC = cachedToc.localTOC;
@@ -73,16 +74,41 @@ var DocumentationTocPart = {
           map: function mapDocToc(topic) {
             var splitId = topic.id.split(':')[1].split('/');
             var hasModule = moduleManifests.hasOwnProperty(splitId[0]);
-            var isIndex = topic.id === 'docs:' || (splitId.length < 2 && hasModule);
+            var isIndex = topic.id === 'docs:'
+              || (splitId.length < 2 && hasModule)
+              || (topic.temp && topic.temp.name && topic.temp.name === 'index');
+            var module = hasModule ? splitId[0] : null;
+            var section = topic.section || null;
+            if (!section) {
+              switch(splitId.length) {
+                case 3: // /module/section/topic
+                  section = splitId[1];
+                  break;
+                case 2: // /module/section, /module/topic, /section/topic
+                  if (module) {
+                    if (isIndex) { // /module/section
+                      section = splitId[1];
+                    }
+                    // else /module/topic
+                  }
+                  else { // /section/topic
+                    section = splitId[0];
+                  }
+                  break;
+                case 1: // /, /module, /section, /topic
+                  if (isIndex && !module && splitId[0].length > 0) { // /section
+                    section = splitId[0];
+                  }
+                  // else /module or /topic
+                  break;
+              }
+            }
+            var topicName = isIndex ? 'index' : splitId[splitId.length - 1];
             return {
               title: topic.title,
-              module: hasModule ? splitId[0] : null,
-              name: splitId.length > 1
-                ? splitId[1]
-                : isIndex
-                ? 'index'
-                : splitId[0],
-              section: topic.section || null,
+              module: module,
+              name: topicName,
+              section: section,
               number: '' + (topic.number || (isIndex ? '0' : '9000')),
               url: urlHelper.getUrl(topic.id)
             };
@@ -90,7 +116,7 @@ var DocumentationTocPart = {
           orderBy: function orderByModuleSectionNumberName(entry) {
             var result = [];
             result.push(entry.module);
-            result.push(entry.itemId.substr(0, 3) === 'api' ? 'A' : '0');
+            result.push(entry.itemId.substr(0, 3) === 'api' ? 2 : 1);
             result.push(entry.section);
             if (entry.number) {
               Array.prototype.push.apply(result,
@@ -103,16 +129,23 @@ var DocumentationTocPart = {
         // use the index to retrieve top-level TOC, local TOC, breadcrumbs,
         // next and previous topics.
         var idForCurrent = scope.itemId;
+        var parentIdForLocalTOC = null;
+        if (idForCurrent.length > 0) {
+          var lastSlashInCurrentId = idForCurrent.lastIndexOf('/');
+          if (lastSlashInCurrentId !== -1) {
+            parentIdForLocalTOC = idForCurrent.substring(idForCurrent.indexOf(':') + 1, lastSlashInCurrentId);
+          }
+        }
         var entryForCurrent = null;
         var foundCurrent = false;
         var topLevelTOC = [];
-        var localTOC = [];
-        var lockLocalTOC = false;
+        var localTOC = null;
         var breadcrumbs = [];
         var nextTopic = null;
         var previousTopic = null;
         var module = null;
         var section = null;
+        var alreadyStarted = {};
         index.reduce(
           function buildTOC(val, entry) {
             // update previous, next, and localToc.
@@ -135,27 +168,22 @@ var DocumentationTocPart = {
                 previousTopic = entry;
               }
             }
+            var idWithoutPrefix = entry.itemId.substr(entry.itemId.indexOf(':') + 1);
 
-            if (entry.module && entry.module !== module) {
+            if (entry.module && entry.module !== module && !alreadyStarted[entry.module]) {
               // Starting to look at the contents of a new module.
               module = entry.module;
+              alreadyStarted[module] = true;
               entry.isModuleIndex = true;
               // If the index topic failed to provide a title, use the module name.
               entry.title = entry.title || moduleManifests[module].friendlyName || module;
-              if (!foundCurrent) {
-                // The current topic wasn't in the module we just finished before this,
-                // so we need to start the breadcrumbs over.
+              if (!foundCurrent || entryForCurrent === entry) {
                 breadcrumbs = [entry];
-                // Restart the local TOC if it's not finished building.
-              }
-              else if (entryForCurrent === entry) {
-                breadcrumbs = [entry];
-              }
-              if (!lockLocalTOC) {
-                if (foundCurrent && entryForCurrent !== entry) {
-                  lockLocalTOC = true;
+                if (idForCurrent === entry.itemId) {
+                  parentIdForLocalTOC = idForCurrent.substr(idForCurrent.indexOf(':') + 1);
+                  localTOC = [];
                 }
-                else {
+                else if (idWithoutPrefix === parentIdForLocalTOC) {
                   localTOC = [];
                 }
               }
@@ -163,22 +191,21 @@ var DocumentationTocPart = {
               section = null;
             }
 
-            if (entry.section != section) {
+            var sectionKey = (entry.module || '') + '/' + (entry.section || '');
+            if (entry.section && entry.section != section && entry.section && !alreadyStarted[sectionKey]) {
               // Starting to look at the topics in a new section.
               section = entry.section;
+              alreadyStarted[sectionKey] = true;
               entry.isSectionIndex = true;
-              if (!foundCurrent) {
-                // The current topic wasn't in the section.
-                // Restart the local TOC, and push this topic into the breadcrumbs.
-                breadcrumbs.push(entry);
-              }
               // Restart the local TOC if it's not finished building.
-              if (!lockLocalTOC) {
-                if (foundCurrent && entryForCurrent !== entry) {
-                  lockLocalTOC = true;
-                }
-                else {
+              if (!foundCurrent || entryForCurrent === entry) {
+                if (idForCurrent === entry.itemId) {
+                  parentIdForLocalTOC = idForCurrent.substr(idForCurrent.indexOf(':') + 1);
                   localTOC = [];
+                }
+                else if (idWithoutPrefix === parentIdForLocalTOC) {
+                  localTOC = [];
+                  breadcrumbs.push(entry);
                 }
               }
             }
@@ -193,22 +220,11 @@ var DocumentationTocPart = {
 
               topLevelTOC.push(entry);
             }
+
             // Push to local TOC if that's not already finished and if the entry belongs there.
-            if (!lockLocalTOC
-              && ((foundCurrent
-                && entryForCurrent.isModuleIndex
-                && entryForCurrent.module === entry.module
-                && entryForCurrent !== entry
-                && (!entry.section || entry.isSectionIndex))
-              || (foundCurrent
-                && entryForCurrent.isSectionIndex
-                && entryForCurrent.section === entry.section
-                && entryForCurrent !== entry)
-              || (!foundCurrent
-                || (entryForCurrent.module === entry.module
-                  && entryForCurrent.section === entry.section))
-                && !(entry.isModuleIndex
-                  || (entry.isSectionIndex && entryForCurrent.IsModuleIndex)))) {
+            if (localTOC
+              && idWithoutPrefix.substr(0, parentIdForLocalTOC.length) === parentIdForLocalTOC
+              && idWithoutPrefix.indexOf('/', parentIdForLocalTOC.length + 1) === -1) {
               localTOC.push(entry);
             }
 
@@ -228,16 +244,19 @@ var DocumentationTocPart = {
               previousTopic = null;
               breadcrumbs = [];
             }
+            if (localTOC.length > 0 && (localTOC[0].isSectionIndex || localTOC[0].isModuleIndex)) {
+              localTOC.shift();
+            }
 
             // Add new properties to the shape for the TOC components.
             shape.topLevelTOC = topLevelTOC;
-            shape.localTOC = localTOC;
+            shape.localTOC = localTOC || [];
             shape.breadcrumbs = breadcrumbs;
             shape.previous = previousTopic;
             shape.next = nextTopic;
             shape.current = entryForCurrent;
             // Cache that data on the request
-            scope.documentationToc = {
+            scope.documentationTOC = {
               topLevelTOC: topLevelTOC,
               localTOC: localTOC,
               breadcrumbs: breadcrumbs,

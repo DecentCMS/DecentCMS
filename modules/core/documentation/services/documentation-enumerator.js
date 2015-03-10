@@ -29,24 +29,46 @@ var documentationEnumerator = {
     var idFilter = typeof(context.idFilter) === 'string'
       ? new RegExp(context.idFilter)
       : context.idFilter;
+    var findSections = function findSections(docPath, moduleName) {
+      fs.readdirSync(docPath)
+        .map(function getFullPath(fsEntryName) {
+          return {
+            module: moduleName,
+            section: fsEntryName,
+            path: path.join(docPath, fsEntryName)
+          };
+        })
+        .filter(function whereIsDirectory(fsEntry) {
+          return fs.statSync(fsEntry.path).isDirectory();
+        })
+        .forEach(function forEachSection(section) {
+          docDirectories.push(section);
+        });
+    };
     Object.getOwnPropertyNames(shell.moduleManifests)
       .forEach(function forEachModule(moduleName) {
         var manifest = modules[moduleName];
         var docPath = path.join(manifest.physicalPath, 'docs');
         if (fs.existsSync(docPath)) {
           docDirectories.push({
-            name: moduleName,
+            module: moduleName,
+            section: null,
             path: docPath
           });
+          // Look for sections under that
+          findSections(docPath, moduleName);
         }
       });
     log.info("Scanning /docs for documentation topics.");
-    docDirectories.unshift({
-      name: '',
-      path: path.resolve('docs')
+    var rootDocPath = path.resolve('docs');
+    docDirectories.push({
+      module: null,
+      section: null,
+      path: rootDocPath
     });
-    var currentModule = docDirectories[0];
-    var currentDir = fs.readdirSync(currentModule.path);
+    findSections(rootDocPath, null);
+    var currentDirectory = docDirectories[0];
+    var currentDirectoryContents = fs.readdirSync(currentDirectory.path);
     var directoryIndex = 0;
     var topicIndex = 0;
     var currentPath;
@@ -67,8 +89,8 @@ var documentationEnumerator = {
       currentPath = null;
       // Look for next content file.
       while (!found) {
-        if (topicIndex < currentDir.length) {
-          p = path.join(currentModule.path, currentDir[topicIndex]);
+        if (topicIndex < currentDirectoryContents.length) {
+          p = path.join(currentDirectory.path, currentDirectoryContents[topicIndex]);
           var stat = fs.statSync(p);
           if (stat.isFile()
             && extensions.some(function(extension) {
@@ -89,12 +111,17 @@ var documentationEnumerator = {
                 filename = filename.substr(0, dot);
               }
             }
-            var modulePathPart = currentModule.name
-              ? filename
-              ? currentModule.name + '/'
-              : currentModule.name
+            var modulePathPart = currentDirectory.module
+              ? (currentDirectory.section || filename
+                ? currentDirectory.module + '/'
+                : currentDirectory.module)
               : '';
-            id = 'docs:' + (modulePathPart || '') + (filename || '');
+            var sectionPathPart = currentDirectory.section
+              ? (filename
+                ? currentDirectory.section + '/'
+                : currentDirectory.section)
+              : '';
+            id = 'docs:' + (modulePathPart || '') + (sectionPathPart || '') + (filename || '');
             if (idFilter && !idFilter.test(id)) {
               continue;
             }
@@ -108,9 +135,9 @@ var documentationEnumerator = {
         else if (directoryIndex + 1 < docDirectories.length) {
           // Look at the next directory
           directoryIndex++;
-          currentModule = docDirectories[directoryIndex];
-          log.info("Scanning for documentation topics.", currentModule.path);
-          currentDir = fs.readdirSync(currentModule.path);
+          currentDirectory = docDirectories[directoryIndex];
+          log.info("Scanning for documentation topics.", currentDirectory.path);
+          currentDirectoryContents = fs.readdirSync(currentDirectory.path);
           topicIndex = 0;
         }
         else {

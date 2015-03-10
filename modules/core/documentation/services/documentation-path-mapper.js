@@ -14,23 +14,39 @@ DocumentationPathMapper.scope = 'shell';
 
 /**
  * Maps documentation topic ids onto the relevant file, in the right module.
- * @param {string} root The content root for documentation
- * (anything other than 'doc' will be ignored).
- * @param {string} id The topic's id. If top-level, that is the name of the documentation
- * file, without extension. If it's a module documentation topic, it's
- * [module-technical-name]/[topic-filename-without-extension].
+ * @param {string} root
+ * The content root for documentation (anything other than 'doc' will be ignored).
+ * @param {string} id
+ * The topic's id. If top-level, that is the name of the documentation
+ * file, without extension. If it's a module top-level documentation topic, it's
+ * `[module-technical-name]/[topic-filename-without-extension]`.
+ * If it's in a top-level section, it's
+ * `[section-folder-name]/[topic-filename-without-extension]`.
+ * If it's in a section under a module, it's
+ * `[module-technical-name]/[section-folder-name]/[topic-filename-without-extension]`.
  * @returns {string[]} The list of possible paths for a file describing the topic.
  */
 DocumentationPathMapper.prototype.mapIdToPath = function mapDocumentationIdToPath(root, id) {
   var path = require('path');
   if (root !== 'docs') return null;
   var idParts = id.split('/');
+  // Attempt to resolve the module
   var moduleName = idParts[0];
   var shell = this.scope.require('shell');
   var module = shell.moduleManifests[moduleName];
+  // Find the right docs folder
   var rootPath = module ? path.resolve(module.physicalPath, 'docs') : path.resolve('docs');
-  var topic = (module ? idParts[1] : moduleName) || 'index';
-  var topicPath = path.join(rootPath, topic);
+  // Is there a section?
+  var section = (idParts.length == (module ? 3 : 2)) ? (module ? idParts[1] : idParts[0]) : null;
+  if (section) {
+    var fs = require('fs');
+    if (!fs.statSync(path.join(rootPath, section)).isDirectory()) {
+      section = null;
+    }
+  }
+  // Get the topic
+  var topic = (module ? (section ? idParts[2] : idParts[1]) : idParts[0]) || 'index';
+  var topicPath = section ? path.join(rootPath, section, topic) : path.join(rootPath, topic);
   return [
     topicPath + '.json',
     topicPath + '.yaml',
