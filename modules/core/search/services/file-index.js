@@ -57,7 +57,7 @@ FileIndex._toName = FileIndex.prototype._toName = function toName() {
   var args = Array.prototype.slice.apply(arguments);
   var names = args
     .filter(function(arg) {return arg && arg.name;})
-    .map(function(arg) {return arg.name || '';})
+    .map(function(arg) {return arg.name;})
     .join('-');
   var hash = args
     .map(function(arg) {return arg ? arg.toString() : '';})
