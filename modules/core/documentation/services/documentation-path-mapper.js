@@ -37,15 +37,20 @@ DocumentationPathMapper.prototype.mapIdToPath = function mapDocumentationIdToPat
   // Find the right docs folder
   var rootPath = module ? path.resolve(module.physicalPath, 'docs') : path.resolve('docs');
   // Is there a section?
-  var section = (idParts.length == (module ? 3 : 2)) ? (module ? idParts[1] : idParts[0]) : null;
+  var section = module ? idParts[1] : idParts[0];
   if (section) {
     var fs = require('fs');
-    if (!fs.statSync(path.join(rootPath, section)).isDirectory()) {
+    var sectionPath = path.join(rootPath, section);
+    if (!fs.existsSync(sectionPath) || !fs.statSync(sectionPath).isDirectory()) {
       section = null;
     }
   }
   // Get the topic
-  var topic = (module ? (section ? idParts[2] : idParts[1]) : idParts[0]) || 'index';
+  var topic = (
+    module
+      ? (section ? idParts[2] : idParts[1])
+      : (section ? idParts[1] : idParts[0])
+    ) || 'index';
   var topicPath = section ? path.join(rootPath, section, topic) : path.join(rootPath, topic);
   return [
     topicPath + '.json',

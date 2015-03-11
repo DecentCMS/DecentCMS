@@ -3,11 +3,7 @@
 var expect = require('chai').expect;
 var proxyquire = require('proxyquire');
 var path = require('path');
-var DocumentationPathMapper = require('../services/documentation-path-mapper');
 var ApiDocumentationPathMapper = require('../services/api-documentation-path-mapper');
-
-// Require jsdoc2md eagerly, because this library is horribly slow to load, and can cause tests to timeouts.
-require('jsdoc-to-markdown');
 
 // Define a fake file system's hierarchy.
 var fileSystem = {
@@ -202,15 +198,16 @@ describe('Documentation path mapper', function() {
   var scope = {
     require: function() {return {
       moduleManifests: {
-        module: {
-          physicalPath: 'path/to/module'
+        module1: {
+          physicalPath: 'modules/module1'
         }
       }
     };}
   };
+  var DocumentationPathMapper = proxyquire('../services/documentation-path-mapper', stubs);
 
   it("won't map paths outside of /docs", function() {
-    var mapper = new DocumentationPathMapper({});
+    var mapper = new DocumentationPathMapper(scope);
     var paths = mapper.mapIdToPath('not-doc', '/path/to/foo');
 
     expect(paths).to.not.be.ok;
@@ -229,12 +226,23 @@ describe('Documentation path mapper', function() {
 
   it('maps /docs/module to /path/to/module/docs/index paths', function() {
     var mapper = new DocumentationPathMapper(scope);
-    var paths = mapper.mapIdToPath('docs', 'module');
+    var paths = mapper.mapIdToPath('docs', 'module1');
 
     expect(paths).to.deep.equal([
-      path.resolve('path/to/module/docs/index.json'),
-      path.resolve('path/to/module/docs/index.yaml'),
-      path.resolve('path/to/module/docs/index.yaml.md')
+      path.resolve('modules/module1/docs/index.json'),
+      path.resolve('modules/module1/docs/index.yaml'),
+      path.resolve('modules/module1/docs/index.yaml.md')
+    ])
+  });
+
+  it('maps /docs/section to /docs/section/index paths', function() {
+    var mapper = new DocumentationPathMapper(scope);
+    var paths = mapper.mapIdToPath('docs', 'top-section1');
+
+    expect(paths).to.deep.equal([
+      path.resolve('docs/top-section1/index.json'),
+      path.resolve('docs/top-section1/index.yaml'),
+      path.resolve('docs/top-section1/index.yaml.md')
     ])
   });
 
@@ -251,12 +259,45 @@ describe('Documentation path mapper', function() {
 
   it('maps /docs/module/topic to /path/to/module/docs/topic paths', function() {
     var mapper = new DocumentationPathMapper(scope);
-    var paths = mapper.mapIdToPath('docs', 'module/topic');
+    var paths = mapper.mapIdToPath('docs', 'module1/topic');
 
     expect(paths).to.deep.equal([
-      path.resolve('path/to/module/docs/topic.json'),
-      path.resolve('path/to/module/docs/topic.yaml'),
-      path.resolve('path/to/module/docs/topic.yaml.md')
+      path.resolve('modules/module1/docs/topic.json'),
+      path.resolve('modules/module1/docs/topic.yaml'),
+      path.resolve('modules/module1/docs/topic.yaml.md')
+    ])
+  });
+
+  it('maps /docs/section/topic to /docs/section/topic paths', function() {
+    var mapper = new DocumentationPathMapper(scope);
+    var paths = mapper.mapIdToPath('docs', 'top-section1/topic');
+
+    expect(paths).to.deep.equal([
+      path.resolve('docs/top-section1/topic.json'),
+      path.resolve('docs/top-section1/topic.yaml'),
+      path.resolve('docs/top-section1/topic.yaml.md')
+    ])
+  });
+
+  it('maps /docs/module/section to /docs/module/section/index paths', function() {
+    var mapper = new DocumentationPathMapper(scope);
+    var paths = mapper.mapIdToPath('docs', 'module1/section1-of-module1');
+
+    expect(paths).to.deep.equal([
+      path.resolve('modules/module1/docs/section1-of-module1/index.json'),
+      path.resolve('modules/module1/docs/section1-of-module1/index.yaml'),
+      path.resolve('modules/module1/docs/section1-of-module1/index.yaml.md')
+    ])
+  });
+
+  it('maps /docs/module/section/topic to /docs/module/section/topic paths', function() {
+    var mapper = new DocumentationPathMapper(scope);
+    var paths = mapper.mapIdToPath('docs', 'module1/section1-of-module1/topic');
+
+    expect(paths).to.deep.equal([
+      path.resolve('modules/module1/docs/section1-of-module1/topic.json'),
+      path.resolve('modules/module1/docs/section1-of-module1/topic.yaml'),
+      path.resolve('modules/module1/docs/section1-of-module1/topic.yaml.md')
     ])
   });
 });
@@ -397,6 +438,8 @@ describe('API Documentation Route Handler', function() {
 });
 
 describe('JsDoc File Parser', function() {
+  // Require jsdoc2md eagerly, because this library is horribly slow to load, and can cause tests to timeouts.
+  require('jsdoc-to-markdown');
   var js = '// A js file\r\n\r\n' +
     '/**\r\n' +
     'A function\r\n' +
