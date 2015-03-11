@@ -120,7 +120,7 @@ var DocumentationTocPart = {
             result.push(entry.section);
             if (entry.number) {
               Array.prototype.push.apply(result,
-                ('' + entry.number).split('.').map(parseInt));
+                ('' + entry.number).split('.').map(function(n) {return parseInt(n, 10);}));
             }
             if (entry.name) result.push(entry.name);
             return result;
