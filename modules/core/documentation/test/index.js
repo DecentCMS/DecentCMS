@@ -74,12 +74,15 @@ function resolve(dirPath) {
   for (var i = 0; i < p.length; i++) {
     var sub = p[i];
     if (!dir.items) return null;
+    var found = false;
     for (var j = 0; j < dir.items.length; j++) {
       if (dir.items[j].name === sub) {
         dir = dir.items[j];
+        found = true;
         break;
       }
     }
+    if (!found) return null;
   }
   return dir;
 }
@@ -94,7 +97,7 @@ var stubs = {
     },
     statSync: function(fileOrFolderPath) {
       var fileOrFolder = resolve(fileOrFolderPath);
-      return fileOrFolder.items
+      return fileOrFolder && fileOrFolder.items
         ? {isDirectory: function() {return true;}, isFile: function() {return false;}}
         : {isDirectory: function() {return false;}, isFile: function() {return true;}};
     },
