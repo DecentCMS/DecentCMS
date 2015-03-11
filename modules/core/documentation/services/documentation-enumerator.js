@@ -74,7 +74,7 @@ var documentationEnumerator = {
     var currentPath;
     var extensions = Array.prototype.concat.apply([],
       scope.getServices('content-file-parser')
-        .map(function getServiceExtensions(service) {return service.extensions;}));
+        .map(function getServiceExtensions(service) {return service.extensions || [];}));
     /**
      * Looks for the next item in the store.
      * @param {Function} callback the function that gets called
