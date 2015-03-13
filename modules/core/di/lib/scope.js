@@ -112,6 +112,7 @@ function initializeService(scope, ServiceClass) {
  * of required services. This mixin adds initialize, register, require, getServices,
  * and tearDown methods that can be used to get service instances that are scoped
  * to the object, live and die with it.
+ * @mixin
  * @param {string} name          The name of the scope.
  * @param {object} objectToScope The object that must be made a scope.
  * @param {object} services      A map of the services to be made available from require.
