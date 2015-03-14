@@ -1,5 +1,7 @@
 {! DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details. !}
 {@meta name="generator" value="DecentCMS"/}
+{@meta charset="utf-8"/}
+{@meta http-equiv="X-UA-Compatible" value="IE=edge"/}
 {@meta name="viewport" value="width=device-width, initial-scale=1"/}
 {@style name="style"/}
 {@script name="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"/}
@@ -7,8 +9,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" value="IE=edge"/>
     {@metas/}
     {@styles/}
     <title>{site.name} - {title}</title>

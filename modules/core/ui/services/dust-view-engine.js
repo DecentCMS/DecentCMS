@@ -186,7 +186,7 @@ var CodeViewEngine = function CodeViewEngine(scope) {
 
   dust.helpers.meta = function metaDustHelper(chunk, context, bodies, params) {
     var attributes = {};
-    var name = '';
+    var name = null;
     var value = '';
     Object.getOwnPropertyNames(params).forEach(function forEachParam(attrName) {
       switch(attrName) {

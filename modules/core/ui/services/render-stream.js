@@ -25,6 +25,7 @@ function RenderStream(scope, options) {
   this.scripts = options.scripts = options.scripts || [];
   this.stylesheets = options.stylesheets = options.stylesheets || [];
   this.meta = options.meta = options.meta || {};
+  this.metaIndex = 0;
   this.title = options.title = options.title || '';
   this.tags = options.tag = options.tags || [];
 
@@ -361,11 +362,19 @@ function RenderStream(scope, options) {
    */
   this.addMeta = this.asyncify(this._addMeta =
     function addMeta(name, value, attributes) {
-      this.meta[name] = {
-        name: name,
-        value: value,
-        attributes: attributes
-      };
+      if (name) {
+        this.meta[name] = {
+          name: name,
+          value: value,
+          attributes: attributes
+        };
+      }
+      else {
+        this.meta['m' + this.metaIndex++] = {
+          value: value,
+          attributes: attributes
+        };
+      }
       return this;
     }
   );

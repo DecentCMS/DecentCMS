@@ -289,11 +289,15 @@ describe('Render Stream', function() {
     renderer
       .addMeta('generator', 'DecentCMS')
       .addMeta('foo', 'bar', {baz:'baaaa', blah: 'lorem'})
+      .addMeta(null, null, {foo: 'fou'})
+      .addMeta(null, 'bar', {foo: 'fou'})
       .renderMeta();
 
     expect(result)
       .to.equal(
       '  <meta name="generator" content="DecentCMS"/>\r\n' +
-      '  <meta baz="baaaa" blah="lorem" name="foo" content="bar"/>\r\n');
+      '  <meta baz="baaaa" blah="lorem" name="foo" content="bar"/>\r\n' +
+      '  <meta foo="fou"/>\r\n' +
+      '  <meta foo="fou" content="bar"/>\r\n');
   });
 });
