@@ -6,7 +6,11 @@
   "features": {
     "documentation": {
       "name": "Online documentation",
-      "description": "Makes online documentation for all modules available under the /doc path."
+      "description": "Makes online documentation for all modules available under the /docs path."
+    },
+    "api-documentation": {
+      "name": "Online API documentation",
+      "description": "Makes online documentation extracted from JsDoc comments from libraries and services in all modules available under the /apidocs path."
     }
   },
   "main": "./index",
