@@ -76,7 +76,7 @@ var DocumentationTocPart = {
             var hasModule = moduleManifests.hasOwnProperty(splitId[0]);
             var isIndex = topic.id === 'docs:'
               || (splitId.length < 2 && hasModule)
-              || (topic.temp && topic.temp.name && topic.temp.name === 'index');
+              || (topic.temp && topic.temp.name && topic.temp.name === 'index' && topic.id.substr(0, 8) !== 'apidocs:');
             var module = hasModule ? splitId[0] : null;
             var section = topic.section || null;
             if (!section) {
