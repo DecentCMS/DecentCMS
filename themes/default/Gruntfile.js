@@ -26,7 +26,7 @@ module.exports = function gruntModule(grunt) {
           strictMath: true,
           sourceMap: true,
           outputSourceFiles: true,
-          sourceMapURL: 'css/style.css.map',
+          sourceMapURL: 'style.css.map',
           sourceMapFilename: './css/style.css.map'
         },
         files: {
