@@ -61,36 +61,15 @@ var jsDocContentFileParser = {
     var Readable = stream.Readable;
     var PassThrough = stream.PassThrough;
 
-    // build relative URL for this topic.
-    var relativeUrl = path.resolve(filePath).substr(root.length).replace(/\\/g, '/');
     // Generate a title from the file name.
     var fileNameToString = context.scope.require('filename-to-string').transform;
     var title = fileNameToString(filePath);
 
     // Find the closest manifest that has a repository URL
-    var currentPath = path.dirname(filePath);
     var source = null;
-    var tokens = context.scope.require('tokens');
-    if (tokens) {
-      while (currentPath.substr(0, root.length) === root) {
-        var repoPath = path.join(currentPath, 'package.json');
-        if (fs.existsSync(repoPath)) {
-          var repo = require(repoPath);
-          if (repo && repo.repository && repo.repository.url) {
-            var repoUrl = repo.repository.url;
-            var format = repo.repository.pathFormat
-              || '{{repo-no-ext}}/blob/master{{path}}';
-            source = tokens.interpolate(format, {
-              repo: repoUrl,
-              'repo-no-ext': repoUrl.substr(0,
-                repoUrl.length - path.extname(repoUrl).length),
-              path: relativeUrl
-            });
-            break;
-          }
-        }
-        currentPath = path.dirname(currentPath);
-      }
+    var repositoryResolver = context.scope.require('repository-resolution');
+    if (repositoryResolver) {
+      source = repositoryResolver.resolve(filePath, 'display');
     }
 
     // Make a readable stream out of the contents of the file.
@@ -113,7 +92,7 @@ var jsDocContentFileParser = {
         scope: service.scope,
         service: service.service,
         feature: service.feature,
-        path: relativeUrl,
+        path: path.resolve(filePath).substr(root.length).replace(/\\/g, '/'),
         source: source,
         body: {
           flavor: 'markdown',

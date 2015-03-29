@@ -1,7 +1,6 @@
 // DecentCMS (c) 2015 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-// TODO: add link to edit a topic
 /**
  * Handler for a part that builds a table of contents for documentation.
  * This depends on an index service to be active.

@@ -11,6 +11,10 @@
     "api-documentation": {
       "name": "Online API documentation",
       "description": "Makes online documentation extracted from JsDoc comments from libraries and services in all modules available under the /apidocs path."
+    },
+    "manifest-repository-resolution": {
+      "name": "Manifest repository resolution",
+      "description": "Uses information from module manifests to find the URL of the repository containing a file. This is used by the documentation and API documentation features to build edit buttons and links to source code. This feature requires a token implementation to be enabled in order to function properly."
     }
   },
   "main": "./index",

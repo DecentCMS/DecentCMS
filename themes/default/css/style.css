@@ -6893,4 +6893,8 @@ body {
   font-weight: 1000;
   border-left: 2px solid #563d7c;
 }
-/*# sourceMappingURL=css/style.css.map */
+.doc-edit-button {
+  float: right;
+  margin-top: 3px;
+}
+/*# sourceMappingURL=style.css.map */

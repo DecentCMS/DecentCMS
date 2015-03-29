@@ -5,5 +5,6 @@
       "path": "main", "order": "0"
     }
   ],
-  "documentation-toc": {"path": "main", "order": "0"}
+  "documentation-toc": {"path": "main", "order": "0"},
+  "documentation-edit-button": {"path": "main", "order": "0"}
 }

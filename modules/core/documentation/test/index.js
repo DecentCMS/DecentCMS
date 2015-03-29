@@ -456,15 +456,25 @@ describe('JsDoc File Parser', function() {
   });
 
   it('parses JavaScript files for JsDoc', function(done) {
+    this.timeout(4000);
     var context = {
       path: 'path/to/some-file-to-test.js',
       data: js,
       scope: {
-        require: function() {
-          return {
-            transform: function(fileName) {
-              return fileName.replace(/-/g, ' ');
-            }
+        require: function(service) {
+          switch(service) {
+            case 'filename-to-string':
+              return {
+                transform: function(fileName) {
+                  return fileName.replace(/-/g, ' ');
+                }
+              };
+            case 'repository-resolution':
+              return {
+                resolve: function(filePath, displayType) {
+                  return filePath + ':' + displayType;
+                }
+              };
           }
         }
       }
@@ -475,6 +485,8 @@ describe('JsDoc File Parser', function() {
       expect(context.item.scope).to.equal('shell');
       expect(context.item.feature).to.equal('some feature');
       expect(context.item.service).to.equal('some service');
+      expect(context.item.path).to.equal('/path/to/some-file-to-test.js');
+      expect(context.item.source).to.equal('path/to/some-file-to-test.js:display');
       expect(context.item.body.flavor).to.equal('markdown');
       expect(context.item.body.text).to.equal('<a name=\"foo\"></a>\n## foo()\nA function\n\n');
       done();
