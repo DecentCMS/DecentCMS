@@ -6,19 +6,24 @@ describe('Shape Item Promise Handler', function() {
   it('changes the promise shape into a content shape and runs a new rendering life cycle for the item', function(done) {
     var promiseShape = {
       meta: {type: 'shape-item-promise'},
-      id: '/foo'
+      id: 'widget:bar'
     };
-    var item = {id: '/foo'};
+    var item = {id: 'widget:bar', meta: {type: 'foo'}};
     var context = {
       shape: promiseShape,
       renderStream: {},
       scope: {
-        require: function() {
-          return {
-            getAvailableItem: function () {
-              return item;
-            }
-          };
+        require: function(service) {
+          switch(service) {
+            case 'storage-manager':
+              return {
+                getAvailableItem: function () {
+                  return item;
+                }
+              };
+            case 'shape':
+              return require('../services/shape');
+          }
         },
         lifecycle: function() {
           return function(context, next) {
@@ -30,6 +35,9 @@ describe('Shape Item Promise Handler', function() {
     };
     var ShapeItemPromiseHandler = require('../services/shape-item-promise-handler');
     ShapeItemPromiseHandler.handle(context, function() {
+      expect(context.shape.meta.type).to.equal('content');
+      expect(context.shape.temp.item).to.equal(item);
+      expect(context.shape.meta.alternates).to.deep.equal(['content-foo', 'content-widget']);
       done();
     });
   });

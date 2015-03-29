@@ -38,10 +38,23 @@ var ShapeItemPromiseHandler = {
     var renderer = context.renderStream;
     var storageManager = scope.require('storage-manager');
     var item = storageManager.getAvailableItem(itemShape.id);
+    if (!item) {
+      done();
+      return;
+    }
     // Morph the shape into a content shape, then copy the item onto it.
     shapeMeta.type = 'content';
-    var shapeTemp = itemShape.temp = itemShape.temp || {};
+    var shape = scope.require('shape');
+    var shapeTemp = shape.temp(itemShape);
     shapeTemp.item = item;
+    // Add content-theType and content-stereotype alternates.
+    var alternates = shape.alternates(itemShape);
+    alternates.push('content-' + item.meta.type);
+    var splitId = item.id.split(':');
+    if (splitId.length > 1) {
+      alternates.push('content-' + splitId[0]);
+    }
+    // Start a new local lifecycle to build the shapes under this content.
     shapeTemp.shapes = [];
     var localContext = {
       scope: scope,
