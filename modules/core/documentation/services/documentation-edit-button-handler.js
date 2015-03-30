@@ -4,7 +4,7 @@
 /**
  * Handler for a part that builds an edit button for documentation topics.
  */
-var DocumentationTocPart = {
+var DocumentationEditButtonHandler = {
   feature: 'documentation',
   service: 'shape-handler',
   scope: 'request',
@@ -71,4 +71,4 @@ var DocumentationTocPart = {
   }
 };
 
-module.exports = DocumentationTocPart;
+module.exports = DocumentationEditButtonHandler;
