@@ -40,19 +40,32 @@ describe('Content Manager', function() {
               parts: {
                 bar1: {type: 'part-bar'},
                 bar2: {type: 'part-bar'},
-                baz: {type: 'part-baz'}
+                baz: {type: 'part-baz'},
+                override1: {type: 'part-bar'},
+                override2: {type: 'part-not-bar'}
               }
             }
           }
         }
       }
     };
-    var foo = {meta: {type: 'foo'}};
+    var foo = {
+      meta: {type: 'foo'},
+      bart: {type: 'part-bar'},
+      notbar: {type: 'part-not-bar'},
+      bar1: 'barre un',
+      bar2: {type: 'part-bar'},
+      override1: {type: 'part-not-bar'},
+      override2: {type: 'part-bar'}
+    };
 
     var barParts = cm.getParts(foo, 'part-bar');
 
-    expect(barParts.indexOf('bar1')).to.not.equal(-1);
-    expect(barParts.indexOf('bar2')).to.not.equal(-1);
-    expect(barParts.indexOf('baz')).to.equal(-1);
+    expect(barParts.sort()).to.deep.equal([
+      'bar1',
+      'bar2',
+      'bart',
+      'override2'
+      ]);
   });
 });
