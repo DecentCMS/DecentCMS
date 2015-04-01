@@ -32,12 +32,12 @@ if (runInCluster && cluster.isMaster) {
   bootDomain.run(function() {
     // TODO: make even booting the shells asynchronous. Incoming requests can be queued until it's done.
     // Discover all modules in the system
-    moduleDiscovery.discover();
+    var availableModules = moduleDiscovery.discover();
     // Discover all tenants
     Shell.discover({
       port: port,
       host: host,
-      availableModules: moduleDiscovery.modules
+      availableModules: availableModules
     });
     // Load each tenant
     for (var shellName in Shell.list) {

@@ -190,7 +190,8 @@ Shell.prototype.disable = function() {
 
 /**
  * @description
- * Scopes the shell, then loads all enabled services in each module.
+ * Scopes the shell, then loads all enabled services in each module,
+ * including modules and themes that are specific to this tenant.
  */
 Shell.prototype.load = function() {
   if (this.loaded || !this.availableModules) return;
@@ -200,6 +201,16 @@ Shell.prototype.load = function() {
   for (var moduleName in this.availableModules) {
     this.loadModule(moduleName);
   }
+  // Load shell theme if it exists
+  if (this.rootPath) {
+    var themePath = path.join(this.rootPath, 'theme');
+    if (fs.existsSync(themePath)) {
+      var discoverModule = require('./module-discovery').discoverModule;
+      var theme = discoverModule(themePath, this.availableModules);
+      if (theme) this.loadModule(theme.name);
+    }
+  }
+  // Initialize shell and all services
   this.initialize();
   // The shell exposes itself as a service
   this.register('shell', this);
@@ -243,7 +254,7 @@ Shell.prototype.loadModule = function(moduleName) {
       var serviceFeature = service.feature;
       // Skip if that service is not enabled
       if (serviceFeature && !features.hasOwnProperty(serviceFeature)) continue;
-      var servicePath = path.resolve(manifest.physicalPath, service.path + ".js");
+      var servicePath = path.resolve(manifest.physicalPath, service.path);
       // Skip if that service is already loaded
       if (self.serviceManifests[servicePath]) continue;
       // Dependencies must be loaded first
