@@ -456,7 +456,7 @@ describe('JsDoc File Parser', function() {
   });
 
   it('parses JavaScript files for JsDoc', function(done) {
-    this.timeout(6000);
+    this.timeout(10000);
     var context = {
       path: 'path/to/some-file-to-test.js',
       data: js,
