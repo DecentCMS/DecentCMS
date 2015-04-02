@@ -61,7 +61,7 @@ module.exports = function gruntModule(grunt) {
   grunt.config.merge({
     concat: {
       options: {
-        banner: '<%= banner %>\n<%= jqueryVersionCheck %>',
+        banner: '<%= banner %>\n<%= jqueryVersionCheck %>'
       },
       bootstrap: {
         src: [
