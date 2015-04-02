@@ -69,12 +69,12 @@ describe('File Placement Strategy', function() {
     'module2/placement.js': customPlacement
   };
 
-  it('places shapes according to placement.json file contents and placement.js', function(done) {
+  it('places shapes according to self-placement, placement.json file contents and placement.js', function(done) {
     var FilePlacementStrategy =
           proxyquire('../services/file-placement-strategy.js', stubs);
     var placementStrategy = new FilePlacementStrategy(scope);
     var layout = {};
-    var homePage, pageBaz, pageFooBar, post, htmlWidget1, htmlWidget2, tagCloudWidget, shape11, shape12, shape2, shape3, named, deep, custom1, custom2;
+    var homePage, pageBaz, pageFooBar, post, htmlWidget1, htmlWidget2, tagCloudWidget, shape11, shape12, shape2, shape3, named, deep, custom1, custom2, selfPlaced1, selfPlaced2;
     var shapes = [
       homePage =       {meta: {type: 'page'}, temp: {displayType: 'main'}, id: '/'},
       pageBaz =        {meta: {type: 'page'}, temp: {displayType: 'main'}, id: '/baz'},
@@ -91,6 +91,8 @@ describe('File Placement Strategy', function() {
       deep =           {meta: {item: {meta: {type: 'deep-item'}}}},
       custom1 =        {meta: {type: 'custom'}, id: ':custom:1'},
       custom2 =        {meta: {type: 'custom'}, id: ':custom:2'},
+      selfPlaced1 =    {meta: {placement: 'zone2:4'}, id: ':self-placed1:'},
+      selfPlaced2 =    {meta: {placement: {path: 'zone2', order: '5'}}, id: ':self-placed2:'},
       {meta: {type: 'wont-get-placed'}, id: ':wont-get-placed:'}
     ];
     placementStrategy.placeShapes({
@@ -117,6 +119,8 @@ describe('File Placement Strategy', function() {
       expect(shape3.temp.parent).to.equal(layout.zone2);
       expect(named.temp.parent).to.equal(layout.zone2);
       expect(deep.temp.parent).to.equal(layout.zone2);
+      expect(selfPlaced1.temp.parent).to.equal(layout.zone2);
+      expect(selfPlaced2.temp.parent).to.equal(layout.zone2);
       expect(custom1.temp.parent).to.equal(layout['custom-zone']);
       expect(custom2.temp.parent).to.equal(layout['custom-zone']);
 
@@ -126,7 +130,7 @@ describe('File Placement Strategy', function() {
       expect(layout['custom-zone'].temp.items).to.deep.equal([custom2, custom1]);
       expect(layout.sidebar.temp.items).to.deep.equal([htmlWidget1, htmlWidget2, tagCloudWidget]);
       expect(layout.zone1.temp.items).to.deep.equal([shape2, shape11, shape12]);
-      expect(layout.zone2.temp.items).to.deep.equal([shape3, named, deep]);
+      expect(layout.zone2.temp.items).to.deep.equal([shape3, named, deep, selfPlaced1, selfPlaced2]);
       done();
     });
   });

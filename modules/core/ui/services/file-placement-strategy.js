@@ -131,6 +131,32 @@ FilePlacementStrategy.prototype.placeShapes = function filePlace(context, done) 
   var shapes = context.shapes;
   if (!shapes) return;
   var shapeHelper = this.scope.require('shape');
+  // If shapes have placement built-in, use that.
+  for (i = 0; i < shapes.length; i++) {
+    var shape = shapes[i];
+    if (shape.meta && shape.meta.placement) {
+      var placement = shape.meta.placement;
+      if (typeof(placement) === 'string') {
+        var splitPlacement = placement.split(':');
+        if (splitPlacement.length === 2) {
+          shapeHelper.place(
+            rootShape,
+            splitPlacement[0] || 'main',
+            shape,
+            splitPlacement[1] || 'after');
+          shapes.splice(i--, 1);
+        }
+      }
+      else {
+        shapeHelper.place(
+          rootShape,
+          placement.path || 'main',
+          shape,
+          placement.order || 'after');
+        shapes.splice(i--, 1);
+      }
+    }
+  }
   // Handlers have the priority on placing shapes
   for (var i = 0; i < this.placementHandlers.length; i++) {
     this.placementHandlers[i](this.scope, rootShape, shapes);
