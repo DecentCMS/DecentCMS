@@ -51,12 +51,12 @@ describe('Content Manager', function() {
     };
     var foo = {
       meta: {type: 'foo'},
-      bart: {type: 'part-bar'},
-      notbar: {type: 'part-not-bar'},
+      bart: {meta: {type: 'part-bar'}},
+      notbar: {meta: {type: 'part-not-bar'}},
       bar1: 'barre un',
-      bar2: {type: 'part-bar'},
-      override1: {type: 'part-not-bar'},
-      override2: {type: 'part-bar'}
+      bar2: {meta: {type: 'part-bar'}},
+      override1: {meta: {type: 'part-not-bar'}},
+      override2: {meta: {type: 'part-bar'}}
     };
 
     var barParts = cm.getParts(foo, 'part-bar');

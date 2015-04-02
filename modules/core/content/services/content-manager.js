@@ -46,13 +46,15 @@ ContentManager.prototype.getParts = function getParts(item, partTypeName) {
   for (var partName in type.parts) {
     var partDefinition = type.parts[partName];
     if (partDefinition.type !== partTypeName
-      || (item.hasOwnProperty(partName) && item[partName].hasOwnProperty('type'))) continue;
+      || (item.hasOwnProperty(partName)
+      && item[partName].meta
+      && item[partName].meta.type)) continue;
     parts.push(partName);
   }
   // Also look for self-typed parts on the content item.
   for (partName in item) {
     var part = item[partName];
-    if (part && part.type && part.type === partTypeName && partName !== 'meta' && partName !== 'temp') {
+    if (part && part.meta && part.meta.type && part.meta.type === partTypeName && partName !== 'meta' && partName !== 'temp') {
       parts.push(partName);
     }
   }
