@@ -2,9 +2,12 @@
 'use strict';
 var expect = require('chai').expect;
 
+// TODO: be consistent about putting the item on temp, not meta.
+
 var TextPart = require('../services/text-part');
 var TitlePart = require('../services/title-part');
 var UrlPart = require('../services/url-part');
+var ShapePart = require('../services/shape-part');
 var TextView = require('../views/text');
 var TitleView = require('../views/title');
 var UrlView = require('../views/url');
@@ -202,6 +205,95 @@ describe('URL Part Handler', function() {
           temp: {displayType: 'summary'},
           text: 'http://opensource.org/licenses/MIT',
           url: 'http://opensource.org/licenses/MIT'
+        });
+      done();
+    });
+  });
+});
+
+describe('Shape Part Handler', function() {
+  it('adds shapes for each part that has a shape on itself or on the type', function(done) {
+    var item = {
+      title: 'Foo',
+      'inline-shape1': {
+        meta: {type: 'inline', shape: 'from-inline'},
+        foo: 'fou 1',
+        bar: 'barre 1'
+      },
+      'inline-shape2': {
+        meta: {type: 'inline', shape: 'from-inline'},
+        foo: 'fou 2',
+        bar: 'barre 2'
+      },
+      body: {
+        src: 'body.md',
+        text: 'Lorem ipsum'
+      },
+      'shape-from-type': {
+        baz: 'base'
+      },
+      tags: ['foo', 'bar']
+    };
+    var context = {
+      shape: {
+        meta: {
+          type: 'content'
+        },
+        temp: {
+          item: item,
+          displayType: 'summary',
+          shapes: []
+        }
+      },
+      scope: {
+        require: function require(service) {
+          switch (service) {
+            case 'content-manager':
+              return {
+                getParts: function() {
+                  return ['inline-shape1', 'body', 'shape-from-type'];
+                },
+                getType: function() {
+                  return {
+                    parts: {
+                      'inline-shape1': {shape: 'should-be-ignored'},
+                      body: {type: 'text'},
+                      'shape-from-type': {shape: 'from-type'}
+                    }
+                  };
+                }
+              };
+            case 'shape':
+              return {
+                meta: function(item) {return item.meta = item.meta || {};},
+                temp: function(item) {return item.temp = item.temp || {};}
+              };
+          }
+        }
+      }
+    };
+
+    ShapePart.handle(context, function() {
+      var newShapes = context.shape.temp.shapes;
+      expect(newShapes[0])
+        .to.deep.equal({
+          meta: {type: 'from-inline', name: 'inline-shape1', alternates: ['from-inline-inline-shape1'], item: item},
+          temp: {displayType: 'summary'},
+          foo: 'fou 1',
+          bar: 'barre 1'
+        });
+      expect(newShapes[1])
+        .to.deep.equal({
+          meta: {type: 'from-inline', name: 'inline-shape2', alternates: ['from-inline-inline-shape2'], item: item},
+          temp: {displayType: 'summary'},
+          foo: 'fou 2',
+          bar: 'barre 2'
+        });
+      expect(newShapes[2])
+        .to.deep.equal({
+          meta: {type: 'from-type', name: 'shape-from-type', alternates: ['from-type-shape-from-type'], item: item},
+          temp: {displayType: 'summary'},
+          baz: 'base'
         });
       done();
     });
