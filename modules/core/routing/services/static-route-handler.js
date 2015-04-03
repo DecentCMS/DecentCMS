@@ -65,7 +65,7 @@ var StaticRouteHandler = {
           if (!fs.existsSync(physicalPath)) continue;
           var url = '/' + staticFolders[j];
           app.use(url, express.static(physicalPath));
-          log.verbose('Added static file route.', {path: physicalPath});
+          log.verbose('Added static file route.', {url: url, path: physicalPath});
         }
       }
       // Register a static route for the site's media folder
