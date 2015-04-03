@@ -276,7 +276,7 @@ Shell.prototype.loadModule = function(moduleName) {
     }
   }
   // Only add to the modules collection if it has enabled services
-  if (anyEnabledService || manifest.theme) {
+  if (anyEnabledService || (manifest.theme && features.hasOwnProperty(moduleName))) {
     self.modules.push(moduleName);
   }
 };
