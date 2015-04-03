@@ -82,7 +82,7 @@ module.exports = function gruntDecent(grunt) {
           {
             expand: true,
             cwd: './',
-            src: ['**/img/*.{png,jpg,gif,svg}']
+            src: ['**/img/*.{png,jpg,gif,svg}', '**/media/*.{png,jpg,gif,svg}']
           }
         ]
       }
