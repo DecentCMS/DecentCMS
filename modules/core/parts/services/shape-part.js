@@ -35,7 +35,7 @@ var ShapePart = {
       if (partName === 'meta' || partName === 'temp') return;
       var part = item[partName];
       var shapeName = (part.meta ? part.meta.shape : null)
-        || (type.parts[partName] ? type.parts[partName].shape : null)
+        || (type && type.parts[partName] ? type.parts[partName].shape : null)
         || null;
       if (shapeName) {
         var meta = shapeHelper.meta(part);
