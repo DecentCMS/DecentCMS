@@ -22,7 +22,9 @@
     "email": "bertrand@decentcms.com",
     "url": "http://weblogs.asp.net/bleroy"
   },
-  "dependencies": {},
+  "dependencies": {
+    "require-alias": "^1.0.5"
+  },
   "devDependencies": {
     "async": "*",
     "grunt": "*",

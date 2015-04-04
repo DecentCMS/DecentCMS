@@ -8,12 +8,31 @@ var http = require('http');
 var https = require('https');
 var cluster = require('cluster');
 var moduleDiscovery = require('./modules/core/multi-tenancy/lib/module-discovery');
+
+var Alias = require('require-alias');
+
+global.alias = new Alias({
+  aliases: {
+    '@root' : './',
+    '@decent-core-dependency-injection' : './modules/core/di/index'
+  }
+});
+
 var Shell = require('./modules/core/multi-tenancy/lib/shell');
+
 
 var port = process.env.PORT || 1337;
 var host = process.env.IP;
 var workerCount = +process.env.WorkerCount || 1;
 var runInCluster = !!process.env.RunInCluster;
+
+// configure some paths...
+/*require.config({
+  paths : {
+    "decent-core-dependency-injection" : "./modules/core/di/lib/scope"
+  }
+});*/
+
 
 if (runInCluster && cluster.isMaster) {
   for (var i = 0; i < workerCount; i++) {
