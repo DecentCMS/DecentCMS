@@ -110,8 +110,8 @@ function initializeService(scope, ServiceClass) {
  * @description
  * Transforms an object into a scope. The role of a scope is to manage the lifecycle
  * of required services. This mixin adds initialize, register, require, getServices,
- * and tearDown methods that can be used to get service instances that are scoped
- * to the object, live and die with it.
+ * callService, and lifecycle methods that can be used to get service instances
+ * that are scoped to the object, live and die with it.
  * @mixin
  * @param {string} name          The name of the scope.
  * @param {object} objectToScope The object that must be made a scope.
