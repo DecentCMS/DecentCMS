@@ -347,6 +347,7 @@ Shell.prototype.handleRequest = function(request, response, next) {
     }
     // Tear down
     self.emit(Shell.endRequestEvent, context);
+    if (request.tearDown) request.tearDown();
     log.profile(profileId, 'Handled request', {
       tenant: self.name,
       url: request.url,
