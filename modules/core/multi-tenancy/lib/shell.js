@@ -27,6 +27,7 @@ var NullServices = require('./null-services');
  * @param {String}  [options.settingsPath]     The path to the settings file for this tenant.
  * @param {String}  [options.host]             The host name under which the tenant answers.
  * @param {Number}  [options.port]             The port to which the tenant answers.
+ * @param {Boolean} [options.https]            True if the site must use HTTPS.
  * @param {String}  [options.cert]             The path to the SSL certificate to use with this tenant.
  * @param {String}  [options.key]              The path to the SSL key to use with this tenant.
  * @param {String}  [options.pfx]              The path to the pfx SSL certificate to use with this tenant.
@@ -85,11 +86,12 @@ Shell.load = function(sitePath, defaults) {
   var settings = require(settingsPath);
   settings.settingsPath = settingsPath;
   settings.rootPath = sitePath;
-  for (var settingName in defaults) {
-    if (!(settingName in settings)) {
-      settings[settingName] = defaults[settingName];
-    }
-  }
+  Object.getOwnPropertyNames(defaults)
+    .forEach(function(settingName) {
+      if (!settings.hasOwnProperty(settingName)) {
+        settings[settingName] = defaults[settingName];
+      }
+    });
   return new Shell(settings);
 };
 
@@ -109,8 +111,7 @@ Shell.discover = function(defaults, rootPath) {
     if (siteName[0] === '.') return;
     var resolvedSitePath = path.resolve(rootPath, siteName);
     try {
-      var shell = Shell.load(resolvedSitePath, defaults);
-      Shell.list[siteName] = shell;
+      Shell.list[siteName] = Shell.load(resolvedSitePath, defaults);
     }
     catch(ex) {
       ex.path = resolvedSitePath;
@@ -131,8 +132,8 @@ Shell.resolve = function(request) {
   // If there's only one shell, always return that.
   if (shellNames.length === 1) return Shell.list[shellNames[0]];
   // Otherwise let each shell decide if it can handle the request.
-  for (var shellName in Shell.list) {
-    var shell = Shell.list[shellName];
+  for (var i = 0; i < shellNames.length; i++) {
+    var shell = Shell.list[shellNames[i]];
 
     if (shell.active && shell.canHandle(request)) {
       return shell;
@@ -147,7 +148,7 @@ Shell.resolve = function(request) {
  * @description
  * Determines if the shell can handle that request.
  *
- * @param {IncomingMessage} request The request
+ * @param request The request
  * @returns {Boolean} true if the shell can handle the request.
  */
 Shell.prototype.canHandle = function(request) {
@@ -194,36 +195,39 @@ Shell.prototype.disable = function() {
  * including modules and themes that are specific to this tenant.
  */
 Shell.prototype.load = function() {
-  if (this.loaded || !this.availableModules) return;
+  var self = this;
+  if (self.loaded || !self.availableModules) return;
   // Make this a scope
-  scope('shell', this);
+  scope('shell', self);
   // Load services from each available module
-  for (var moduleName in this.availableModules) {
-    this.loadModule(moduleName);
-  }
+  Object.getOwnPropertyNames(self.availableModules)
+    .forEach(function(moduleName) {
+      self.loadModule(moduleName);
+    });
   // Load shell theme if it exists
-  if (this.rootPath) {
-    var themePath = path.join(this.rootPath, 'theme');
+  if (self.rootPath) {
+    var themePath = path.join(self.rootPath, 'theme');
     if (fs.existsSync(themePath)) {
       var discoverModule = require('./module-discovery').discoverModule;
-      var theme = discoverModule(themePath, this.availableModules);
-      if (theme) this.loadModule(theme.name);
+      var theme = discoverModule(themePath, self.availableModules);
+      if (theme) self.loadModule(theme.name);
     }
   }
   // Initialize shell and all services
-  this.initialize();
+  self.initialize();
   // The shell exposes itself as a service
-  this.register('shell', this);
+  self.register('shell', this);
   // Register null services if no better one exists
-  for (var nullServiceName in NullServices) {
-    if (!this.services.hasOwnProperty(nullServiceName)) {
-      var nullService = NullServices[nullServiceName];
-      nullService.isStatic = true;
-      this.services[nullServiceName] = [nullService];
-    }
-  }
+  Object.getOwnPropertyNames(NullServices)
+    .forEach(function(nullServiceName) {
+      if (!self.services.hasOwnProperty(nullServiceName)) {
+        var nullService = NullServices[nullServiceName];
+        nullService.isStatic = true;
+        self.services[nullServiceName] = [nullService];
+      }
+    });
   // Mark the shell as loaded
-  this.loaded = true;
+  self.loaded = true;
 };
 
 /**
@@ -242,39 +246,40 @@ Shell.prototype.loadModule = function(moduleName) {
   self.moduleManifests[moduleName] = manifest;
   var features = self.features;
   var services = manifest.services;
-  var anyEnabledService;
+  var anyEnabledService = false;
   var moduleServiceClasses = {};
-  for (var serviceName in services) {
-    var serviceList = services[serviceName];
-    if (!Array.isArray(serviceList)) {
-      serviceList = [serviceList];
-    }
-    for (var i = 0; i < serviceList.length ; i++) {
-      var service = serviceList[i];
-      var serviceFeature = service.feature;
-      // Skip if that service is not enabled
-      if (serviceFeature && !features.hasOwnProperty(serviceFeature)) continue;
-      var servicePath = path.resolve(manifest.physicalPath, service.path);
-      // Skip if that service is already loaded
-      if (self.serviceManifests[servicePath]) continue;
-      // Dependencies must be loaded first
-      var dependencies = service.dependencies;
-      if (dependencies) {
-        dependencies.forEach(function (dependencyPath) {
-          self.loadModule(dependencyPath);
-        });
+  Object.getOwnPropertyNames(services)
+    .forEach(function(serviceName) {
+      var serviceList = services[serviceName];
+      if (!Array.isArray(serviceList)) {
+        serviceList = [serviceList];
       }
-      // Services are obtained through require
-      var ServiceClass = moduleServiceClasses[serviceName] = require(servicePath);
-      self.register(serviceName, ServiceClass);
-      // Add the service's configuration onto the config object
-      self.settings[serviceFeature] = features[serviceFeature];
-      // Store the manifest on the service class, for reflection, and easy reading of settings
-      ServiceClass.manifest = service;
-      self.serviceManifests[servicePath] = service;
-      anyEnabledService = true;
-    }
-  }
+      for (var i = 0; i < serviceList.length ; i++) {
+        var service = serviceList[i];
+        var serviceFeature = service.feature;
+        // Skip if that service is not enabled
+        if (serviceFeature && !features.hasOwnProperty(serviceFeature)) continue;
+        var servicePath = path.resolve(manifest.physicalPath, service.path);
+        // Skip if that service is already loaded
+        if (self.serviceManifests[servicePath]) continue;
+        // Dependencies must be loaded first
+        var dependencies = service.dependencies;
+        if (dependencies) {
+          dependencies.forEach(function (dependencyPath) {
+            self.loadModule(dependencyPath);
+          });
+        }
+        // Services are obtained through require
+        var ServiceClass = moduleServiceClasses[serviceName] = require(servicePath);
+        self.register(serviceName, ServiceClass);
+        // Add the service's configuration onto the config object
+        self.settings[serviceFeature] = features[serviceFeature];
+        // Store the manifest on the service class, for reflection, and easy reading of settings
+        ServiceClass.manifest = service;
+        self.serviceManifests[servicePath] = service;
+        anyEnabledService = true;
+      }
+    });
   // Only add to the modules collection if it has enabled services
   if (anyEnabledService || (manifest.theme && features.hasOwnProperty(moduleName))) {
     self.modules.push(moduleName);
@@ -286,7 +291,8 @@ Shell.prototype.loadModule = function(moduleName) {
  * Middleware for use, for example, with Express.
  *
  * @param {http.IncomingMessage} request Request
- * @param {http.ServerResponse}  response Response
+ * @param {http.ServerResponse} response Response
+ * @param {Function} next The callback.
  */
 Shell.prototype.middleware = function(request, response, next) {
   if (!this.canHandle(request)) {
@@ -307,8 +313,9 @@ Shell.prototype.middleware = function(request, response, next) {
  * * decent.core.shell.render-error
  * * decent.core.shell.end-request
  *
- * @param {http.IncomingMessage} request Request
- * @param {http.ServerResponse}  response Response
+ * @param request Request
+ * @param response Response
+ * @param {Function} next The callback
  */
 Shell.prototype.handleRequest = function(request, response, next) {
   var self = this;
@@ -340,7 +347,6 @@ Shell.prototype.handleRequest = function(request, response, next) {
     }
     // Tear down
     self.emit(Shell.endRequestEvent, context);
-    if (request.tearDown) request.tearDown();
     log.profile(profileId, 'Handled request', {
       tenant: self.name,
       url: request.url,
