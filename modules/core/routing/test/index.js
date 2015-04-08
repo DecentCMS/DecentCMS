@@ -113,6 +113,51 @@ describe('Static Route Handler', function() {
         {url: '/favicon.ico', path: path.resolve('favicon.ico')}
       ]);
   });
+
+  it('registers a favicon route for the shell if the file exists', function() {
+    var middleware = null;
+    var scope = {
+      require: function() {return {verbose: function() {}}},
+      modules: [],
+      moduleManifests: {},
+      rootPath: path.join('sites', 'default'),
+      settings: {'static-route-handler': {
+        staticFolders: []
+      }}
+    };
+    var context = {
+      expressApp: {
+        register: function(priority, registration) {
+          middleware = registration;
+        }
+      },
+      express: {
+        static: function(path) {return path;}
+      }
+    };
+    var files = [
+      path.resolve('sites', 'default', 'favicon.ico')
+    ];
+    var StaticRouteHandler = proxyquire('../services/static-route-handler', {
+      fs: {
+        existsSync: function(path) {return files.indexOf(path) !== -1;}
+      }
+    });
+
+    StaticRouteHandler.register(scope, context);
+    var routes = [];
+    var app = {
+      use: function(url, path) {
+        routes.push({url: url, path: path});
+      }
+    };
+    middleware(app);
+
+    expect(routes)
+      .to.deep.equal([
+        {url: '/favicon.ico', path: path.resolve('./sites/default/favicon.ico')}
+      ]);
+  });
 });
 
 describe('Prevent trailing slash route handler', function() {

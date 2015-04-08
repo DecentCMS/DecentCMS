@@ -76,7 +76,10 @@ var StaticRouteHandler = {
         log.verbose('Added media static file route.', {path: mediaPath});
       }
       // Also, register a /favicon.ico route in case the theme doesn't do things correctly
-      var faviconPath = path.resolve('./favicon.ico');
+      var faviconPath = path.resolve(scope.rootPath, 'favicon.ico');
+      if (!fs.existsSync(faviconPath)) {
+        faviconPath = path.resolve('./favicon.ico');
+      }
       app.use('/favicon.ico', express.static(faviconPath));
       log.verbose('Added static favicon.ico route.', {path: faviconPath});
     });
