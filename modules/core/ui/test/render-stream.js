@@ -127,8 +127,8 @@ describe('Render Stream', function() {
       });
     };
     renderer
-      .shape(shape, 'span', {id: 'shape-id'})
-      .shape(shape, 'div')
+      .shape({shape: shape, tag: 'span', attributes: {id: 'shape-id'}})
+      .shape({shape: shape, tag: 'div'})
       .finally(function() {
         expect(result).to.equal('<span id="shape-id">[shape]</span><div>[shape]</div>');
         done();
@@ -146,7 +146,7 @@ describe('Render Stream', function() {
     };
     renderer
       .shape()
-      .shape(shape, 'span', {id: 'shape-id'})
+      .shape({shape: shape, tag: 'span', attributes: {id: 'shape-id'}})
       .finally(function() {
         expect(result).to.equal('');
         done();

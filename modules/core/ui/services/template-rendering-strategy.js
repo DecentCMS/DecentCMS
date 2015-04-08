@@ -36,6 +36,10 @@ function TemplateRenderingStrategy(scope) {
    *
    * @param {object} context The context.
    * @param {object} context.shape The shape to render.
+   * @param {string} [context.shapeName]
+   * The name of the shape to render.
+   * If not specified, `context.shape.meta.type` will be used,
+   * and if that is not found, 'zone' is used.
    * @param {object} context.renderStream The render stream.
    * @param {Function} done The callback.
    */
@@ -47,10 +51,10 @@ function TemplateRenderingStrategy(scope) {
       renderer.write(temp.html);
       return done();
     }
-    var meta = shapeHelper.meta(shape);
-    var shapeName = meta.type;
+    var shapeName = context.shapeName;
     if (!shapeName) {
-      shapeName = meta.type = 'zone';
+      var meta = shapeHelper.meta(shape);
+      shapeName = meta.type || (meta.type = 'zone');
     }
     var alternates = shapeHelper.alternates(shape).slice();
     alternates.push(shapeName);

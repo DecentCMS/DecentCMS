@@ -9,7 +9,7 @@ function zoneTemplate(zone, renderer, done) {
     Array.isArray(items) ? items : [],
     function(item, next) {
       renderer
-        .shape(item)
+        .shape({shape: item})
         .finally(next);
     },
     function() {
@@ -18,7 +18,7 @@ function zoneTemplate(zone, renderer, done) {
         Object.getOwnPropertyNames(zones || {}),
         function(zoneName, next) {
           renderer
-            .shape(zones[zoneName])
+            .shape({shape: zones[zoneName]})
             .finally(next);
         },
         function() {

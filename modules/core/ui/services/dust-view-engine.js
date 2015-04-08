@@ -90,7 +90,10 @@ var CodeViewEngine = function CodeViewEngine(scope) {
 
   dust.helpers.shape = function shapeDustHelper(chunk, context, bodies, params) {
     var shape = dust.helpers.tap(params.shape, chunk, context);
-    if (!shape) return chunk.map(function renderEmpty(chunk) {chunk.end();});
+    if (!shape) {
+      return chunk.map(function renderEmpty(chunk) {chunk.end();});
+    }
+    var name = dust.helpers.tap(params.name, chunk, context);
     var tag = dust.helpers.tap(params.tag, chunk, context);
     var cssClass = dust.helpers.tap(params.class, chunk, context);
     var style = dust.helpers.tap(params.style, chunk, context);
@@ -114,7 +117,7 @@ var CodeViewEngine = function CodeViewEngine(scope) {
       if (cssClass) attributes['class'] = cssClass;
       if (style) attributes.style = style;
       innerRenderer
-        .shape(shape, tag, attributes)
+        .shape({shape: shape, tag: tag, attributes: attributes, shapeName: name})
         .finally(function() {
           chunk.end();
         });

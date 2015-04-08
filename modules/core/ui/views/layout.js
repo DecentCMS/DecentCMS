@@ -20,8 +20,8 @@ module.exports = function layoutTemplate(layout, renderer, done) {
     .endTag()
     .writeLine()
     .startTag('body')
-    .shape(layout.navigation)
-    .shape(layout.main)
+    .shape({shape: layout.navigation})
+    .shape({shape: layout.main})
     .writeLine()
 
     .renderScripts()

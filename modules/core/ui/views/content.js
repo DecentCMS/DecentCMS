@@ -4,9 +4,9 @@
 function contentTemplate(content, renderer, done) {
   renderer
     .startTag('article')
-    .shape(content.header, 'header')
-    .shape(content.main)
-    .shape(content.footer, 'footer')
+    .shape({shape: content.header, tag: 'header'})
+    .shape({shape: content.main})
+    .shape({shape: content.footer, tag: 'footer'})
     .endTag()
     .finally(done);
 }

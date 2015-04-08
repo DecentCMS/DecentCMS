@@ -84,6 +84,18 @@ describe('Template Rendering Strategy', function() {
     });
   });
 
+  it("uses the shape name if one is provided", function (done) {
+    templateRenderingStrategy.render({
+      shape: {meta: {type: 'foo'}},
+      shapeName: 'shape1',
+      renderStream: renderer
+    }, function () {
+      expect(html.join(''))
+        .to.equal('[ve2:foo:template.ve2]');
+      done();
+    });
+  });
+
   it('uses alternates before the shape name', function (done) {
     templateRenderingStrategy.render({
       shape: {
