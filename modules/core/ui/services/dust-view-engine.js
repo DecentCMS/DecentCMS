@@ -93,10 +93,27 @@ var CodeViewEngine = function CodeViewEngine(scope) {
     if (!shape) {
       return chunk.map(function renderEmpty(chunk) {chunk.end();});
     }
-    var name = dust.helpers.tap(params.name, chunk, context);
-    var tag = dust.helpers.tap(params.tag, chunk, context);
-    var cssClass = dust.helpers.tap(params.class, chunk, context);
-    var style = dust.helpers.tap(params.style, chunk, context);
+    var name, tag, cssClass, style;
+    Object.getOwnPropertyNames(params)
+      .forEach(function(paramName) {
+        var param = dust.helpers.tap(params[paramName], chunk, context);
+        switch(paramName) {
+          case 'name':
+            name = param;
+            break;
+          case 'tag':
+            tag = param;
+            break;
+          case 'class':
+            cssClass = param;
+            break;
+          case 'style':
+            style = param;
+            break;
+          default:
+            shape[paramName] = param;
+        }
+      });
     var renderer = chunk.root['decent-renderer'];
     return chunk.map(function renderShapeFromDust(chunk) {
       var innerRenderer = new RenderStream(renderer.scope, {

@@ -9,7 +9,7 @@ describe('Dust View Engine', function() {
   var template;
   function readFile(path, done) {
     done(null, template);
-  };
+  }
   readFile['@noCallThru'] = true;
   var DustViewEngine = proxyquire('../services/dust-view-engine', {
     fs: {
@@ -24,6 +24,9 @@ describe('Dust View Engine', function() {
         + shape.meta.type
         + (context.shapeName ? ':' + context.shapeName : '')
         + ':' + shape.title + ']');
+        if (shape.foo) {
+          context.renderStream.write('foo:' + shape.foo);
+        }
         done();
       });
     },
@@ -97,7 +100,7 @@ describe('Dust View Engine', function() {
   });
 
   it('can render shapes', function(done) {
-    template = 'Here\'s a shape: {@shape shape=theShape name="shape-name" tag="div" class="shape-class"/}.';
+    template = 'Here\'s a shape: {@shape shape=theShape name="shape-name" tag="div" class="shape-class" foo="bar" /}.';
     dustViewEngine.load('path-to-template-with-shape', function(renderTemplate) {
       renderTemplate({
         theShape: {
@@ -106,7 +109,7 @@ describe('Dust View Engine', function() {
         }
       }, renderer, function() {
         expect(html.join(''))
-          .to.equal('Here\'s a shape: <div class="shape-class">[sub-shape:shape-name:foo]</div>.');
+          .to.equal('Here\'s a shape: <div class="shape-class">[sub-shape:shape-name:foo]foo:bar</div>.');
         done();
       });
     });
