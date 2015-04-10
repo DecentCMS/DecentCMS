@@ -115,6 +115,22 @@ describe('Dust View Engine', function() {
     });
   });
 
+  it('can render the same shape twice', function(done) {
+    template = 'Here\'s a shape twice: {@shape shape=theShape name="shape-name" tag="div" class="shape-class" foo="bar" /}, {@shape shape=theShape name="shape-name" tag="div" class="shape-class" foo="baz" /}.';
+    dustViewEngine.load('path-to-template-with-shape', function(renderTemplate) {
+      renderTemplate({
+        theShape: {
+          meta: {type: 'sub-shape'},
+          title: 'foo'
+        }
+      }, renderer, function() {
+        expect(html.join(''))
+          .to.equal('Here\'s a shape twice: <div class="shape-class">[sub-shape:shape-name:foo]foo:bar</div>, <div class="shape-class">[sub-shape:shape-name:foo]foo:baz</div>.');
+        done();
+      });
+    });
+  });
+
   it('can register and render style sheets', function(done) {
     template =
       '{@style name="foo"/}' +

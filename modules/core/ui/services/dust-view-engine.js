@@ -89,15 +89,26 @@ var CodeViewEngine = function CodeViewEngine(scope) {
   }
 
   dust.helpers.shape = function shapeDustHelper(chunk, context, bodies, params) {
-    var shape = dust.helpers.tap(params.shape, chunk, context);
-    if (!shape) {
+    var theShape = dust.helpers.tap(params.shape, chunk, context);
+    if (!theShape) {
       return chunk.map(function renderEmpty(chunk) {chunk.end();});
     }
+    // Clone the shape, so that its attributes can be changed between different
+    // renderings of the same shape.
+    // Warning: shallow copy, so weird things may still happen for object and
+    // array properties.
+    var shape = {meta: theShape.meta, temp: theShape.temp};
+    Object.getOwnPropertyNames(theShape)
+      .forEach(function(propertyName) {
+        if (propertyName === 'meta' || propertyName == 'temp') return;
+        shape[propertyName] = theShape[propertyName];
+      });
     var name, tag, cssClass, style;
     Object.getOwnPropertyNames(params)
       .forEach(function(paramName) {
         var param = dust.helpers.tap(params[paramName], chunk, context);
         switch(paramName) {
+          case 'shape': break;
           case 'name':
             name = param;
             break;
