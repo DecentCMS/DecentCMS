@@ -38,17 +38,19 @@ var TextPart = {
         : part.text;
       var flavor = part.flavor
         || (part.src ? path.extname(part.src).substr(1) : 'plain-text');
-      temp.shapes.push({
-        meta: {
-          type: 'text',
-          name: partName,
-          alternates: ['text-' + partName],
-          item: item
-        },
-        temp: {displayType: temp.displayType},
-        text: text,
-        flavor: flavor
-      });
+      if (temp.shapes) {
+        temp.shapes.push({
+          meta: {
+            type: 'text',
+            name: partName,
+            alternates: ['text-' + partName],
+            item: item
+          },
+          temp: {displayType: temp.displayType},
+          text: text,
+          flavor: flavor
+        });
+      }
     }
     done();
   }

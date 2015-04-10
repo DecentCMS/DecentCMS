@@ -34,17 +34,19 @@ var UrlPart = {
         ? part
         : part.url;
       var text = part.text || url;
-      temp.shapes.push({
-        meta: {
-          type: 'url',
-          name: partName,
-          alternates: ['url-' + partName],
-          item: item
-        },
-        temp: {displayType: temp.displayType},
-        text: text,
-        url: url
-      });
+      if (temp.shapes) {
+        temp.shapes.push({
+          meta: {
+            type: 'url',
+            name: partName,
+            alternates: ['url-' + partName],
+            item: item
+          },
+          temp: {displayType: temp.displayType},
+          text: text,
+          url: url
+        });
+      }
     }
     done();
   }

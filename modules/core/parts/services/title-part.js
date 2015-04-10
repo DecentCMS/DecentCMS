@@ -37,11 +37,13 @@ var TitlePart = {
           context.scope.layout.title =
           title;
     }
-    temp.shapes.push({
-      meta: {type: 'title', item: item},
-      temp: {displayType: temp.displayType},
-      text: title
-    });
+    if (temp.shapes) {
+      temp.shapes.push({
+        meta: {type: 'title', item: item},
+        temp: {displayType: temp.displayType},
+        text: title
+      });
+    }
     done();
   }
 };
