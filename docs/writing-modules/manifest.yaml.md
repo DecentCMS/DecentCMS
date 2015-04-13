@@ -78,4 +78,18 @@ required at runtime are declared. For example, libraries used only
 when testing or grunting the module can be declared here rather than
 in `dependencies`.
 
+An optional `priority` number can be assigned to a module that will
+determine in what order the services in the module get registered,
+and the order in which templates will be resolved.
+The lowest priority value makes the module more important, so a P0
+module will have its services and templates resolved before those of
+a P1 module.
+Themes have priority -1 by default, so they take precedence over all
+modules in principle.
+The default priority number for modules that are not themes is 9999.
+No matter what the priorities are, services will be resolved in a
+deterministic order if one of the service has a dependency on
+another: the service that depends on the other will be selected over
+the one that is depended upon.
+
   [npm-manifest]: https://docs.npmjs.com/files/package.json

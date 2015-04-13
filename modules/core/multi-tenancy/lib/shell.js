@@ -189,6 +189,13 @@ Shell.prototype.disable = function() {
   this.active = false;
 };
 
+function moduleSortOrder(moduleName, availableModules) {
+  var moduleManifest = availableModules[moduleName];
+  if (moduleManifest.hasOwnProperty('priority')) return -moduleManifest.priority;
+  if (moduleManifest.theme) return 1;
+  return -9999;
+}
+
 /**
  * @description
  * Scopes the shell, then loads all enabled services in each module,
@@ -199,8 +206,12 @@ Shell.prototype.load = function() {
   if (self.loaded || !self.availableModules) return;
   // Make this a scope
   scope('shell', self);
-  // Load services from each available module
+  // Load services from each available module, in priority order, with themes last.
   Object.getOwnPropertyNames(self.availableModules)
+    .sort(function(moduleName1, moduleName2) {
+      return moduleSortOrder(moduleName1, self.availableModules)
+        - moduleSortOrder(moduleName2, self.availableModules);
+    })
     .forEach(function(moduleName) {
       self.loadModule(moduleName);
     });
@@ -248,38 +259,40 @@ Shell.prototype.loadModule = function(moduleName) {
   var services = manifest.services;
   var anyEnabledService = false;
   var moduleServiceClasses = {};
-  Object.getOwnPropertyNames(services)
-    .forEach(function(serviceName) {
-      var serviceList = services[serviceName];
-      if (!Array.isArray(serviceList)) {
-        serviceList = [serviceList];
-      }
-      for (var i = 0; i < serviceList.length ; i++) {
-        var service = serviceList[i];
-        var serviceFeature = service.feature;
-        // Skip if that service is not enabled
-        if (serviceFeature && !features.hasOwnProperty(serviceFeature)) continue;
-        var servicePath = path.resolve(manifest.physicalPath, service.path);
-        // Skip if that service is already loaded
-        if (self.serviceManifests[servicePath]) continue;
-        // Dependencies must be loaded first
-        var dependencies = service.dependencies;
-        if (dependencies) {
-          dependencies.forEach(function (dependencyPath) {
-            self.loadModule(dependencyPath);
-          });
+  if (services) {
+    Object.getOwnPropertyNames(services)
+      .forEach(function (serviceName) {
+        var serviceList = services[serviceName];
+        if (!Array.isArray(serviceList)) {
+          serviceList = [serviceList];
         }
-        // Services are obtained through require
-        var ServiceClass = moduleServiceClasses[serviceName] = require(servicePath);
-        self.register(serviceName, ServiceClass);
-        // Add the service's configuration onto the config object
-        self.settings[serviceFeature] = features[serviceFeature];
-        // Store the manifest on the service class, for reflection, and easy reading of settings
-        ServiceClass.manifest = service;
-        self.serviceManifests[servicePath] = service;
-        anyEnabledService = true;
-      }
-    });
+        for (var i = 0; i < serviceList.length; i++) {
+          var service = serviceList[i];
+          var serviceFeature = service.feature;
+          // Skip if that service is not enabled
+          if (serviceFeature && !features.hasOwnProperty(serviceFeature)) continue;
+          var servicePath = path.resolve(manifest.physicalPath, service.path);
+          // Skip if that service is already loaded
+          if (self.serviceManifests[servicePath]) continue;
+          // Dependencies must be loaded first
+          var dependencies = service.dependencies;
+          if (dependencies) {
+            dependencies.forEach(function (dependencyPath) {
+              self.loadModule(dependencyPath);
+            });
+          }
+          // Services are obtained through require
+          var ServiceClass = moduleServiceClasses[serviceName] = require(servicePath);
+          self.register(serviceName, ServiceClass);
+          // Add the service's configuration onto the config object
+          self.settings[serviceFeature] = features[serviceFeature];
+          // Store the manifest on the service class, for reflection, and easy reading of settings
+          ServiceClass.manifest = service;
+          self.serviceManifests[servicePath] = service;
+          anyEnabledService = true;
+        }
+      });
+  }
   // Only add to the modules collection if it has enabled services
   if (anyEnabledService || (manifest.theme && features.hasOwnProperty(moduleName))) {
     self.modules.push(moduleName);

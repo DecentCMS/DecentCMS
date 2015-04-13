@@ -635,6 +635,88 @@ describe('Shell', function() {
         .to.deep.equal(["module 2", "module 3", "module 1"]);
     });
 
+    it('will load services and modules in priority order, with themes last', function() {
+      var stubs = {};
+      var resolvedPathToService1 = path.resolve('path/to/module1/lib/service1');
+      stubs[resolvedPathToService1] = serviceClassFactory(1);
+      var resolvedPathToService2 = path.resolve('path/to/module2/lib/service2');
+      stubs[resolvedPathToService2] = serviceClassFactory(2);
+      var resolvedPathToService3 = path.resolve('path/to/module3/lib/service3');
+      stubs[resolvedPathToService3] = serviceClassFactory(3);
+
+      var PhoniedShell = proxyquire('../lib/shell', stubs);
+      var shell = new PhoniedShell({
+        features: {
+          'feature 1': {},
+          'theme 1': {},
+          'theme 2': {}
+        },
+        availableModules: {
+          'theme 1': {
+            name: 'theme 1',
+            theme: true,
+            priority: 1,
+            physicalPath: 'path/to/theme1'
+          },
+          'theme 2': {
+            name: 'theme 2',
+            theme: true,
+            physicalPath: 'path/to/theme2'
+          },
+          'module 1': {
+            name: 'module 1',
+            priority: 0,
+            physicalPath: 'path/to/module1',
+            services: {
+              service1: {
+                feature: 'feature 1',
+                path: 'lib/service1'
+              }
+            }
+          },
+          'module 2': {
+            name: 'module 2',
+            priority: 3,
+            physicalPath: 'path/to/module2',
+            services: {
+              service1: {
+                feature: 'feature 1',
+                path: 'lib/service2'
+              }
+            }
+          },
+          'module 3': {
+            name: 'module 3',
+            priority: 2,
+            physicalPath: 'path/to/module3',
+            services: {
+              service1: {
+                feature: 'feature 1',
+                path: 'lib/service3'
+              }
+            }
+          }
+        }
+      });
+      shell.load();
+
+      var service1s = shell.getServices('service1')
+      expect(service1s)
+        .to.have.length(3);
+
+      expect(service1s[0])
+        .to.have.a.property('what', 'instance of service 2');
+      expect(service1s[1])
+        .to.have.a.property('what', 'instance of service 3');
+      expect(service1s[2])
+        .to.have.a.property('what', 'instance of service 1');
+      // Require gets the least dependant
+      expect(shell.require('service1'))
+        .to.have.a.property('what', 'instance of service 1');
+      expect(shell.modules)
+        .to.deep.equal(["module 2", "module 3", "theme 1", "module 1", "theme 2"]);
+    });
+
     it('will use null localization if no localization service is defined', function() {
       var shell = new Shell();
       shell.load();
