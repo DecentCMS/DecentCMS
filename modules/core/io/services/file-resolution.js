@@ -1,6 +1,8 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
+// TODO: move active theme resolution to the request rather than the shell.
+
 var fs = require('fs');
 var path = require('path');
 
@@ -39,7 +41,7 @@ function FileResolution(scope) {
     });
     modulePaths.reverse();
   }
-};
+}
 FileResolution.feature = 'file-resolution';
 FileResolution.scope = 'shell';
 FileResolution.isScopeSingleton = true;
