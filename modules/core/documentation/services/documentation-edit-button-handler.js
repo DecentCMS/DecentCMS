@@ -54,7 +54,7 @@ var DocumentationEditButtonHandler = {
       }
       if (possiblePath) {
         var editUrl = repositoryResolver.resolve(possiblePath, "edit");
-        if (editUrl) {
+        if (editUrl && content.temp.shapes) {
           var item = content.temp.item;
           content.temp.shapes.push({
             meta: {

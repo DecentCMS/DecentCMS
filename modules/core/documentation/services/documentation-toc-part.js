@@ -56,13 +56,15 @@ var DocumentationTocPart = {
         // Lookup the cache on the request.
         var cachedToc = scope.documentationTOC;
         if (cachedToc) {
-          shape.topLevelTOC = cachedToc.topLevelTOC;
-          shape.localTOC = cachedToc.localTOC;
-          shape.breadcrumbs = cachedToc.breadcrumbs;
-          shape.previous = cachedToc.previous;
-          shape.next = cachedToc.next;
-          shape.current = cachedToc.current;
-          temp.shapes.push(shape);
+          if (temp.shapes) {
+            shape.topLevelTOC = cachedToc.topLevelTOC;
+            shape.localTOC = cachedToc.localTOC;
+            shape.breadcrumbs = cachedToc.breadcrumbs;
+            shape.previous = cachedToc.previous;
+            shape.next = cachedToc.next;
+            shape.current = cachedToc.current;
+            temp.shapes.push(shape);
+          }
           done();
           return;
         }
