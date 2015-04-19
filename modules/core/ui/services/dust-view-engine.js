@@ -103,7 +103,8 @@ var CodeViewEngine = function CodeViewEngine(scope) {
         if (propertyName === 'meta' || propertyName == 'temp') return;
         shape[propertyName] = theShape[propertyName];
       });
-    var name, tag, cssClass, style;
+    var name, tag;
+    var attributes = {};
     Object.getOwnPropertyNames(params)
       .forEach(function(paramName) {
         var param = dust.helpers.tap(params[paramName], chunk, context);
@@ -116,13 +117,18 @@ var CodeViewEngine = function CodeViewEngine(scope) {
             tag = param;
             break;
           case 'class':
-            cssClass = param;
+            attributes['class'] = param;
             break;
           case 'style':
-            style = param;
+            attributes.style = param;
             break;
           default:
-            shape[paramName] = param;
+            if (paramName.substr(0, 5) === 'data-') {
+              attributes[paramName] = param;
+            }
+            else {
+              shape[paramName] = param;
+            }
         }
       });
     var renderer = chunk.root['decent-renderer'];
@@ -141,9 +147,6 @@ var CodeViewEngine = function CodeViewEngine(scope) {
           renderer._onError(err);
           chunk.end();
         });
-      var attributes = {};
-      if (cssClass) attributes['class'] = cssClass;
-      if (style) attributes.style = style;
       innerRenderer
         .shape({shape: shape, tag: tag, attributes: attributes, shapeName: name})
         .finally(function() {
