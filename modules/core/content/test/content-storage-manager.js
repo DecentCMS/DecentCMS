@@ -43,6 +43,16 @@ describe('Content Storage Manager', function() {
     expect(fetchedItem).to.be.ok;
   });
 
+  it('immediately calls back when there are no items to fetch', function () {
+    var scope = {items: {}};
+    var cm = new ContentStorageManager(scope);
+    var immediatelyCalled = false;
+    cm.fetchContent({}, function() {
+      immediatelyCalled = true;
+    });
+    expect(immediatelyCalled).to.be.ok;
+  });
+
   it('calls into content stores to fetch items', function (done) {
     var got = [];
     var itemCallback = function (err, item) {

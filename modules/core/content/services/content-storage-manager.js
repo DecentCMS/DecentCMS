@@ -18,10 +18,8 @@ ContentStorageManager.isScopeSingleton = true;
 /**
  * @description
  * Promises to get one or several content items.
- * @param {string|Array}
- * id the id or ids of the items to fetch.
- * @param {Function} [callback]
- * A function with signature (err, item) that will get called once per item once the item has been loaded.
+ * @param {string|Array} id the id or ids of the items to fetch.
+ * @param {Function} [callback] A function with signature (err, item) that will get called once per item once the item has been loaded.
  */
 ContentStorageManager.prototype.promiseToGet = function promiseToGet(id, callback) {
   var self = this;
@@ -59,32 +57,35 @@ ContentStorageManager.prototype.getAvailableItem = function getAvailableItem(id)
  * ids can be found in the content manager's itemsToFetch
  * array, and their transfer into the items array.
  * This method emits the decent.core.load-items event.
- * @param context
- * @param {Function} [context.callback] a callback that gets
- * called when all items have been fetched, or when an error
- * occurs.
+ * @param {object} context the context.
+ * @param {Function} [callback] a callback that gets called when all items have been fetched, or when an error occurs.
  */
 ContentStorageManager.prototype.fetchContent = function fetchContent(context, callback) {
   var scope = this.scope;
-  for (var id in scope.itemsToFetch) {
-    if (scope.items.hasOwnProperty(id)
-      && scope.itemsToFetch
-      && scope.itemsToFetch.hasOwnProperty(id)) {
-      // items was already fetched, just call the callback
-      // and remove the item from the list to fetch.
-      for (var i = 0; i < scope.itemsToFetch[id].length; i++) {
-        var itemCallback = scope.itemsToFetch[id][i];
-        if (itemCallback) itemCallback(null, scope.items[id]);
+  var itemsToFetch = scope.itemsToFetch;
+  Object.getOwnPropertyNames(itemsToFetch)
+    .forEach(function(id) {
+      if (scope.items.hasOwnProperty(id)
+        && itemsToFetch
+        && itemsToFetch.hasOwnProperty(id)) {
+        // items was already fetched, just call the callback
+        // and remove the item from the list to fetch.
+        for (var i = 0; i < itemsToFetch[id].length; i++) {
+          var itemCallback = itemsToFetch[id][i];
+          if (itemCallback) itemCallback(null, scope.items[id]);
+        }
+        delete itemsToFetch[id];
       }
-      delete scope.itemsToFetch[id];
-    }
-  }
-  if (Object.getOwnPropertyNames(scope.itemsToFetch).length > 0) {
+    });
+  if (Object.getOwnPropertyNames(itemsToFetch).length > 0) {
     scope.callService('content-store', 'loadItems', {
       scope: scope,
       items: scope.items,
-      itemsToFetch: scope.itemsToFetch
+      itemsToFetch: itemsToFetch
     }, callback);
+  }
+  else if (callback) {
+    callback();
   }
 };
 
