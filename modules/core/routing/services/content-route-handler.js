@@ -36,8 +36,8 @@ var ContentRouteHandler = {
   },
   /**
    * Gets the URL for a regular content item (no id prefix).
-   * @param {string} id The topic content item's id.
-   * @returns {string} The URL for the topic.
+   * @param {string} id The content item's id.
+   * @returns {string} The URL for the content item.
    */
   getUrl: function getUrl(id) {
     if (id.indexOf(':') === -1) {
