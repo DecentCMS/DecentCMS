@@ -26,6 +26,7 @@ var NullServices = require('./null-services');
  * @param {String}  [options.rootPath]         The path to the site's folder.
  * @param {String}  [options.settingsPath]     The path to the settings file for this tenant.
  * @param {String}  [options.host]             The host name under which the tenant answers.
+ * @param {String}  [options.debugHost]        A host name under which the tenant answers, that causes `request.debug` to be true.
  * @param {Number}  [options.port]             The port to which the tenant answers.
  * @param {Boolean} [options.https]            True if the site must use HTTPS.
  * @param {String}  [options.cert]             The path to the SSL certificate to use with this tenant.
@@ -41,7 +42,12 @@ function Shell(options) {
   this.name = options.name;
   this.rootPath = options.rootPath;
   this.settingsPath = options.settingsPath;
-  this.host = options.host || 'localhost';
+  this.host = Array.isArray(options.host)
+    ? options.host
+    : (options.host ? [options.host] : []);
+  this.debugHost = Array.isArray(options.debugHost)
+    ? options.debugHost
+    : (options.debugHost ? [options.debugHost] : ['localhost']);
   this.port = options.port || 80;
   this.https = !!options.https;
   this.cert = options.cert;
@@ -153,7 +159,7 @@ Shell.resolve = function(request) {
  */
 Shell.prototype.canHandle = function(request) {
   var host = request.headers.host;
-  var hosts = Array.isArray(this.host) ? this.host : [this.host];
+  var hosts = this.host.concat(this.debugHost);
   for (var i = 0; i < hosts.length; i++) {
     var thisHost = hosts[i];
     if ((
@@ -166,7 +172,16 @@ Shell.prototype.canHandle = function(request) {
     ) && (
     !this.path
     || request.url.substr(0, this.path.length) === this.path
-    )) return true;
+    )) {
+      if (i >= this.host.length) {
+        request.debug = true;
+      }
+      // We also set the shell into debug mode, which could cause problems
+      // if the same shell is on a server configured and able to answer on both
+      // the host and debug host. That should however never happen.
+      this.debug = request.debug;
+      return true;
+    }
   }
   return false;
 };
