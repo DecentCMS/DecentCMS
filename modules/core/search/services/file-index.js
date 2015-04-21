@@ -19,9 +19,10 @@ var async = require('async');
  *   The sort order can be a simple string, date, number, or it can be an array,
  *   in which case the items in the array will be used one after the other.
  *   It takes an index entry, and returns the sort order.
+ * @param {string} [name] A name for the index. If not provided, one will be built from the other parameters.
  * @constructor
  */
-function FileIndex(scope, idFilter, map, orderBy) {
+function FileIndex(scope, idFilter, map, orderBy, name) {
   if (typeof(idFilter) === 'function') {
     orderBy = map;
     map = idFilter;
@@ -31,7 +32,7 @@ function FileIndex(scope, idFilter, map, orderBy) {
   this.idFilter = idFilter;
   this.map = map;
   this.orderBy = orderBy;
-  this.name = FileIndex._toName(map, orderBy);
+  this.name = name || FileIndex._toName(map, orderBy);
   this._unsortedIndex = null;
   this._index = null;
 
@@ -348,11 +349,12 @@ FileIndexFactory.scope = 'shell';
  *   in which case the items in the array will be used one after the other.
  *   It is recommended to name the order function.
  * @returns {object} The index object.
+ * @param {string} [name] A unique name for the index. If it's not provided, one will be generated from the source code of the filter, map, and orderBy parameters.
  */
-FileIndexFactory.prototype.getIndex = function getIndex(idFilter, map, orderBy) {
-  var name = FileIndex._toName(idFilter, map, orderBy);
+FileIndexFactory.prototype.getIndex = function getIndex(idFilter, map, orderBy, name) {
+  name = name || FileIndex._toName(idFilter, map, orderBy);
   if (this.indexes[name]) return this.indexes[name];
-  var index = this.indexes[name] = new FileIndex(this.scope, idFilter, map, orderBy);
+  var index = this.indexes[name] = new FileIndex(this.scope, idFilter, map, orderBy, name);
   if (!index._index && !index._unsortedIndex) {
     process.nextTick(index.build.bind(index));
   }

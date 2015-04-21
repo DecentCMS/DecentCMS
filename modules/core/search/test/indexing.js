@@ -120,8 +120,9 @@ describe('File Index', function() {
         return function(iterator) {
           var id = 'item' + i;
           while(context.idFilter
-          && !context.idFilter.test(id)
-          && i <= nbItems) {
+            && context.idFilter.test
+            && !context.idFilter.test(id)
+            && i <= nbItems) {
             i++;
             id = 'item' + i;
           }
@@ -162,22 +163,29 @@ describe('File Index', function() {
     });
   });
 
-  it("yields the same index for the same map and order", function() {
-    var indexA = indexFactory.getIndex(mapNull, orderBy);
-    var indexB = indexFactory.getIndex(mapNull, orderBy);
+  it("yields the same index for the same id filter, map, and order", function() {
+    var indexA = indexFactory.getIndex('foo', mapNull, orderBy);
+    var indexB = indexFactory.getIndex('foo', mapNull, orderBy);
+
+    expect(indexA).to.equal(indexB);
+  });
+
+  it("yields the same index for the same name, but different map and order", function() {
+    var indexA = indexFactory.getIndex('foo', mapNull, orderBy, 'index-name');
+    var indexB = indexFactory.getIndex('bar', function() {}, function() {}, 'index-name');
 
     expect(indexA).to.equal(indexB);
   });
 
   it("loads the index from disk if the file exists", function() {
     indexExists = true;
-    var index = indexFactory.getIndex(mapNull, orderBy);
+    var index = indexFactory.getIndex(null, mapNull, orderBy);
 
     expect(index._index.val).to.equal('null index cache');
   });
 
   it("builds the index from content items in the right order", function(done) {
-    var index = indexFactory.getIndex(mapSingleEntry, orderBy);
+    var index = indexFactory.getIndex(null, mapSingleEntry, orderBy);
 
     process.nextTick(function() {
       clearIndexOrderCache(index._index);
