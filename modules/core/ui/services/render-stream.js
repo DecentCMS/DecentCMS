@@ -210,6 +210,7 @@ function RenderStream(scope, options) {
         return this;
       }
       var innerRenderStream = new RenderStream(scope, options);
+      innerRenderStream.title = self.title;
       innerRenderStream
         .on('data', function(data) {
           self.push(data);
