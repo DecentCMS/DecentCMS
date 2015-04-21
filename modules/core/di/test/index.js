@@ -235,6 +235,9 @@ describe('scope', function() {
       results.push(context.one);
       next();
     };
+    function ServiceWithoutMethod(scope) {
+      this.scope = scope;
+    }
     function SingletonClass(scope) {
       this.scope = scope;
     }
@@ -246,7 +249,7 @@ describe('scope', function() {
     SingletonClass.isScopeSingleton = true;
     SingletonClass.scope = '';
     var scoped = scope('', {}, {
-      service: [ServiceClass, SingletonClass]
+      service: [ServiceClass, ServiceWithoutMethod, SingletonClass]
     });
 
     scoped.callService('service', 'method', {one: 'one', two: 'two'}, function() {
