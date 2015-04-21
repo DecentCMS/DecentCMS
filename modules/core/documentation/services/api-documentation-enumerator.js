@@ -115,7 +115,7 @@ var documentationEnumerator = {
       };
       scope.callService('content-store', 'loadItems', loadContext, function(err) {
         if (err) {
-          log("Error loading item from API documentation enumerator.", err);
+          log.error("Error loading item from API documentation enumerator.", err);
           callback(err);
           return;
         }
