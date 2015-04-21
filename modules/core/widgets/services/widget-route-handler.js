@@ -1,5 +1,8 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
+
+// TODO: find a way for widgets not to be fetched on non-themed requests
+
 /**
  * @description
  * A route handler that determines what widgets to render for this request.
