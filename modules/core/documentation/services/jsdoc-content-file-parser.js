@@ -1,7 +1,6 @@
 // DecentCMS (c) 2015 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-// TODO: add a config flag to prevent the parsing.
 
 /**
  * @description
@@ -55,6 +54,13 @@ var jsDocContentFileParser = {
         nextStore();
         return;
       }
+    }
+
+    // Cache was not found. Check if config allows for regeneration of the documentation.
+    var config = context.scope.require('shell').features['api-documentation'];
+    if (config && (!config.onlyFromCache || (config.onlyFromCache === 'release' && !context.scope.debug))) {
+      nextStore();
+      return;
     }
 
     // More required libraries
