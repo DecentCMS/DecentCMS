@@ -71,6 +71,7 @@ var DocumentationTocPart = {
         // TODO: have a proper job queue and put that on it.
         // Create or get the index
         var index = indexService.getIndex({
+          name: 'documentation-toc',
           idFilter: /^(api)?docs:.*$/,
           map: function mapDocToc(topic) {
             var splitId = topic.id.split(':')[1].split('/');
