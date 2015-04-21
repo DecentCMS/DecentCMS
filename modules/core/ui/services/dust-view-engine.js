@@ -161,7 +161,7 @@ var CodeViewEngine = function CodeViewEngine(scope) {
     var t = scope.require('localization') || function(s) {return s;};
     var body = dust.helpers.tap(bodies.block, chunk, context);
     var localizedBody = t(body);
-    var reTokenized = localizedBody.replace(/\[([^\]]+)\]/g, '{$1}');
+    var reTokenized = localizedBody.replace(/\[([^\]]+)]/g, '{$1}');
     dust.loadSource(dust.compile(reTokenized, reTokenized));
     return chunk.map(function renderLocalizedString(chunk) {
       dust.render(reTokenized, context, function(err, rendered) {
