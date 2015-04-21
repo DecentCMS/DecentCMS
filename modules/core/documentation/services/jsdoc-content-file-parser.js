@@ -60,7 +60,7 @@ var jsDocContentFileParser = {
     var shell = context.scope.require('shell');
     if (shell) {
       var config = shell.features['api-documentation'];
-      if (config && (!config.onlyFromCache || (config.onlyFromCache === 'release' && !context.scope.debug))) {
+      if (config && (!!config.onlyFromCache || (config.onlyFromCache === 'release' && !context.scope.debug))) {
         nextStore();
         return;
       }

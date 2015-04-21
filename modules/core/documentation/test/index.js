@@ -123,16 +123,18 @@ var itemsToIndex = [
   {id: 'docs:module2', title: 'Module 2 index', temp: {name: 'index'}}
 ];
 
+var shell = {
+  moduleManifests: {
+    module1: {physicalPath: path.resolve('modules', 'module1')},
+    module2: {physicalPath: path.resolve('modules', 'module2')}
+  }
+};
+
 var scope = {
   require: function(service) {
     switch(service) {
       case 'shell':
-        return {
-          moduleManifests: {
-            module1: {physicalPath: path.resolve('modules', 'module1')},
-            module2: {physicalPath: path.resolve('modules', 'module2')}
-          }
-        };
+        return shell;
       case 'log':
         return {
           info: function() {}
@@ -515,6 +517,51 @@ describe('JsDoc File Parser', function() {
     var context = {
       path: 'path/to/some-file-to-test.unknown',
       data: 'foo'
+    };
+    parser.parse(context, function() {
+      expect(context.item).to.not.be.ok;
+      done();
+    });
+  });
+
+  it("won't parse if the only from cache setting is true", function(done) {
+    var context = {
+      path: 'path/to/some-file-to-test.js',
+      data: js,
+      scope: {
+        require: function() {
+          return {
+            features: {
+              'api-documentation': {
+                onlyFromCache: true
+              }
+            }
+          }
+        }
+      }
+    };
+    parser.parse(context, function() {
+      expect(context.item).to.not.be.ok;
+      done();
+    });
+  });
+
+  it("won't parse if the only from cache setting is release and the shell is in debug mode", function(done) {
+    var context = {
+      path: 'path/to/some-file-to-test.js',
+      data: js,
+      scope: {
+        require: function() {
+          return {
+            features: {
+              'api-documentation': {
+                onlyFromCache: 'release'
+              }
+            },
+            debug: true
+          }
+        }
+      }
     };
     parser.parse(context, function() {
       expect(context.item).to.not.be.ok;
