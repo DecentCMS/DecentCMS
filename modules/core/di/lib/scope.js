@@ -14,6 +14,7 @@ var util = require('util');
  * is always returned.
  * Otherwise, a new instance is created on each call.
  * Don't call this directly, it should only be internally used by scope methods.
+ * @param {object} scope The scope.
  * @param {Function|object} ServiceClass The class to instantiate.
  *  This constructor must always take a scope as its first argument.
  *  It can also take an optional 'options' argument, unless it's a shell singleton.
@@ -22,10 +23,10 @@ var util = require('util');
  */
 function construct(scope, ServiceClass, options) {
   return ServiceClass ?
-      ServiceClass.isStatic || typeof ServiceClass !== 'function' ?
+      ServiceClass.hasOwnProperty('isStatic') || typeof ServiceClass !== 'function' ?
     ServiceClass : new ServiceClass(scope, options)
     : null;
-};
+}
 
 /**
  * @description
@@ -89,6 +90,7 @@ function getSingleton(scope, service, index, options) {
  * @description
  * Initializes a service by calling its init method, and wiring up
  * its static events.
+ * @param {object} scope The scope
  * @param ServiceClass
  */
 function initializeService(scope, ServiceClass) {
@@ -119,6 +121,9 @@ function initializeService(scope, ServiceClass) {
  * @param {object} [parentScope] An optional parent scope that may have valid instances of services to hand down.
  */
 function scope(name, objectToScope, services, parentScope) {
+  // Leave the object alone if it's already been scoped.
+  if (objectToScope.scopeName) return objectToScope;
+
   if (services) {
     objectToScope.services = services;
   }
@@ -165,7 +170,7 @@ function scope(name, objectToScope, services, parentScope) {
     if (this._scopeInitialized) {
       // Scope has already initialized its services, so any new one that gets added
       // must also be initialized.
-      if (!ServiceClass.scope || ServiceClass.scope === objectToScope.scopeName) {
+      if (!ServiceClass.hasOwnProperty('scope') || ServiceClass.scope === objectToScope.scopeName) {
         initializeService(objectToScope, ServiceClass);
       }
     }
@@ -231,7 +236,12 @@ function scope(name, objectToScope, services, parentScope) {
     async.eachSeries(
       this.getServices(service),
       function callMethod(service, next) {
-        service[method](options, next);
+        if (service[method]) {
+          service[method](options, next);
+        }
+        else {
+          next();
+        }
       },
       done
     );
