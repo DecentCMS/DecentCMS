@@ -156,6 +156,7 @@ FileIndex.prototype._compare = function compare(a, b) {
  *   will be added.
  * @param {Array|object|null} indexEntries The result of a map call.
  * @param {string} id The id of the item that was mapped.
+ * @param {Boolean} [sorted] Is the index sorted already?
  */
 FileIndex.prototype._addToIndex = function addToIndex(index, indexEntries, id, sorted) {
   var self = this;
@@ -203,7 +204,7 @@ FileIndex.prototype.build = function build() {
     var iterate = store.getItemEnumerator(context);
     var iterator = function forEachItem(err, item) {
       if (err) {
-        log.error('Item enumeration failed.', {item: item ? item.id : 'unknown', iterating: iterate.name})
+        log.error('Item enumeration failed.', {item: item ? item.id : 'unknown', iterating: iterate.name});
         next(err);
         return;
       }
