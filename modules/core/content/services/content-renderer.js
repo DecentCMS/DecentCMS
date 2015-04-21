@@ -86,6 +86,10 @@ ContentRenderer.prototype.render = function render(context, pageBuilt) {
   renderStream
     .on('data', function(data) {
       response.write(data);
+    })
+    .onError(function(err) {
+      pageBuilt(err);
+      return;
     });
   if (scope.itemId) {
     var item = scope.require('storage-manager').getAvailableItem(scope.itemId);
