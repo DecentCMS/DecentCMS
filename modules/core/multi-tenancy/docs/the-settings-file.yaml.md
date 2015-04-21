@@ -17,6 +17,9 @@ can include:
   or to build the title of the site's pages.
 * **host**: a string or an array of strings describing all the host
   names that the site must respond to.
+* **debugHost** a string or an array of strings describing the host
+  names that the site must respond to, but do so in debug mode.
+  In debug mode, `shell.debug` and `request.debug` are true.
 * **port**: the port number for the site, or `"*"` if it must respond
   on any port.
 * **cert**: the path to the SSL certificate file.
