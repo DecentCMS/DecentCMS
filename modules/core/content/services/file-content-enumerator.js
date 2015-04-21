@@ -36,7 +36,9 @@ var fileContentEnumerator = {
     var currentPath;
     var extensions = Array.prototype.concat.apply([],
       scope.getServices('content-file-parser')
-        .map(function(service) {return service.extensions;}));
+        .map(function (service) {
+          return service.extensions || [];
+        }));
     /**
      * Looks for the next item in the store.
      * @param {Function} callback the function that gets called
@@ -60,8 +62,9 @@ var fileContentEnumerator = {
             i = 0;
           }
           else if (stat.isFile()
-            && extensions.some(function(extension) {
-              return p.substr(-extension.length) === extension})) {
+            && extensions.some(function (extension) {
+              return p.substr(-extension.length) === extension;
+            })) {
             // That's a content item's file.
             currentPath = p;
             i++;
