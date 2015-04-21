@@ -37,7 +37,7 @@ describe('Shell', function() {
     it('has default host, port, https flag, features, available modules, services, and manifests', function() {
       var shell = new Shell();
 
-      expect(shell.host).to.equal('localhost');
+      expect(shell.debugHost).to.deep.equal(['localhost']);
       expect(shell.port).to.equal(80);
       expect(shell.https).to.be.false;
       expect(shell.features)
@@ -86,7 +86,7 @@ describe('Shell', function() {
       });
 
       expect(shell.name).to.equal('Site 1');
-      expect(shell.host).to.equal('Default Host');
+      expect(shell.host).to.deep.equal(['Default Host']);
     });
 
     it('can be discovered from the /sites folder', function() {

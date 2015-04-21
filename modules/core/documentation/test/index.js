@@ -421,8 +421,6 @@ describe('API Documentation Route Handler', function() {
     };
     middleware(app);
 
-    expect(route).to.equal('/docs/api(/*)?');
-
     handler({
       require: function() {
         return contentRenderer;
