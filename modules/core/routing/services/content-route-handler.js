@@ -41,9 +41,16 @@ var ContentRouteHandler = {
    */
   getUrl: function getUrl(id) {
     if (id.indexOf(':') === -1) {
-      return '/' + id;
+      return id.length > 1 ? '/' + id : id;
     }
     return null;
+  },
+  /**
+   * Gets the ID for a URL.
+   * @param {string} url the URL to map.
+   */
+  getId: function getId(url) {
+    return url ? url.substr(1) : '/';
   }
 };
 

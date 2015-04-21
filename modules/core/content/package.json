@@ -11,6 +11,10 @@
     "file-content-store": {
       "name": "File Content Store",
       "description": "A content store based on JSON files."
+    },
+    "content-api": {
+      "name": "Content API",
+      "description": "A REST-style API to access content items."
     }
   },
   "main": "./index",

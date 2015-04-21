@@ -70,6 +70,10 @@ ContentRenderer.prototype.promiseToRender = function promiseToRender(options) {
  */
 ContentRenderer.prototype.render = function render(context, pageBuilt) {
   var scope = this.scope;
+  if (scope.handled) {
+    pageBuilt();
+    return;
+  }
   var log = scope.require('log');
   var response = context.response;
   var shapes = scope.shapes;

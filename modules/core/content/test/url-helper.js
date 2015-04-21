@@ -18,6 +18,9 @@ describe('URL Helper', function() {
       if (id === 'both') return '/both2';
       if (id === 'bar') return '/bar';
       return null;
+    },
+    getId: function(url) {
+      return 'id:' + url;
     }
   };
   var scope = {
@@ -31,5 +34,12 @@ describe('URL Helper', function() {
     expect(urlHelper.getUrl('foo')).to.equal('/foo');
     expect(urlHelper.getUrl('bar')).to.equal('/bar');
     expect(urlHelper.getUrl('both')).to.equal('/both1');
+  });
+
+  it('can give the ID for the main content item behind a URL', function() {
+    var urlHelper = new UrlHelper(scope);
+
+    expect(urlHelper.getId('/')).to.equal('id:/');
+    expect(urlHelper.getId('/foo')).to.equal('id:/foo');
   });
 });

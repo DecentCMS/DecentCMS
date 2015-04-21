@@ -1,6 +1,7 @@
 // DecentCMS (c) 2015 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
+var urlExpression = /^\/docs(?!\/api\/)(\/.+)?$/;
 /**
  * @description
  * This handler registers itself as an Express middleware that handles
@@ -20,13 +21,13 @@ var DocumentationRouteHandler = {
    */
   register: function registerDocumentationMiddleware(scope, context) {
     context.expressApp.register(DocumentationRouteHandler.routePriority, function bindDocumentationMiddleware(app) {
-      app.get('/docs(/*)?', function documentationMiddleware(request, response, next) {
+      app.get(urlExpression, function documentationMiddleware(request, response, next) {
         if (request.routed) {next();return;}
         var contentRenderer = request.require('renderer');
         if (!contentRenderer) {next();return;}
         contentRenderer.promiseToRender({
           request: request,
-          id: 'docs:' + request.path.substr(6),
+          id: DocumentationRouteHandler.getId(request.path),
           displayType: 'main',
           place: 'main:1'
         });
@@ -44,6 +45,16 @@ var DocumentationRouteHandler = {
     if (id === 'docs:') return '/docs';
     if (id.substr(0, 5) === 'docs:') {
       return '/docs/' + id.substr(5);
+    }
+    return null;
+  },
+  /**
+   * Gets the ID for a url, or null if not resolved.
+   * @param {string} url the URL to resolve.
+   */
+  getId: function getId(url) {
+    if (urlExpression.test(url)) {
+      return 'docs:' + url.substr(6);
     }
     return null;
   }

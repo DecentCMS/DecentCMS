@@ -330,8 +330,6 @@ describe('Documentation Route Handler', function() {
     };
     middleware(app);
 
-    expect(route).to.equal('/docs(/*)?');
-
     handler({
       require: function() {
         return contentRenderer;
@@ -351,6 +349,17 @@ describe('Documentation Route Handler', function() {
     expect(DocumentationRouteHandler.getUrl('foo/bar/baz'))
       .to.not.be.ok;
     expect(DocumentationRouteHandler.getUrl('foo:bar/baz'))
+      .to.not.be.ok;
+  });
+
+  it("can build a topic's id from its URL", function() {
+    expect(DocumentationRouteHandler.getId('/docs/foo/bar'))
+      .to.equal('docs:foo/bar');
+    expect(DocumentationRouteHandler.getId('/docs/api/foo/bar'))
+      .to.not.be.ok;
+    expect(DocumentationRouteHandler.getId('/foo/bar'))
+      .to.not.be.ok;
+    expect(DocumentationRouteHandler.getId('/'))
       .to.not.be.ok;
   });
 });
@@ -433,6 +442,17 @@ describe('API Documentation Route Handler', function() {
     expect(ApiDocumentationRouteHandler.getUrl('foo/bar/baz'))
       .to.not.be.ok;
     expect(ApiDocumentationRouteHandler.getUrl('foo:bar/baz'))
+      .to.not.be.ok;
+  });
+
+  it("can build a topic's id from its URL", function() {
+    expect(ApiDocumentationRouteHandler.getId('/docs/api/foo/bar'))
+      .to.equal('apidocs:foo/bar');
+    expect(ApiDocumentationRouteHandler.getId('/docs/foo/bar'))
+      .to.not.be.ok;
+    expect(ApiDocumentationRouteHandler.getId('/foo/bar'))
+      .to.not.be.ok;
+    expect(ApiDocumentationRouteHandler.getId('/'))
       .to.not.be.ok;
   });
 });
