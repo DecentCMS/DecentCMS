@@ -26,7 +26,7 @@ var ContentApiRouteHandler = {
         if (id) {
           var storage = request.require('storage-manager');
           storage.promiseToGet(id);
-          storage.fetchContent({}, function () {
+          storage.fetchContent({request: request}, function () {
             var item = storage.getAvailableItem(id);
             if (item) {
               delete item.temp;

@@ -14,6 +14,7 @@ var fileContentStore = {
    * and puts the results on context.items.
    * @param {object} context The context object.
    * @param {object} context.scope The scope.
+   * @param {object} [context.request] The request.
    * @param {object} context.itemsToFetch The ids of the items to fetch are the
    *   property names on this object, and the values are arrays of callback
    *   functions to be called once the item has been loaded. Those callback

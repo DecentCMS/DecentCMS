@@ -58,6 +58,7 @@ ContentStorageManager.prototype.getAvailableItem = function getAvailableItem(id)
  * array, and their transfer into the items array.
  * This method emits the decent.core.load-items event.
  * @param {object} context the context.
+ * @param {object} [context.request] the current request
  * @param {Function} [callback] a callback that gets called when all items have been fetched, or when an error occurs.
  */
 ContentStorageManager.prototype.fetchContent = function fetchContent(context, callback) {
@@ -80,6 +81,7 @@ ContentStorageManager.prototype.fetchContent = function fetchContent(context, ca
   if (Object.getOwnPropertyNames(itemsToFetch).length > 0) {
     scope.callService('content-store', 'loadItems', {
       scope: scope,
+      request: context.request,
       items: scope.items,
       itemsToFetch: itemsToFetch
     }, callback);
