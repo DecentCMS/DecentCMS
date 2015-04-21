@@ -130,6 +130,8 @@ describe('Shell', function() {
       var resolvedShell = Shell.resolve(req);
 
       expect(resolvedShell.name).to.equal('Site 1');
+      expect(req.debug).to.not.be.ok;
+      expect(resolvedShell.debug).to.not.be.ok;
     });
 
     it('is resolved by a host match on port 443 if flagged https', function() {
@@ -147,6 +149,8 @@ describe('Shell', function() {
       var resolvedShell = Shell.resolve(req);
 
       expect(resolvedShell.name).to.equal('Site 1');
+      expect(req.debug).to.not.be.ok;
+      expect(resolvedShell.debug).to.not.be.ok;
     });
 
     it('is resolved by a host and port match', function() {
@@ -163,6 +167,8 @@ describe('Shell', function() {
       var resolvedShell = Shell.resolve(req);
 
       expect(resolvedShell.name).to.equal('Site 1');
+      expect(req.debug).to.not.be.ok;
+      expect(resolvedShell.debug).to.not.be.ok;
     });
 
     it('is resolved by a host array and port match', function() {
@@ -184,6 +190,8 @@ describe('Shell', function() {
       var resolvedShell = Shell.resolve(req);
 
       expect(resolvedShell.name).to.equal('Site 1');
+      expect(req.debug).to.not.be.ok;
+      expect(resolvedShell.debug).to.not.be.ok;
     });
 
     it('is resolved by a host, port, and path match', function() {
@@ -202,6 +210,27 @@ describe('Shell', function() {
       var resolvedShell = Shell.resolve(req);
 
       expect(resolvedShell.name).to.equal('Site 1');
+      expect(req.debug).to.not.be.ok;
+      expect(resolvedShell.debug).to.not.be.ok;
+    });
+
+    it('activates debug mode on debug host', function() {
+      Shell.list = {
+        default: new Shell({name: 'Default shell'}),
+        site1: new Shell({
+          name: 'Site 1',
+          port: 80,
+          host: 'production',
+          debugHost: 'debug'
+        })
+      };
+      var req = new IncomingMessage();
+      req.headers.host = 'debug';
+      var resolvedShell = Shell.resolve(req);
+
+      expect(resolvedShell.name).to.equal('Site 1');
+      expect(req.debug).to.be.ok;
+      expect(resolvedShell.debug).to.be.ok;
     });
 
     it('resolves to null if other shells are disabled', function() {
