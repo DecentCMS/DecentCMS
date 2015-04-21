@@ -46,7 +46,7 @@ ContentManager.prototype.getParts = function getParts(item, partTypeName) {
   for (var partName in type.parts) {
     var partDefinition = type.parts[partName];
     if (partDefinition.type !== partTypeName
-      || (item.hasOwnProperty(partName)
+      || (item[partName]
       && item[partName].meta
       && item[partName].meta.type)) continue;
     parts.push(partName);
