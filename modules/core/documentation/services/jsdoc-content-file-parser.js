@@ -42,6 +42,14 @@ var jsDocContentFileParser = {
     if (!fs.existsSync(cacheDirectory)) {
       fs.mkdirSync(cacheDirectory);
     }
+    var shouldUpdateTheCache = true;
+    var shell = context.scope.require('shell');
+    if (shell) {
+      var config = shell.features['api-documentation'];
+      if (config && (config.onlyFromCache === true || (config.onlyFromCache === 'release' && !context.scope.debug))) {
+        shouldUpdateTheCache = false;
+      }
+    }
     // Look for the cached JSON file
     var sepExp = new RegExp(path.sep.replace(/\\/g, '\\\\'), 'g');
     var cacheFile = path.join(cacheDirectory, relativeFilePath.replace(sepExp, '_')) + 'on';
@@ -49,7 +57,7 @@ var jsDocContentFileParser = {
       // Check that cache file is more recent than the code file.
       var cacheFileDate = fs.statSync(cacheFile).mtime;
       var sourceDate = fs.statSync(filePath).mtime;
-      if (cacheFileDate > sourceDate) {
+      if (cacheFileDate > sourceDate || !shouldUpdateTheCache) {
         context.item = require(cacheFile);
         nextStore();
         return;
@@ -57,13 +65,9 @@ var jsDocContentFileParser = {
     }
 
     // Cache was not found. Check if config allows for regeneration of the documentation.
-    var shell = context.scope.require('shell');
-    if (shell) {
-      var config = shell.features['api-documentation'];
-      if (config && (config.onlyFromCache === true || (config.onlyFromCache === 'release' && !context.scope.debug))) {
-        nextStore();
-        return;
-      }
+    if (!shouldUpdateTheCache) {
+      nextStore();
+      return;
     }
 
     // More required libraries
