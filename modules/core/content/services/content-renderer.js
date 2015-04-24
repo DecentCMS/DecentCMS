@@ -79,7 +79,8 @@ ContentRenderer.prototype.render = function render(context, pageBuilt) {
   var shapes = scope.shapes;
   var layout = scope.layout = {
     meta: {type: 'layout'},
-    site: scope.require('shell')
+    site: scope.require('shell'),
+    temp: {}
   };
   var renderStream = scope.require('render-stream');
   // TODO: add filters, that are just additional pipes before res.
@@ -95,7 +96,10 @@ ContentRenderer.prototype.render = function render(context, pageBuilt) {
   }
   if (scope.itemId) {
     var item = scope.require('storage-manager').getAvailableItem(scope.itemId);
-    if (!item) {
+    if (item) {
+      layout.temp.item = item;
+    }
+    else {
       response.statusCode = 404;
       renderStream.title = scope.title = layout.title =
         scope.require('localization')('404 - Not Found');
