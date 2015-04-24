@@ -45,7 +45,7 @@ var jsDocContentFileParser = {
     var shouldUpdateTheCache = true;
     var shell = context.scope.require('shell');
     if (shell) {
-      var config = shell.features['api-documentation'];
+      var config = shell.settings[jsDocContentFileParser.feature];
       if (config && (config.onlyFromCache === true || (config.onlyFromCache === 'release' && !context.scope.debug))) {
         shouldUpdateTheCache = false;
       }
