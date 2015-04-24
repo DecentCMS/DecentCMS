@@ -1,6 +1,8 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
+// TODO: add some config settings, in particular for compression, that is for the moment globally turned on.
+
 /**
  * @description
  * A route handler that delegates to Express.
