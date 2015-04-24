@@ -144,11 +144,11 @@ describe('Dust View Engine', function() {
       renderTemplate({}, renderer, function() {
         expect(html.join(''))
           .to.equal('Registered styles:\n' +
-          '  <link href="/css/foo.css" rel="stylesheet" type="text/css"/>\r\n' +
-          '  <link href="/css/bar.css" rel="stylesheet" type="text/css"/>\r\n' +
-          '  <link href="http://foo.com/css/style.css" rel="stylesheet" type="text/css"/>\r\n' +
-          '  <link href="https://bar.com/css/style.css" rel="stylesheet" type="text/css"/>\r\n' +
-          '  <link href="//baz.com/css/style.css" rel="stylesheet" type="text/css"/>\r\n' +
+          '<link href="/css/foo.css" rel="stylesheet" type="text/css"/>' +
+          '<link href="/css/bar.css" rel="stylesheet" type="text/css"/>' +
+          '<link href="http://foo.com/css/style.css" rel="stylesheet" type="text/css"/>' +
+          '<link href="https://bar.com/css/style.css" rel="stylesheet" type="text/css"/>' +
+          '<link href="//baz.com/css/style.css" rel="stylesheet" type="text/css"/>' +
           '.');
         done();
       });
@@ -168,11 +168,11 @@ describe('Dust View Engine', function() {
       renderTemplate({}, renderer, function() {
         expect(html.join(''))
           .to.equal('Registered scripts:\n' +
-          '  <script src="/js/foo.js" type="text/javascript"></script>\r\n' +
-          '  <script src="/js/bar.js" type="text/javascript"></script>\r\n' +
-          '  <script src="http://foo.com/js/script.js" type="text/javascript"></script>\r\n' +
-          '  <script src="https://bar.com/js/script.js" type="text/javascript"></script>\r\n' +
-          '  <script src="//baz.com/js/script.js" type="text/javascript"></script>\r\n' +
+          '<script src="/js/foo.js" type="text/javascript"></script>' +
+          '<script src="/js/bar.js" type="text/javascript"></script>' +
+          '<script src="http://foo.com/js/script.js" type="text/javascript"></script>' +
+          '<script src="https://bar.com/js/script.js" type="text/javascript"></script>' +
+          '<script src="//baz.com/js/script.js" type="text/javascript"></script>' +
           '.');
         done();
       });
@@ -189,8 +189,8 @@ describe('Dust View Engine', function() {
       renderTemplate({}, renderer, function() {
         expect(html.join(''))
           .to.equal('Registered metas:\n' +
-          '  <meta name="foo" content="Encore plus fou"/>\r\n' +
-          '  <meta custom="yup" other="baz" name="bar" content="Barre"/>\r\n' +
+          '<meta name="foo" content="Encore plus fou"/>' +
+          '<meta custom="yup" other="baz" name="bar" content="Barre"/>' +
           '.');
         done();
       });

@@ -10,7 +10,6 @@ module.exports = function layoutTemplate(layout, renderer, done) {
     .startTag('head')
     .writeLine()
 
-    .write('  ')
     .tag('title', {}, renderer.title)
     .writeLine()
 

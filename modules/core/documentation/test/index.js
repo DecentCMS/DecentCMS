@@ -531,7 +531,7 @@ describe('JsDoc File Parser', function() {
       scope: {
         require: function() {
           return {
-            features: {
+            settings: {
               'api-documentation': {
                 onlyFromCache: true
               }
@@ -553,7 +553,7 @@ describe('JsDoc File Parser', function() {
       scope: {
         require: function() {
           return {
-            features: {
+            settings: {
               'api-documentation': {
                 onlyFromCache: 'release'
               }

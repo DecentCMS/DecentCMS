@@ -74,6 +74,7 @@ var CodeViewEngine = function CodeViewEngine(scope) {
 
   var RenderStream = require('./render-stream');
   var dust = require('dustjs-linkedin');
+  dust.config.whitespace = !!scope.debug;
   dust.helper = require('dustjs-helpers');
 
   function getDustTemplate(templatePath) {

@@ -29,15 +29,15 @@ describe('Layout Template', function() {
     layoutView(layout, renderer, function() {
       expect(result)
         .to.equal(
-        '<!DOCTYPE html>\r\n' +
-        '<html>\r\n' +
-        '<head>\r\n' +
-        '  <title>Foo</title>\r\n' +
-        '  <meta name="generator" content="DecentCMS"/>\r\n' +
-        '  <link href="style.css" rel="stylesheet" type="text/css"/>\r\n' +
-        '</head>\r\n' +
-        '<body>[main]\r\n' +
-        '  <script src="script.js" type="text/javascript"></script>\r\n' +
+        '<!DOCTYPE html>' +
+        '<html>' +
+        '<head>' +
+        '<title>Foo</title>' +
+        '<meta name="generator" content="DecentCMS"/>' +
+        '<link href="style.css" rel="stylesheet" type="text/css"/>' +
+        '</head>' +
+        '<body>[main]' +
+        '<script src="script.js" type="text/javascript"></script>' +
         '</body></html>');
       done();
     });

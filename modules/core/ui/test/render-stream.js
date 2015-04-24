@@ -7,6 +7,7 @@ var RenderStream = require('../services/render-stream');
 describe('Render Stream', function() {
   var RenderStream = require('../services/render-stream');
   var scope = new EventEmitter();
+  scope.debug = true;
   var renderer = new RenderStream(scope);
   var result = null;
   renderer.on('data', function(data) {
@@ -46,7 +47,9 @@ describe('Render Stream', function() {
 
   it('writes encoded lines', function() {
     var html = 'foo<b>du fa fa</b>';
+    scope.debug = true;
     renderer.writeEncodedLine(html);
+    delete scope.debug;
 
     expect(result).to.equal('foo&lt;b&gt;du fa fa&lt;/b&gt;\r\n');
   });
@@ -222,8 +225,8 @@ describe('Render Stream', function() {
 
     expect(result)
       .to.equal(
-      '  <link href="/css/foo.css" rel="stylesheet" type="text/css"/>\r\n' +
-      '  <link href="/css/bar.css" rel="stylesheet" type="text/css"/>\r\n');
+      '<link href="/css/foo.css" rel="stylesheet" type="text/css"/>\r\n' +
+      '<link href="/css/bar.css" rel="stylesheet" type="text/css"/>\r\n');
   });
 
   it('adds local scripts under /js', function() {
@@ -281,8 +284,8 @@ describe('Render Stream', function() {
 
     expect(result)
       .to.equal(
-      '  <script src="/js/foo.js" type="text/javascript"></script>\r\n' +
-      '  <script src="/js/bar.js" type="text/javascript"></script>\r\n');
+      '<script src="/js/foo.js" type="text/javascript"></script>\r\n' +
+      '<script src="/js/bar.js" type="text/javascript"></script>\r\n');
   });
 
   it('renders meta tags', function() {
@@ -295,9 +298,9 @@ describe('Render Stream', function() {
 
     expect(result)
       .to.equal(
-      '  <meta name="generator" content="DecentCMS"/>\r\n' +
-      '  <meta baz="baaaa" blah="lorem" name="foo" content="bar"/>\r\n' +
-      '  <meta foo="fou"/>\r\n' +
-      '  <meta foo="fou" content="bar"/>\r\n');
+      '<meta name="generator" content="DecentCMS"/>\r\n' +
+      '<meta baz="baaaa" blah="lorem" name="foo" content="bar"/>\r\n' +
+      '<meta foo="fou"/>\r\n' +
+      '<meta foo="fou" content="bar"/>\r\n');
   });
 });
