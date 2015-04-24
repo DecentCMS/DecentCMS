@@ -9,9 +9,11 @@
  */
 function ExpressRouteHandler(scope) {
   var express = require('express');
+  var compression = require('compression');
   var ExpressApp = require('../lib/express-app');
 
   var app = this.app = express();
+  app.use(compression());
   var expressApp = this.expressApp = new ExpressApp(app, scope);
   scope.register('express-app', expressApp);
   scope.register('express', express);

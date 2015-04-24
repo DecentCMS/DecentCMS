@@ -16,6 +16,7 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "dependencies": {
+    "compression": "^1.4.3",
     "express": "*"
   },
   "devDependencies": {
