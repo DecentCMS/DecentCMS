@@ -23,6 +23,7 @@ var ContentRouteHandler = {
         if (request.routed) {next();return;}
         var contentRenderer = request.require('renderer');
         if (!contentRenderer) {next();return;}
+        response.contentType('text/html');
         contentRenderer.promiseToRender({
           request: request,
           id: request.path,
