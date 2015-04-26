@@ -284,11 +284,17 @@ function RenderStream(scope, options) {
    * @param {string} name The name of a local style sheet file.
    */
   this.addStyleSheet = this.asyncify(this._addStyleSheet =
-    function addStyleSheet(name) {
-      var url = '/css/' + name + '.css';
-      this._addExternalStyleSheet(url);
-      return this;
-    }
+    scope.debug
+      ? function addStyleSheet(name) {
+        var url = '/css/' + name + '.css';
+        this._addExternalStyleSheet(url);
+        return this;
+      }
+      : function addStyleSheet(name) {
+        var url = '/css/' + name + '.min.css';
+        this._addExternalStyleSheet(url);
+        return this;
+      }
   );
 
   /**
@@ -343,11 +349,17 @@ function RenderStream(scope, options) {
    * @param {string} name The name of a local script file.
    */
   this.addScript = this.asyncify(this._addScript =
-    function addScript(name) {
-      var url = '/js/' + name + '.js';
-      this._addExternalScript(url);
-      return this;
-    }
+    scope.debug
+      ? function addScript(name) {
+        var url = '/js/' + name + '.js';
+        this._addExternalScript(url);
+        return this;
+      }
+      : function addScript(name) {
+        var url = '/js/' + name + '.min.js';
+        this._addExternalScript(url);
+        return this;
+      }
   );
 
   /**
