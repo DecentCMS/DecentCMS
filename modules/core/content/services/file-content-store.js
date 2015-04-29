@@ -25,6 +25,13 @@ var fileContentStore = {
    *   It should take an error as its parameter.
    */
   loadItems: function loadItems(context, nextStore) {
+    var itemsToFetch = context.itemsToFetch;
+    var paths = Object.getOwnPropertyNames(itemsToFetch);
+    if (paths.length === 0) {
+      nextStore();
+      return;
+    }
+
     var path = require('path');
     var fs = require('fs');
     var async = require('async');
@@ -35,7 +42,6 @@ var fileContentStore = {
     var log = scope.require('log');
 
     var items = context.items = context.items || {};
-    var itemsToFetch = context.itemsToFetch;
 
     var handle = function handleItemData(id, filePath, item, callback) {
       if (!item) {
@@ -99,7 +105,6 @@ var fileContentStore = {
         });
     };
 
-    var paths = Object.keys(itemsToFetch);
     async.each(
       paths,
       function(id, next) {
