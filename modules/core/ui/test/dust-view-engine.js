@@ -144,8 +144,8 @@ describe('Dust View Engine', function() {
       renderTemplate({}, renderer, function() {
         expect(html.join(''))
           .to.equal('Registered styles:\n' +
-          '<link href="/css/foo.css" rel="stylesheet" type="text/css"/>' +
-          '<link href="/css/bar.css" rel="stylesheet" type="text/css"/>' +
+          '<link href="/css/foo.min.css" rel="stylesheet" type="text/css"/>' +
+          '<link href="/css/bar.min.css" rel="stylesheet" type="text/css"/>' +
           '<link href="http://foo.com/css/style.css" rel="stylesheet" type="text/css"/>' +
           '<link href="https://bar.com/css/style.css" rel="stylesheet" type="text/css"/>' +
           '<link href="//baz.com/css/style.css" rel="stylesheet" type="text/css"/>' +
@@ -168,8 +168,8 @@ describe('Dust View Engine', function() {
       renderTemplate({}, renderer, function() {
         expect(html.join(''))
           .to.equal('Registered scripts:\n' +
-          '<script src="/js/foo.js" type="text/javascript"></script>' +
-          '<script src="/js/bar.js" type="text/javascript"></script>' +
+          '<script src="/js/foo.min.js" type="text/javascript"></script>' +
+          '<script src="/js/bar.min.js" type="text/javascript"></script>' +
           '<script src="http://foo.com/js/script.js" type="text/javascript"></script>' +
           '<script src="https://bar.com/js/script.js" type="text/javascript"></script>' +
           '<script src="//baz.com/js/script.js" type="text/javascript"></script>' +
