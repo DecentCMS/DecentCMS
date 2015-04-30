@@ -1,4 +1,5 @@
 .idea/
+.settings/
 **/node_modules/**
 sites/
 iisnode/
