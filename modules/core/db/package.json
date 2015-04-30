@@ -1,0 +1,24 @@
+{
+  "name": "decent-core-database",
+  "friendlyName": "Database",
+  "version": "1.0.0",
+  "description": "Database support for DecentCMS",
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "features": {
+    "couch-db-content-store": {
+      "name": "CouchDB Content Store",
+      "description": "A content store that uses a CouchDB database for storage."
+    }
+  },
+  "main": "./index",
+  "scripts": {
+    "test": "./test/index"
+  },
+  "devDependencies": {
+    "chai": "^2.3.0",
+    "grunt-mocha-test": "^0.12.7",
+    "mocha": "^2.2.4",
+    "proxyquire": "^1.4.0"
+  }
+}
