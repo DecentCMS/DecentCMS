@@ -23,10 +23,11 @@ var ContentRouteHandler = {
         if (request.routed) {next();return;}
         var contentRenderer = request.require('renderer');
         if (!contentRenderer) {next();return;}
+        var id = ContentRouteHandler.getId(request.path);
         response.contentType('text/html');
         contentRenderer.promiseToRender({
           request: request,
-          id: request.path,
+          id: id,
           displayType: 'main',
           place: 'main:1'
         });
@@ -51,7 +52,11 @@ var ContentRouteHandler = {
    * @param {string} url the URL to map.
    */
   getId: function getId(url) {
-    return url ? url.substr(1) : '/';
+    return url
+      ? url === '/'
+        ? '/'
+        :url.substr(1)
+      : '/';
   }
 };
 

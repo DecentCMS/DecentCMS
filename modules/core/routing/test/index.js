@@ -43,7 +43,7 @@ describe('Content Route Handler', function() {
     }, {
       contentType: function() {}
     }, function() {
-      expect(shape.id).to.equal('/foo/bar/baz');
+      expect(shape.id).to.equal('foo/bar/baz');
       expect(shape.displayType).to.equal('main');
       done();
     });
