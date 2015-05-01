@@ -265,60 +265,64 @@ describe('File Content Enumerator', function() {
       else {
         expect(items).to.deep.equal({
           "/": {
-            "id": "/",
-            "meta": {
-              "type": "page"
+            id: "/",
+            meta: {
+              type: "page"
             },
-            "temp": {
-              "filePath": "foo\\content\\index.json",
-              "name": "index"
+            temp: {
+              storage: "FileSystem",
+              filePath: "foo\\content\\index.json",
+              name: "index"
             },
-            "title": "Home"
+            title: "Home"
           },
           "bar/baz": {
-            "body": {
-              "text": "*markdown*",
-              "src": "baz.md"
+            body: {
+              text: "*markdown*",
+              src: "baz.md"
             },
-            "id": "bar/baz",
-            "meta": {
-              "type": "other-type"
+            id: "bar/baz",
+            meta: {
+              type: "other-type"
             },
-            "temp": {
-              "filePath": "foo\\content\\bar\\baz.json",
-              "name": "baz"
+            temp: {
+              storage: "FileSystem",
+              filePath: "foo\\content\\bar\\baz.json",
+              name: "baz"
             },
-            "title": "Foo"
+            title: "Foo"
           },
           "bar/multipart": {
-            "body": {
-              "text": "multipart *markdown*",
-              "flavor": "markdown"
+            body: {
+              text: "multipart *markdown*",
+              flavor: "markdown"
             },
-            "id": "bar/multipart",
-            "meta": {
-              "type": "page"
+            id: "bar/multipart",
+            meta: {
+              type: "page"
             },
-            "temp": {
-              "filePath": "foo\\content\\bar\\multipart.yaml.md",
-              "name": "multipart"
+            temp: {
+              storage: "FileSystem",
+              filePath: "foo\\content\\bar\\multipart.yaml.md",
+              name: "multipart"
             },
             "title": "Foo multipart"
           },
           "bar/yaml": {
-            "body": {
-              "text": "YAML *markdown*",
-              "src": "yaml.md"
+            body: {
+              text: "YAML *markdown*",
+              src: "yaml.md"
             },
-            "id": "bar/yaml",
-            "meta": {
-              "type": "page"
+            id: "bar/yaml",
+            meta: {
+              type: "page"
             },
-            "temp": {
-              "filePath": "foo\\content\\bar\\yaml.yaml",
-              "name": "yaml"
+            temp: {
+              storage: "FileSystem",
+              filePath: "foo\\content\\bar\\yaml.yaml",
+              name: "yaml"
             },
-            "title": "Foo YAML"
+            title: "Foo YAML"
           }
         });
         done();
@@ -342,34 +346,36 @@ describe('File Content Enumerator', function() {
       else {
         expect(items).to.deep.equal({
           "bar/baz": {
-            "body": {
-              "text": "*markdown*",
-              "src": "baz.md"
+            body: {
+              text: "*markdown*",
+              src: "baz.md"
             },
-            "id": "bar/baz",
-            "meta": {
-              "type": "other-type"
+            id: "bar/baz",
+            meta: {
+              type: "other-type"
             },
-            "temp": {
-              "filePath": "foo\\content\\bar\\baz.json",
-              "name": "baz"
+            temp: {
+              storage: "FileSystem",
+              filePath: "foo\\content\\bar\\baz.json",
+              name: "baz"
             },
-            "title": "Foo"
+            title: "Foo"
           },
           "bar/yaml": {
-            "body": {
-              "text": "YAML *markdown*",
-              "src": "yaml.md"
+            body: {
+              text: "YAML *markdown*",
+              src: "yaml.md"
             },
-            "id": "bar/yaml",
-            "meta": {
-              "type": "page"
+            id: "bar/yaml",
+            meta: {
+              type: "page"
             },
-            "temp": {
-              "filePath": "foo\\content\\bar\\yaml.yaml",
-              "name": "yaml"
+            temp: {
+              storage: "FileSystem",
+              filePath: "foo\\content\\bar\\yaml.yaml",
+              name: "yaml"
             },
-            "title": "Foo YAML"
+            title: "Foo YAML"
           }
         });
         done();

@@ -80,6 +80,7 @@ var fileContentStore = {
           }
           // Add the file path and name to temp meta data
           var temp = shapeHelper.temp(item);
+          temp.storage = 'FileSystem';
           temp.filePath = filePath;
           var baseName = path.basename(filePath);
           var extensionIndex = baseName.indexOf('.');
