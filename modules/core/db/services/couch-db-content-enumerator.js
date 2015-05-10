@@ -25,8 +25,8 @@ var CouchContentEnumerator = {
       : context.idFilter || /^[^_]/;
     var shell = scope.require('shell');
     var config = shell.settings[CouchContentEnumerator.feature];
-    var Couch = require('../lib/couch');
-    var couch = new Couch(config);
+    var Couch = scope.require('couch-db');
+    var couch = Couch.getCouch(config);
 
     var pageSize = config.indexingPageSize;
     var currentPage = 0;

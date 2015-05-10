@@ -33,8 +33,8 @@ var CouchContentStore = {
 
     var items = context.items = context.items || {};
 
-    var Couch = require('../lib/couch');
-    var couch = new Couch(config);
+    var Couch = scope.require('couch-db');
+    var couch = Couch.getCouch(config);
     couch.fetchItems(paths, function (err, newItems) {
       if (err) {
         var log = scope.require('log');

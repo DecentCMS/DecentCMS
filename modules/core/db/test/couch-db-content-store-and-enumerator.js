@@ -50,8 +50,6 @@ var http = {
 
 function fakeCouch(items) {
   var designDoc = {};
-  var rowArray = Object.getOwnPropertyNames(items)
-    .map(function nameToItem(name) {return {id: name, doc: items[name]};});
   http.onRequestEnd = function onFakeCouchRequestEnd() {
     var results;
     if (http._request.options.path === '/test-db/_design/filtered_index') {
@@ -127,17 +125,30 @@ var log = {
 };
 var shell = {
   settings: {
+    'couch-db': {
+      connections: {
+        'default': {}
+      }
+    },
     'couch-db-content-store': {
+      connection: 'default',
       database: 'test-db'
     }
   }
 };
 
+var StubbedCouch = proxyquire('../lib/couch', stubs);
+
 var services = {
   shape: shape,
   log: log,
   shell: shell,
-  '../lib/couch': proxyquire('../lib/couch', stubs)
+  '../lib/couch': StubbedCouch,
+  'couch-db': {
+    getCouch: function(config) {
+      return new StubbedCouch({}, config);
+    }
+  }
 };
 
 var scope = {

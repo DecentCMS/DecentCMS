@@ -6,15 +6,16 @@
  * It is not a generic CouchDB library, just a specialized data access
  * library that implements content-centric DecentCMS operations on top
  * of low-level HTTP calls.
- * @param {string} [config.server] The CouchDB server host name. Default is 'localhost'.
- * @param {number} [config.port] The port the CouchDB server answers on. Default is 5984.
- * @param {string} [config.protocol] 'http' or 'https' depending on what protocolshould be used to access the database. The default is 'https'.
- * @param {string} [config.userVariable] The name of the environment variable that contains the user name to use to access the database.
- * @param {string} [config.passwordVariable] The name of the environment variable that contains the password to use to access the database.
+ * @param {string} [connection.server] The CouchDB server host name. Default is 'localhost'.
+ * @param {number} [connection.port] The port the CouchDB server answers on. Default is 5984.
+ * @param {string} [connection.protocol] 'http' or 'https' depending on what protocolshould be used to access the database. The default is 'https'.
+ * @param {string} [connection.userVariable] The name of the environment variable that contains the user name to use to access the database.
+ * @param {string} [connection.passwordVariable] The name of the environment variable that contains the password to use to access the database.
  * @param {string} config.database The name of the database.
  * @constructor
  */
-var Couch = function Couch(config) {
+var Couch = function Couch(connection, config) {
+  this.connection = connection;
   this.config = config;
 };
 
@@ -46,22 +47,25 @@ Couch.prototype.post = function post(query, post, callback) {
 
 /**
  * Sends a simple request to the database.
+ * @param {object} options The options object.
  * @param {string} [options.verb] The verb to use. The default is "GET" if there is no post data, and "POST" otherwise.
  * @param {string} options.query The part of the query URL that goes after '`/database/`'.
  * @param {object} [options.post] The object to serialize and use as the post's body.
  * @param {Function} callback The callback function that will be called with an error and a parsed JavaScript object.
  */
 Couch.prototype.send = function send(options, callback) {
+  var connection = this.connection;
   var config = this.config;
   var query = options.query;
   var post = options.post;
   var verb = options.verb || (post ? 'POST' : 'GET');
   var postData = post ? JSON.stringify(post) : null;
   var httpOptions = {
-    hostname: config.server,
-    port: config.port,
+    hostname: connection.server,
+    port: connection.port,
     method: verb,
-    auth: process.env[config.userVariable] + ':' + process.env[config.passwordVariable],
+    auth: process.env[connection.userVariable]
+    + ':' + process.env[connection.passwordVariable],
     path: '/' + config.database + '/' + query
   };
   if (postData) {
@@ -70,7 +74,7 @@ Couch.prototype.send = function send(options, callback) {
       'Content-Length': postData.length
     };
   }
-  var request = require(config.protocol === 'http' ? 'http' : 'https')
+  var request = require(connection.protocol === 'http' ? 'http' : 'https')
     .request(httpOptions, function handleCouchResponse(response) {
       response.setEncoding('utf8');
       var chunks = [];
