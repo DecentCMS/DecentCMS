@@ -2,7 +2,6 @@
 'use strict';
 
 // TODO: allow the parsed ASTs to be persisted on the part. This will allow the parsing to be done at edit time, thus saving runtime processing.
-// TODO: Don't build an AST for the default reduce function.
 // TODO: move pagination code up into the index provider.
 
 /**
@@ -109,17 +108,28 @@ var SearchPart = {
           : 10;
         // Prepare the AST for the reduce function, build one that accumulates index entries on an array if not specified.
         var reduce = null;
-        var reduceSource = '(function(val, entry, i){'
-          + (searchPart.reduce || 'val=val||[];val.push(entry);return val;')
-          + '})(val, entry, i)';
-        var reduceAst = searchAstCache[reduceSource] || (searchAstCache[reduceSource] = parse(reduceSource).body[0].expression);
-        // The actual reduce function handles pagination first, then calls the specified reduce.
-        reduce = function reduce(val, entry, i) {
-          if (pageSize && (i < pageSize * page || i >= pageSize * (page + 1))) {
+        if (searchPart.reduce) {
+          var reduceSource = '(function(val, entry, i){' + searchPart.reduce + '})(val, entry, i)';
+          var reduceAst = searchAstCache[reduceSource] || (searchAstCache[reduceSource] = parse(reduceSource).body[0].expression);
+          // The actual reduce function handles pagination first, then calls the specified reduce.
+          reduce = function reduce(val, entry, i) {
+            if (pageSize && (i < pageSize * page || i >= pageSize * (page + 1))) {
+              return val;
+            }
+            return evaluate(reduceAst, {val: val, entry: entry, i: i});
+          };
+        }
+        else {
+          // The default reduce is an accumulation of index entries into an array.
+          reduce = function reduce(val, entry, i) {
+            if (pageSize && (i < pageSize * page || i >= pageSize * (page + 1))) {
+              return val;
+            }
+            val = val || [];
+            val.push(entry);
             return val;
-          }
-          return evaluate(reduceAst, {val: val, entry: entry, i: i});
-        };
+          };
+        }
         // Finally, do reduce, then create the results shape.
         index.reduce(where, reduce, null, function indexReduced(reduced) {
           // Change the part into a proper shape
