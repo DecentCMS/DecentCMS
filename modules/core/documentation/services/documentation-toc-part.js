@@ -148,91 +148,92 @@ var DocumentationTocPart = {
         var module = null;
         var section = null;
         var alreadyStarted = {};
-        index.reduce(
-          function buildTOC(val, entry) {
-            // update previous, next, and localToc.
-            // If current was already found, but next wasn't yet, then this is it.
-            if (foundCurrent) {
-              if (!nextTopic) {
-                nextTopic = entry;
-              }
-            }
-            else {
-              if (idForCurrent === entry.itemId) {
-                // We just found current
-                foundCurrent = true;
-                entryForCurrent = entry;
-                breadcrumbs.push(entry);
+        index.reduce({
+            reduce: function buildTOC(val, entry) {
+              // update previous, next, and localToc.
+              // If current was already found, but next wasn't yet, then this is it.
+              if (foundCurrent) {
+                if (!nextTopic) {
+                  nextTopic = entry;
+                }
               }
               else {
-                // this entry could still be 'previous' if the next looked at
-                // is the current topic being displayed.
-                previousTopic = entry;
-              }
-            }
-            var idWithoutPrefix = entry.itemId.substr(entry.itemId.indexOf(':') + 1);
-
-            if (entry.module && entry.module !== module && !alreadyStarted[entry.module]) {
-              // Starting to look at the contents of a new module.
-              module = entry.module;
-              alreadyStarted[module] = true;
-              entry.isModuleIndex = true;
-              // If the index topic failed to provide a title, use the module name.
-              entry.title = entry.title || moduleManifests[module].friendlyName || module;
-              if (!foundCurrent || entryForCurrent === entry) {
-                breadcrumbs = [entry];
                 if (idForCurrent === entry.itemId) {
-                  parentIdForLocalTOC = idForCurrent.substr(idForCurrent.indexOf(':') + 1);
-                  localTOC = [];
-                }
-                else if (idWithoutPrefix === parentIdForLocalTOC) {
-                  localTOC = [];
-                }
-              }
-              // Reset the section currently being looked at.
-              section = null;
-            }
-
-            var sectionKey = (entry.module || '') + '/' + (entry.section || '');
-            if (entry.section && entry.section != section && entry.section && !alreadyStarted[sectionKey]) {
-              // Starting to look at the topics in a new section.
-              section = entry.section;
-              alreadyStarted[sectionKey] = true;
-              entry.isSectionIndex = true;
-              // Restart the local TOC if it's not finished building.
-              if (!foundCurrent || entryForCurrent === entry) {
-                if (idForCurrent === entry.itemId) {
-                  parentIdForLocalTOC = idForCurrent.substr(idForCurrent.indexOf(':') + 1);
-                  localTOC = [];
-                }
-                else if (idWithoutPrefix === parentIdForLocalTOC) {
-                  localTOC = [];
+                  // We just found current
+                  foundCurrent = true;
+                  entryForCurrent = entry;
                   breadcrumbs.push(entry);
                 }
+                else {
+                  // this entry could still be 'previous' if the next looked at
+                  // is the current topic being displayed.
+                  previousTopic = entry;
+                }
               }
-            }
+              var idWithoutPrefix = entry.itemId.substr(entry.itemId.indexOf(':') + 1);
 
-            // Is this topic top-level?
-            var isApi = entry.itemId.substr(0, 8) === 'apidocs:';
-            var hasNoModuleAndNoSection = !(entry.module || entry.section);
-            if (!isApi
-              && (hasNoModuleAndNoSection
-              || (!entry.module && entry.isSectionIndex)
-              || (entry.module && entry.isModuleIndex))) {
+              if (entry.module && entry.module !== module && !alreadyStarted[entry.module]) {
+                // Starting to look at the contents of a new module.
+                module = entry.module;
+                alreadyStarted[module] = true;
+                entry.isModuleIndex = true;
+                // If the index topic failed to provide a title, use the module name.
+                entry.title = entry.title || moduleManifests[module].friendlyName || module;
+                if (!foundCurrent || entryForCurrent === entry) {
+                  breadcrumbs = [entry];
+                  if (idForCurrent === entry.itemId) {
+                    parentIdForLocalTOC = idForCurrent.substr(idForCurrent.indexOf(':') + 1);
+                    localTOC = [];
+                  }
+                  else if (idWithoutPrefix === parentIdForLocalTOC) {
+                    localTOC = [];
+                  }
+                }
+                // Reset the section currently being looked at.
+                section = null;
+              }
 
-              topLevelTOC.push(entry);
-            }
+              var sectionKey = (entry.module || '') + '/' + (entry.section || '');
+              if (entry.section && entry.section != section && entry.section && !alreadyStarted[sectionKey]) {
+                // Starting to look at the topics in a new section.
+                section = entry.section;
+                alreadyStarted[sectionKey] = true;
+                entry.isSectionIndex = true;
+                // Restart the local TOC if it's not finished building.
+                if (!foundCurrent || entryForCurrent === entry) {
+                  if (idForCurrent === entry.itemId) {
+                    parentIdForLocalTOC = idForCurrent.substr(idForCurrent.indexOf(':') + 1);
+                    localTOC = [];
+                  }
+                  else if (idWithoutPrefix === parentIdForLocalTOC) {
+                    localTOC = [];
+                    breadcrumbs.push(entry);
+                  }
+                }
+              }
 
-            // Push to local TOC if that's not already finished and if the entry belongs there.
-            if (localTOC
-              && idWithoutPrefix.substr(0, parentIdForLocalTOC.length) === parentIdForLocalTOC
-              && idWithoutPrefix.indexOf('/', parentIdForLocalTOC.length + 1) === -1) {
-              localTOC.push(entry);
-            }
+              // Is this topic top-level?
+              var isApi = entry.itemId.substr(0, 8) === 'apidocs:';
+              var hasNoModuleAndNoSection = !(entry.module || entry.section);
+              if (!isApi
+                && (hasNoModuleAndNoSection
+                || (!entry.module && entry.isSectionIndex)
+                || (entry.module && entry.isModuleIndex))) {
 
-            return 0;
-          },
-          0, function () {
+                topLevelTOC.push(entry);
+              }
+
+              // Push to local TOC if that's not already finished and if the entry belongs there.
+              if (localTOC
+                && idWithoutPrefix.substr(0, parentIdForLocalTOC.length) === parentIdForLocalTOC
+                && idWithoutPrefix.indexOf('/', parentIdForLocalTOC.length + 1) === -1) {
+                localTOC.push(entry);
+              }
+
+              return 0;
+            },
+            initialValue: 0
+          }, function () {
             // Done building the TOC.
             // If the current topic is a module-less, section-less topic,
             // there's no local TOC.
