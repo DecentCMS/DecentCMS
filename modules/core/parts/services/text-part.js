@@ -14,8 +14,7 @@ var TextPart = {
    * Adds a text shape to `context.shape.temp.shapes` for each text
    * part on the content item.
    * @param {object} context The context object.
-   * @param {object} context.shape
-   * The shape to handle. Its `temp.item` is a reference to the content item.
+   * @param {object} context.shape The shape to handle. Its `temp.item` is a reference to the content item.
    * @param {object} context.scope The scope.
    * @param {Function} done The callback.
    */

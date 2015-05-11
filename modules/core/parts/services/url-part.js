@@ -11,8 +11,7 @@ var UrlPart = {
   /**
    * Adds a url shape to `context.shape.temp.shapes` for each part of type 'url'.
    * @param {object} context The context object.
-   * @param {object} context.shape
-   * The shape to handle. It has a `url` and an optional `text` property.
+   * @param {object} context.shape The shape to handle. It has a `url` and an optional `text` property.
    * @param {object} context.scope The scope.
    * @param {Function} done The callback.
    */

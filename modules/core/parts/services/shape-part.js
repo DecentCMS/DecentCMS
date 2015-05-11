@@ -14,9 +14,7 @@ var ShapePart = {
    * The specific type of shape to transform the part object into is specified
    * by the `meta.shape` property of the part.
    * @param {object} context The context object.
-   * @param {object} context.shape
-   * The shape to handle. Its `meta.shape` property is the name of the shape
-   * to create. If not found, the shape is looked for on the type.
+   * @param {object} context.shape The shape to handle. Its `meta.shape` property is the name of the shape to create. If not found, the shape is looked for on the type.
    * @param {object} context.scope The scope.
    * @param {Function} done The callback.
    */

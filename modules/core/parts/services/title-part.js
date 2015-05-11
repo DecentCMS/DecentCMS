@@ -15,8 +15,7 @@ var TitlePart = {
    * Adds a title shape to `context.shape.temp.shapes`, and sets the
    * global title for the request if the display type is 'main'.
    * @param {object} context The context object.
-   * @param {object} context.shape
-   * The shape to handle. Its `temp.item` is a reference to the content item.
+   * @param {object} context.shape The shape to handle. Its `temp.item` is a reference to the content item.
    * @param {object} context.scope The scope.
    * @param {Function} done The callback.
    */
