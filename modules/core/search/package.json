@@ -9,11 +9,15 @@
       "description": "Map/reduce query infrastructure."
     },
     "file-index": {
-      "name": "File index",
+      "name": "File Index",
       "description": "File-based index persistence."
     },
+    "search-part": {
+      "name": "Search Part",
+      "description": "Content part that displays the results of a search."
+    },
     "lunr-full-text-search": {
-      "name": "Lunr full-text search",
+      "name": "Lunr Full-Text Search",
       "description": "Full-text search suitable for small sites."
     }
   },
@@ -25,7 +29,9 @@
   "license": "MIT",
   "dependencies": {
     "async": "*",
-    "lunr": "*"
+    "esprima": "^2.2.0",
+    "lunr": "*",
+    "static-eval": "^0.2.4"
   },
   "devDependencies": {
     "chai": "*",

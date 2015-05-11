@@ -130,7 +130,7 @@ FileIndex.prototype.reduce = function reduce(where, reduce, initialValue, done) 
   var val = initialValue;
   for (var i = 0; i < index.length; i++) {
     var entry = index[i];
-    if (where(entry)) {
+    if (!where || where(entry)) {
       val = reduce(val, entry, i);
     }
   }
