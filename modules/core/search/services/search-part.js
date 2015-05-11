@@ -2,6 +2,8 @@
 'use strict';
 
 // TODO: allow the parsed ASTs to be persisted on the part. This will allow the parsing to be done at edit time, thus saving runtime processing.
+// TODO: Don't build an AST for the default reduce function.
+// TODO: move pagination code up into the index provider.
 
 /**
  * A content part that can query a search index and present the results.
