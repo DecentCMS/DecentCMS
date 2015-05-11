@@ -6,9 +6,17 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "features": {
+    "couch-db": {
+      "name": "CouchDB",
+      "description": "Base service to access CouchDB databases."
+    },
     "couch-db-content-store": {
       "name": "CouchDB Content Store",
       "description": "A content store that uses a CouchDB database for storage."
+    },
+    "couch-db-index": {
+      "name": "CouchDB Index",
+      "description": "An index service that stores index data in CouchDB. It can index content not stored in CouchDB."
     }
   },
   "main": "./index",
