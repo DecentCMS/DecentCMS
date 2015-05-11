@@ -25,6 +25,9 @@ var SearchPart = {
    * * {number} [page] The 0-based page number to display. The default is 0. The page number will be overwritten with the value from the querystring if there is one.
    * * {number} [pageSize] The size of the page. If zero, all results are shown. The default value is 10.
    * * {string} [pageParameter] The name for the pagination parameter that will be added to the querystring on pagination. The default is 'p'. Using different page parameter names enables multiple search results to have independent pagination.
+   * * {Boolean} [displayPages] True if page numbers should be displayed in pagination.
+   * * {Boolean} [displayNextPrevious] True if pagination should have next and previous buttons.
+   * * {Boolean} [displayFirstLast] True if buttons to go to the first and last pages should be displayed by pagination.
    * @param {object} context The context object.
    * @param {object} context.shape The shape to handle.
    * @param {object} context.scope The scope.
