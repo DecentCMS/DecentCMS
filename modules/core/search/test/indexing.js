@@ -301,12 +301,17 @@ describe('File Index', function() {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
 
     process.nextTick(function() {
-      index.reduce(function(val, entry) {
-        return val + entry.index;
-      }, 0, function(aggregated) {
-        expect(aggregated).to.equal(12);
-        done();
-      });
+      index.reduce({
+        reduce: function (val, entry) {
+          return val + entry.index;
+        },
+        initialValue: 0
+        },
+        function (aggregated) {
+          expect(aggregated).to.equal(12);
+          done();
+        }
+      );
     });
   });
 
@@ -314,13 +319,15 @@ describe('File Index', function() {
     var index = indexFactory.getIndex(mapMultipleEntries, orderBy);
 
     process.nextTick(function() {
-      index.reduce(
-        function(entry) {
-          return entry.itemId === 'item3';
+      index.reduce({
+          where: function (entry) {
+            return entry.itemId === 'item3';
+          },
+          reduce: function (val, entry) {
+            return val + entry.index;
+          },
+          initialValue: 0
         },
-        function(val, entry) {
-          return val + entry.index;
-        }, 0,
         function(aggregated) {
           expect(aggregated).to.equal(6);
           done();

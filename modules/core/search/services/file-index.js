@@ -109,29 +109,24 @@ FileIndex.prototype.filter = function filter(where, start, count, done) {
 
 /**
  * Reduces the index to an aggregated object.
- * @param {Function} [where] A condition on the index entries.
- * @param {Function} reduce The reduce function. It takes the previous
- *   value, the entry to process, and the index of the entry.
- *   It returns the new value.
- * @param {*} initialValue The initial value or seed of the aggregation.
+ * @param {object} options The options object.
+ * @param {Function} [options.where] A condition on the index entries.
+ * @param {Function} options.reduce The reduce function. It takes the previous value, the entry to process, and the index of the entry. It returns the new value.
+ * @param {*} options.initialValue The initial value or seed of the aggregation.
  * @param {Function} done The callback, that takes the aggregated value
  * of index entries satisfying the where clause.
  */
-FileIndex.prototype.reduce = function reduce(where, reduce, initialValue, done) {
+FileIndex.prototype.reduce = function reduce(options, done) {
   var index = this._index || [];
-  if (arguments.length === 3) {
-    done = initialValue;
-    initialValue = reduce;
-    reduce = where;
-    where = null;
-    done(index.reduce(reduce, initialValue));
+  var val = options.initialValue;
+  if (!options.where) {
+    done(index.reduce(options.reduce, val));
     return;
   }
-  var val = initialValue;
   for (var i = 0; i < index.length; i++) {
     var entry = index[i];
-    if (!where || where(entry)) {
-      val = reduce(val, entry, i);
+    if (!options.where || options.where(entry)) {
+      val = options.reduce(val, entry, i);
     }
   }
   done(val);
