@@ -250,8 +250,10 @@ describe('File Index', function() {
 
     process.nextTick(function() {
       clearIndexOrderCache(index._index);
-      index.filter(function(entry) {
-        return entry.indexedFoo.substr(0, 3) === 'bar';
+      index.filter({
+        where: function (entry) {
+          return entry.indexedFoo.substr(0, 3) === 'bar';
+        }
       }, function(entries) {
         expect(entries).to.deep.equal([
           {indexedFoo: 'baritem2', itemId: 'item2', index: 2},
@@ -268,9 +270,12 @@ describe('File Index', function() {
 
     process.nextTick(function() {
       clearIndexOrderCache(index._index);
-      index.filter(function(entry) {
-        return entry.indexedFoo.substr(0, 3) === 'bar';
-      }, 1, function(entries) {
+      index.filter({
+        where: function (entry) {
+          return entry.indexedFoo.substr(0, 3) === 'bar';
+        },
+        start: 1
+      }, function(entries) {
         expect(entries).to.deep.equal([
           {indexedFoo: 'baritem3', itemId: 'item3', index: 3},
           {indexedFoo: 'baritem1', itemId: 'item1', index: 1}
@@ -285,9 +290,12 @@ describe('File Index', function() {
 
     process.nextTick(function() {
       clearIndexOrderCache(index._index);
-      index.filter(function(entry) {
-        return entry.index < 3;
-      }, 1, 2, function(entries) {
+      index.filter({
+        where: function (entry) {
+          return entry.index < 3;
+        }
+        , start: 1, count: 2
+      }, function(entries) {
         expect(entries).to.deep.equal([
           {indexedFoo: 'baritem2', itemId: 'item2', index: 2},
           {indexedFoo: 'fooitem1', itemId: 'item1', index: 1}

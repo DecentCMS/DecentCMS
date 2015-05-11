@@ -72,32 +72,23 @@ FileIndex._toName = FileIndex.prototype._toName = function toName() {
 
 /**
  * Filters the index with a where clause.
- * @param {Function} where The where function. It takes an index entry,
+ * @param {Function} options.where The where function. It takes an index entry,
  *   and returns true if the entry should be included.
- * @param {Number} [start] The index of the first entry to be returned
+ * @param {Number} [options.start] The index of the first entry to be returned
  *   that evaluates true from the where clause.
- * @param {Number} [count] The number of entries to return.
+ * @param {Number} [options.count] The number of entries to return.
  *   Omit if an unlimited number of items can be returned.
  * @param {Function} done The callback, that takes the array of index
  * entries satisfying the where clause and within the range as its
  * parameter.
  */
-FileIndex.prototype.filter = function filter(where, start, count, done) {
-  if (arguments.length == 2) {
-    done = start;
-    start = 0;
-    count = null;
-  }
-  else if (arguments.length == 3) {
-    done = count;
-    count = null;
-  }
-  start = start || 0;
+FileIndex.prototype.filter = function filter(options, done) {
+  var start = options.start || 0;
   var index = this._index || [];
   var results = [];
-  for (var i = 0, j = 0; i < index.length && (!count || j < start + count); i++) {
+  for (var i = 0, j = 0; i < index.length && (!options.count || j < start + options.count); i++) {
     var entry = index[i];
-    if (where(entry)) {
+    if (!options.where || options.where(entry)) {
       if (j >= start) {
         results.push(entry);
       }

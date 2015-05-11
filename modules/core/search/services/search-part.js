@@ -2,7 +2,6 @@
 'use strict';
 
 // TODO: allow the parsed ASTs to be persisted on the part. This will allow the parsing to be done at edit time, thus saving runtime processing.
-// TODO: move pagination code up into the index provider.
 
 /**
  * A content part that can query a search index and present the results.
@@ -106,32 +105,8 @@ var SearchPart = {
         var pageSize = searchPart.hasOwnProperty('pageSize')
           ? searchPart.pageSize
           : 10;
-        // Prepare the AST for the reduce function, build one that accumulates index entries on an array if not specified.
-        var reduce = null;
-        if (searchPart.reduce) {
-          var reduceSource = '(function(val, entry, i){' + searchPart.reduce + '})(val, entry, i)';
-          var reduceAst = searchAstCache[reduceSource] || (searchAstCache[reduceSource] = parse(reduceSource).body[0].expression);
-          // The actual reduce function handles pagination first, then calls the specified reduce.
-          reduce = function reduce(val, entry, i) {
-            if (pageSize && (i < pageSize * page || i >= pageSize * (page + 1))) {
-              return val;
-            }
-            return evaluate(reduceAst, {val: val, entry: entry, i: i});
-          };
-        }
-        else {
-          // The default reduce is an accumulation of index entries into an array.
-          reduce = function reduce(val, entry, i) {
-            if (pageSize && (i < pageSize * page || i >= pageSize * (page + 1))) {
-              return val;
-            }
-            val = val || [];
-            val.push(entry);
-            return val;
-          };
-        }
-        // Finally, do reduce, then create the results shape.
-        index.reduce(where, reduce, null, function indexReduced(reduced) {
+        // Prepare the callback.
+        var callback = function indexReduced(reduced) {
           // Change the part into a proper shape
           searchPart.meta = {
             type: 'search-results',
@@ -175,7 +150,29 @@ var SearchPart = {
             });
           }
           next();
-        });
+        };
+        // Prepare the AST for the reduce function.
+        var reduce = null;
+        if (searchPart.reduce) {
+          var reduceSource = '(function(val, entry, i){' + searchPart.reduce + '})(val, entry, i)';
+          var reduceAst = searchAstCache[reduceSource] || (searchAstCache[reduceSource] = parse(reduceSource).body[0].expression);
+          // The actual reduce function handles pagination first, then calls the specified reduce.
+          reduce = function reduce(val, entry, i) {
+            if (pageSize && (i < pageSize * page || i >= pageSize * (page + 1))) {
+              return val;
+            }
+            return evaluate(reduceAst, {val: val, entry: entry, i: i});
+          };
+          // Finally, do reduce, then create the results shape.
+          index.reduce(
+            {where: where, reduce: reduce, initialValue: null}, callback);
+        }
+        else {
+          // If no reduce function was provided, just filter the index.
+          index.filter({
+            where: where, start: pageSize * page, count: pageSize
+          }, callback);
+        }
       },
       done
     );
