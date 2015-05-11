@@ -125,7 +125,11 @@ function scope(name, objectToScope, services, parentScope) {
   if (objectToScope.scopeName) return objectToScope;
 
   if (services) {
-    objectToScope.services = services;
+    // Shallow copy services so that the service collection is per scope.
+    var servicesCopy = objectToScope.services = [];
+    Object.getOwnPropertyNames(services).forEach(function copyService(serviceName) {
+      servicesCopy[serviceName] = services[serviceName];
+    });
   }
   objectToScope.scopeName = name;
   objectToScope.parentScope = parentScope;
