@@ -18,9 +18,9 @@ var SearchPart = {
    * The part has the following properties:
    * * {string} indexName The name of the index to use or create.
    * * {string} [idFilter] A filter regular expression to apply to item ids before they are handed to the indexing process.
-   * * {string} map The body of the mapping function for the index. It can refer to the passed-in content item as `item`. It can return null, an object, or an array of objects.
-   * * {string} orderBy The body of the ordering function for the index. It can refer to the passed-in index entry as `entry`. It can return an object, or an array.
-   * * {string} [where] The body of a where function. It can refer to the index entry to filter as `entry`.
+   * * {string} map A mapping expression for the index. It can refer to the passed-in content item as `item`. It can evaluate as null, an object, or an array of objects.
+   * * {string} orderBy An ordering expression for the index. It can refer to the passed-in index entry as `entry`. It can evaluate as an object, or an array.
+   * * {string} [where] A where expression. It can refer to the index entry to filter as `entry`. It evaluates as a Boolean.
    * * {string} [reduce] The body of a reduce function. It can refer to the previous value as `val`, the index entry as `entry`, and the index of the entry as `i`. It returns the new value. The part will pass null as the first initial value, so the function should create what it needs if it sees null. If not specified, an array of index entries is the result.
    * * {number} [page] The 0-based page number to display. The default is 0. The page number will be overwritten with the value from the querystring if there is one.
    * * {number} [pageSize] The size of the page. If zero, all results are shown. The default value is 10.
@@ -73,9 +73,9 @@ var SearchPart = {
           return;
         }
         // Prepare an AST for the mapping and order by functions.
-        var mapSource = '(function(item){' + searchPart.map + '})(item)';
+        var mapSource = searchPart.map;
         var mapAst = searchAstCache[mapSource] || (searchAstCache[mapSource] = parse(mapSource).body[0].expression);
-        var orderBySource = '(function(entry){' + searchPart.orderBy + '})(entry)';
+        var orderBySource = searchPart.orderBy;
         var orderByAst = searchAstCache[orderBySource] || (searchAstCache[orderBySource] = parse(orderBySource).body[0].expression);
         // Prepare the index.
         var index = indexService.getIndex({
@@ -91,7 +91,7 @@ var SearchPart = {
         // Prepare the AST for the where function.
         var where = null;
         if (searchPart.where) {
-          var whereSource = '(function(entry){' + searchPart.where + '})(entry)';
+          var whereSource = searchPart.where;
           var whereAst = searchAstCache[whereSource] || (searchAstCache[whereSource] = parse(whereSource).body[0].expression);
           where = function where(entry) {
             return evaluate(whereAst, {entry: entry});
