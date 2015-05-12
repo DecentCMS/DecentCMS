@@ -73,9 +73,9 @@ var SearchPart = {
           return;
         }
         // Prepare an AST for the mapping and order by functions.
-        var mapSource = searchPart.map;
+        var mapSource = '(' + searchPart.map + ')';
         var mapAst = searchAstCache[mapSource] || (searchAstCache[mapSource] = parse(mapSource).body[0].expression);
-        var orderBySource = searchPart.orderBy;
+        var orderBySource = '(' + searchPart.orderBy + ')';
         var orderByAst = searchAstCache[orderBySource] || (searchAstCache[orderBySource] = parse(orderBySource).body[0].expression);
         // Prepare the index.
         var index = indexService.getIndex({
@@ -91,7 +91,7 @@ var SearchPart = {
         // Prepare the AST for the where function.
         var where = null;
         if (searchPart.where) {
-          var whereSource = searchPart.where;
+          var whereSource = '(' + searchPart.where + ')';
           var whereAst = searchAstCache[whereSource] || (searchAstCache[whereSource] = parse(whereSource).body[0].expression);
           where = function where(entry) {
             return evaluate(whereAst, {entry: entry});
