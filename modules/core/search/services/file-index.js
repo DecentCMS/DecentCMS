@@ -72,6 +72,7 @@ FileIndex._toName = FileIndex.prototype._toName = function toName() {
 
 /**
  * Filters the index with a where clause.
+ * @param {object} options The options object.
  * @param {Function} options.where The where function. It takes an index entry,
  *   and returns true if the entry should be included.
  * @param {Number} [options.start] The index of the first entry to be returned
