@@ -14,7 +14,11 @@ var SearchPart = {
    * Adds a `search-results` shape to `context.shape.temp.shapes`
    * that has the aggregated result for the search on its `result`
    * property.
+   *
+   * If pagination is used, a second `pagination`shape is also added.
+   *
    * The search to perform is specified on `context.temp.item.[part-name]`.
+   *
    * The part has the following properties:
    * * {string} indexName The name of the index to use or create.
    * * {string} [idFilter] A filter regular expression to apply to item ids before they are handed to the indexing process.
