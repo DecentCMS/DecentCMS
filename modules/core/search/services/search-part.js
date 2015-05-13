@@ -122,9 +122,18 @@ var SearchPart = {
           // Set the reduced result
           searchPart.result = reduced;
           temp.shapes.push(searchPart);
-          // Also create a pagination shape
-          var indexCount = index.getLength();
-          if (pageSize > 0 && pageSize < indexCount) {
+          // If no pagination, because it's been configured that way,
+          // or because there's a reduce function, we're done.
+          if (pageSize === 0 || searchPart.reduce) {
+            next();
+            return;
+          }
+          // Create a pagination shape
+          function pushPaginationShape(count) {
+            if (pageSize >= count) {
+              next();
+              return;
+            }
             temp.shapes.push({
               meta: {
                 type: 'pagination',
@@ -139,8 +148,8 @@ var SearchPart = {
               temp: {displayType: temp.displayType},
               page: page,
               pageSize: pageSize,
-              count: indexCount,
-              pageCount: Math.ceil(indexCount / pageSize),
+              count: count,
+              pageCount: Math.ceil(count / pageSize),
               path: request.path,
               query: request.query,
               pageParameter: pageParameter,
@@ -148,19 +157,30 @@ var SearchPart = {
               displayNextPrevious: !!searchPart.displayNextPrevious,
               displayFirstLast: !!searchPart.displayFirstLast
             });
+            next();
           }
-          next();
+          if (where) {
+            // We need to count index entries that satisfy the where clause.
+            index.reduce({
+                reduce: function countEntries(val) {return val + 1;},
+                where: where,
+                initialValue: 0
+              },
+              function(countWhere) {pushPaginationShape(countWhere);}
+            );
+          }
+          else {
+            // Count the whole index.
+            pushPaginationShape(index.getLength());
+          }
         };
         // Prepare the AST for the reduce function.
         var reduce = null;
         if (searchPart.reduce) {
           var reduceSource = '(function(val, entry, i){' + searchPart.reduce + '})(val, entry, i)';
           var reduceAst = searchAstCache[reduceSource] || (searchAstCache[reduceSource] = parse(reduceSource).body[0].expression);
-          // The actual reduce function handles pagination first, then calls the specified reduce.
+          // The reduce function doesn't handle pagination.
           reduce = function reduce(val, entry, i) {
-            if (pageSize && (i < pageSize * page || i >= pageSize * (page + 1))) {
-              return val;
-            }
             return evaluate(reduceAst, {val: val, entry: entry, i: i});
           };
           // Finally, do reduce, then create the results shape.
