@@ -213,7 +213,7 @@ used to build an index entry, automatically.
 
 The results of the query will be displayed by one or two shapes:
 
-* a `search-results` shape, that has a `results` property that has
+* a `search-results` shape, that has a `results` property that is
   the results of the `filter` or `reduce` operation.
   This shape has `search-results-[part name]`,
   `search-results-[index name]`, and
