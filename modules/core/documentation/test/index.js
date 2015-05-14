@@ -170,7 +170,9 @@ var scope = {
               return a.length - b.length;
             });
             return {
-              reduce: function(fun, seed, done) {
+              reduce: function(context, done) {
+                var seed = context.initialValue;
+                var fun = context.reduce;
                 index.forEach(function(entry) {
                   seed = fun(seed, entry);
                 });
@@ -715,32 +717,32 @@ describe('Documentation TOC part', function() {
       shape: tocItem
     }, function() {
       expect(tocItem.toc.topLevelTOC).to.deep.equal([
-        {itemId: 'docs:', module: null, section: null, name: 'index', number: '0', title: 'Root', url: 'url:docs:'},
-        {itemId: 'docs:top1', module: null, section: null, name: 'top1', number: '9000', title: 'Top 1', url: 'url:docs:top1'},
-        {itemId: 'docs:top2', module: null, section: null, name: 'top2', number: '9000', title: 'Top 2', url: 'url:docs:top2'},
-        {itemId: 'docs:section1', isSectionIndex: true, module: null, section: 'section1', name: 'index', number: '0', title: 'Section 1 index', url: 'url:docs:section1'},
-        {itemId: 'docs:section2', isSectionIndex: true, module: null, section: 'section2', name: 'index', number: '0', title: 'Section 2 index', url: 'url:docs:section2'},
-        {itemId: 'docs:module1', isModuleIndex: true, module: 'module1', section: null, name: 'index', number: '0', title: 'Module 1 index', url: 'url:docs:module1'},
-        {itemId: 'docs:module2', isModuleIndex: true, module: 'module2', section: null, name: 'index', number: '0', title: 'Module 2 index', url: 'url:docs:module2'}
+        {itemId: 'docs:', area: null, module: null, section: null, name: 'index', number: '0', title: 'Root', url: 'url:docs:'},
+        {itemId: 'docs:top1', area: null, module: null, section: null, name: 'top1', number: '9000', title: 'Top 1', url: 'url:docs:top1'},
+        {itemId: 'docs:top2', area: null, module: null, section: null, name: 'top2', number: '9000', title: 'Top 2', url: 'url:docs:top2'},
+        {itemId: 'docs:section1', area: null, isSectionIndex: true, module: null, section: 'section1', name: 'index', number: '0', title: 'Section 1 index', url: 'url:docs:section1'},
+        {itemId: 'docs:section2', area: null, isSectionIndex: true, module: null, section: 'section2', name: 'index', number: '0', title: 'Section 2 index', url: 'url:docs:section2'},
+        {itemId: 'docs:module1', area: null, isModuleIndex: true, module: 'module1', section: null, name: 'index', number: '0', title: 'Module 1 index', url: 'url:docs:module1'},
+        {itemId: 'docs:module2', area: null, isModuleIndex: true, module: 'module2', section: null, name: 'index', number: '0', title: 'Module 2 index', url: 'url:docs:module2'}
       ]);
       expect(tocItem.toc.localTOC).to.deep.equal([
-        {itemId: 'docs:module1/topic1', module: 'module1', section: null, name: 'topic1', number: '9000', title: 'Module 1 topic 1', url: 'url:docs:module1/topic1'},
-        {itemId: 'docs:module1/topic2', module: 'module1', section: null, name: 'topic2', number: '9000', title: 'Module 1 topic 2', url: 'url:docs:module1/topic2'},
-        {itemId: 'docs:module1/section1', isSectionIndex: true, module: 'module1', section: 'section1', name: 'index', number: '0', title: 'Module 1 section 1 index', url: 'url:docs:module1/section1'},
-        {itemId: 'apidocs:module1/service1', module: 'module1', section: null, name: 'service1', number: '9000', title: 'Module 1 service 1', url: 'url:apidocs:module1/service1'}
+        {itemId: 'docs:module1/topic1', area: null, module: 'module1', section: null, name: 'topic1', number: '9000', title: 'Module 1 topic 1', url: 'url:docs:module1/topic1'},
+        {itemId: 'docs:module1/topic2', area: null, module: 'module1', section: null, name: 'topic2', number: '9000', title: 'Module 1 topic 2', url: 'url:docs:module1/topic2'},
+        {itemId: 'docs:module1/section1', isSectionIndex: true, area: null, module: 'module1', section: 'section1', name: 'index', number: '0', title: 'Module 1 section 1 index', url: 'url:docs:module1/section1'},
+        {itemId: 'apidocs:module1/service1', area: null, module: 'module1', section: null, name: 'service1', number: '9000', title: 'Module 1 service 1', url: 'url:apidocs:module1/service1'}
       ]);
       expect(tocItem.toc.breadcrumbs).to.deep.equal([
-        {itemId: 'docs:module1', isModuleIndex: true, module: 'module1', section: null, name: 'index', number: '0', title: 'Module 1 index', url: 'url:docs:module1'},
-        {itemId: 'apidocs:module1/service1', module: 'module1', section: null, name: 'service1', number: '9000', title: 'Module 1 service 1', url: 'url:apidocs:module1/service1'}
+        {itemId: 'docs:module1', isModuleIndex: true, area: null, module: 'module1', section: null, name: 'index', number: '0', title: 'Module 1 index', url: 'url:docs:module1'},
+        {itemId: 'apidocs:module1/service1', area: null, module: 'module1', section: null, name: 'service1', number: '9000', title: 'Module 1 service 1', url: 'url:apidocs:module1/service1'}
       ]);
       expect(tocItem.toc.previous).to.deep.equal(
-        {itemId: 'docs:module1/section1/topic2', module: 'module1', section: 'section1', name: 'topic2', number: '9000', title: 'Module 1 section 1 topic 2', url: 'url:docs:module1/section1/topic2'}
+        {itemId: 'docs:module1/section1/topic2', area: null, module: 'module1', section: 'section1', name: 'topic2', number: '9000', title: 'Module 1 section 1 topic 2', url: 'url:docs:module1/section1/topic2'}
       );
       expect(tocItem.toc.current).to.deep.equal(
-        {itemId: 'apidocs:module1/service1', module: 'module1', section: null, name: 'service1', number: '9000', title: 'Module 1 service 1', url: 'url:apidocs:module1/service1'}
+        {itemId: 'apidocs:module1/service1', area: null, module: 'module1', section: null, name: 'service1', number: '9000', title: 'Module 1 service 1', url: 'url:apidocs:module1/service1'}
       );
       expect(tocItem.toc.next).to.deep.equal(
-        {itemId: 'docs:module2', isModuleIndex: true, module: 'module2', section: null, name: 'index', number: '0', title: 'Module 2 index', url: 'url:docs:module2'}
+        {itemId: 'docs:module2', area: null, isModuleIndex: true, module: 'module2', section: null, name: 'index', number: '0', title: 'Module 2 index', url: 'url:docs:module2'}
       );
       done();
     });

@@ -109,7 +109,7 @@ var DocumentationTocPart = {
             var topicName = isIndex ? 'index' : splitId[splitId.length - 1];
             return {
               title: topic.title,
-              area: area,
+              area: area || null,
               module: module,
               name: topicName,
               section: section,
