@@ -1,11 +1,9 @@
-title: Database
+title: CouchDB
 
 -8<------------------------------------------------------------------
 
-The database module provides database-specific implementations of
+The CouchDB module provides CouchDB-specific implementations of
 storage providers.
-
-There is currently support for CouchDB.
 
 Configuring the CouchDB content store
 -------------------------------------
