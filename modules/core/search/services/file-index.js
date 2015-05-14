@@ -86,10 +86,14 @@ FileIndex._toName = FileIndex.prototype._toName = function toName() {
 FileIndex.prototype.filter = function filter(options, done) {
   var start = options.start || 0;
   var index = this._index || [];
+  if (!options.where) {
+    done(index.slice(start, start + options.count));
+    return;
+  }
   var results = [];
   for (var i = 0, j = 0; i < index.length && (!options.count || j < start + options.count); i++) {
     var entry = index[i];
-    if (!options.where || options.where(entry)) {
+    if (options.where(entry)) {
       if (j >= start) {
         results.push(entry);
       }
