@@ -1,8 +1,8 @@
 {
-  "name": "decent-core-database",
-  "friendlyName": "Database",
+  "name": "decent-db-couch",
+  "friendlyName": "CouchDB",
   "version": "1.0.0",
-  "description": "Database support for DecentCMS",
+  "description": "CouchDB support for DecentCMS",
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "features": {
