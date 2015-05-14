@@ -85,7 +85,7 @@ var ContentApiRouteHandler = {
                   var shapes = shape.temp.shapes;
                   shapes.forEach(function removeTempItem(shape) {
                     delete shape.meta.item;
-                    delete shape.temp.item;
+                    delete shape.temp;
                   });
                   // Send the serialized list of shapes.
                   response.json(shapes);
