@@ -4,18 +4,23 @@ var expect = require('chai').expect;
 var scope = require('../lib/scope');
 
 describe('scope', function() {
-  it('adds require and getServices methods', function() {
+  it('adds methods', function() {
     var scoped = {};
-    scope('', scoped);
+    scope('', scoped, {});
 
     expect(scoped)
       .to.respondTo('require')
-      .and.to.respondTo('getServices');
+      .and.to.respondTo('initialize')
+      .and.to.respondTo('register')
+      .and.to.respondTo('getServices')
+      .and.to.respondTo('callService')
+      .and.to.respondTo('lifecycle')
+      .and.to.respondTo('makeSubScope');
   });
 
   it('returns the scoped object', function() {
     var theObject = {};
-    var scoped = scope('', theObject);
+    var scoped = scope('', theObject, {});
 
     expect(theObject).to.equal(scoped);
   });
@@ -223,6 +228,45 @@ describe('scope', function() {
     expect(instance[0].options).to.equal(options);
     expect(instance[1].scope).to.equal(scoped);
     expect(instance[1].options).to.equal(options);
+  });
+
+  it('registers services', function() {
+    var scoped = scope('', {}, {});
+    function ServiceClass() {}
+    scoped.register('service-class', ServiceClass);
+    var instance = scoped.require('service-class');
+
+    expect(instance)
+      .to.be.an.instanceOf(ServiceClass);
+  });
+
+  it('registers itself as a service', function() {
+    var scoped = scope('the-scope', {}, {});
+    var instance = scoped.require('the-scope');
+
+    expect(instance).to.equal(scoped);
+  });
+
+  it('can create sub-scopes', function() {
+    function SuperService() {}
+    function SubService() {}
+    var superScope = scope('super', {}, {
+      'super-service': [SuperService]
+    });
+    var subScope = superScope.makeSubScope('sub', {});
+    subScope.register('sub-service', SubService);
+
+    expect(superScope.require('super')).to.equal(superScope);
+    expect(superScope.require('super-service'))
+      .to.be.an.instanceOf(SuperService);
+    expect(superScope.require('sub-service')).to.not.be.ok;
+
+    expect(subScope.require('sub')).to.equal(subScope);
+    expect(subScope.require('super')).to.equal(superScope);
+    expect(subScope.require('super-service'))
+      .to.be.an.instanceOf(SuperService);
+    expect(subScope.require('sub-service'))
+      .to.be.an.instanceOf(SubService);
   });
 
   it('calls services', function(done) {
