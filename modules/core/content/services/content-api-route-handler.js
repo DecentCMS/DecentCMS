@@ -32,7 +32,13 @@ var ContentApiRouteHandler = {
         if (id) {
           var storage = request.require('storage-manager');
           storage.promiseToGet(id);
-          storage.fetchContent({request: request}, function () {
+          storage.fetchContent({request: request}, function (err) {
+            if (err) {
+              response.status(500);
+              response.json({error: err});
+              next(err);
+              return;
+            }
             var item = storage.getAvailableItem(id);
             if (item) {
               delete item.temp;
@@ -56,7 +62,7 @@ var ContentApiRouteHandler = {
       app.get('/api/shapes(/*)?', function contentShapeMiddleware(request, response, next) {
         if (request.routed) {next();return;}
         var id = request.path === '/api/shapes'
-          ? '/' : require('querystring').unescape(request.path.substr(11));
+          ? '/' : require('querystring').unescape(request.path.substr(12));
         response.type('json');
         if (request.debug) {
           request.app.set('json spaces', 2);
@@ -64,7 +70,13 @@ var ContentApiRouteHandler = {
         if (id) {
           var storage = request.require('storage-manager');
           storage.promiseToGet(id);
-          storage.fetchContent({request: request}, function () {
+          storage.fetchContent({request: request}, function (err) {
+            if (err) {
+              response.status(500);
+              response.json({error: err});
+              next(err);
+              return;
+            }
             var item = storage.getAvailableItem(id);
             if (item) {
               var shape = {
@@ -78,13 +90,13 @@ var ContentApiRouteHandler = {
                   if (err) {
                     response.status(500);
                     response.json({error: err});
-                    next();
+                    next(err);
                     return;
                   }
                   // Remove the meta.item and temp.item from each shape before rendering, to avoid circular structures that JSON won't serialize
                   var shapes = shape.temp.shapes;
                   shapes.forEach(function removeTempItem(shape) {
-                    delete shape.meta.item;
+                    if (shape.meta) delete shape.meta.item;
                     delete shape.temp;
                   });
                   // Send the serialized list of shapes.
