@@ -10,6 +10,7 @@ var path = require('path');
  */
 function discover() {
   var availableModules = {};
+  var areas = {};
   Array.prototype.forEach.call(
     (arguments.length === 0 ? ['./modules', './themes'] : arguments),
     function(rootPath) {
@@ -26,6 +27,9 @@ function discover() {
         else {
           var pathStats = fs.statSync(areaPath);
           if (!pathStats.isFile()) {
+            // Remember that this is an area
+            areas[areaPath] = path.basename(areaPath);
+            // Scan for modules
             modulePaths = fs.readdirSync(areaPath).map(function(subPath) {
               return path.join(areaPath, subPath);
             });
@@ -33,7 +37,7 @@ function discover() {
         }
         if (!modulePaths) return;
         modulePaths.forEach(function discoverEachModule(modulePath) {
-          discoverModule(modulePath, availableModules);
+          discoverModule(modulePath, availableModules, areas);
         });
       });
     });
@@ -44,13 +48,17 @@ function discover() {
  * Discovers the module under a path.
  * @param {string} modulePath The path of the module's directory.
  * @returns {object} The manifest of the module.
+ * @param {object} availableModules Available modules will be added to this object.
+ * @param {object} [areas] A map of area paths to area folder names.
  */
-function discoverModule(modulePath, availableModules) {
+function discoverModule(modulePath, availableModules, areas) {
+  areas = areas || {};
   var manifestPath = path.join(modulePath, 'package.json');
   if (!fs.existsSync(manifestPath)) return null;
   var manifest = require(manifestPath);
   var moduleName = manifest.name;
   manifest.physicalPath = path.dirname(manifestPath);
+  manifest.area = areas[path.dirname(manifest.physicalPath)] || null;
   availableModules[moduleName] = manifest;
   // Look for self-configuring services under /services
   if (!manifest.services) manifest.services = {};

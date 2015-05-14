@@ -6897,4 +6897,7 @@ body {
   float: right;
   margin-top: 3px;
 }
+li.area {
+  text-transform: capitalize;
+}
 /*# sourceMappingURL=style.css.map */

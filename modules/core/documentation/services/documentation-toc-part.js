@@ -80,6 +80,7 @@ var DocumentationTocPart = {
               || (splitId.length < 2 && hasModule)
               || (topic.temp && topic.temp.name && topic.temp.name === 'index' && topic.id.substr(0, 8) !== 'apidocs:');
             var module = hasModule ? splitId[0] : null;
+            var area = module ? moduleManifests[module].area : null;
             var section = topic.section || null;
             if (!section) {
               switch(splitId.length) {
@@ -108,6 +109,7 @@ var DocumentationTocPart = {
             var topicName = isIndex ? 'index' : splitId[splitId.length - 1];
             return {
               title: topic.title,
+              area: area,
               module: module,
               name: topicName,
               section: section,
@@ -115,8 +117,9 @@ var DocumentationTocPart = {
               url: urlHelper.getUrl(topic.id)
             };
           },
-          orderBy: function orderByModuleSectionNumberName(entry) {
+          orderBy: function orderByAreaModuleSectionNumberName(entry) {
             var result = [];
+            result.push(entry.area);
             result.push(entry.module);
             result.push(entry.itemId.substr(0, 3) === 'api' ? 2 : 1);
             result.push(entry.section);

@@ -7,8 +7,14 @@ module.exports = function documentationTocTemplate(toc, renderer, done) {
   var showNextPrevious = !! toc.showNextPrevious;
   var t = renderer.scope.require('localization');
   renderer.startTag('nav', {class: 'docs-sidenav'});
+  // Breadcrumbs
   if (showBreadcrumbs) {
     renderer.startTag('ol', {class: 'breadcrumb'});
+    // Render the area as the first crumb.
+    if (toc.current && toc.current.area) {
+      renderer.tag('li', {'class': 'area'}, toc.current.area);
+    }
+    // Render the other crumbs.
     toc.breadcrumbs.forEach(function(crumb, index) {
       var isLast = index === toc.breadcrumbs.length - 1;
       var cls = isLast ? 'active' : null;
@@ -24,6 +30,7 @@ module.exports = function documentationTocTemplate(toc, renderer, done) {
     });
     renderer.endTag();
   }
+  // Next/previous
   if (showNextPrevious) {
     renderer.startTag('ul', {class: 'pager'});
     if (toc.previous) {
@@ -48,18 +55,27 @@ module.exports = function documentationTocTemplate(toc, renderer, done) {
     }
     renderer.endTag();
   }
+  // TOC
   if (showTopLevelTOC) {
     var currentTopLevelItem = toc.breadcrumbs && toc.breadcrumbs[0]
         ? toc.breadcrumbs[0] : null;
+    var area = null;
     renderer
       .startTag('ul', {class: 'toc'});
     toc.topLevelTOC.forEach(function(entry) {
+      // Add a list item every time the area changes.
+      if (area != entry.area) {
+        area = entry.area;
+        renderer.tag('li', {'class': 'area'}, area);
+      }
+      // Render the top-level item.
       var isActive = toc.localTOC
         && currentTopLevelItem
         && currentTopLevelItem.itemId === entry.itemId;
       renderer
         .startTag('li', isActive ? {class: 'active'} : null)
         .tag('a', {href: entry.url}, entry.title);
+      // If the active item is under this, render the local TOC.
       if (isActive) {
         renderer
           .startTag('ul', {class: 'local-toc toc'});
