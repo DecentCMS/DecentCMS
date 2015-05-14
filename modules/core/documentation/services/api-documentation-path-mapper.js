@@ -15,7 +15,7 @@ ApiDocumentationPathMapper.scope = 'shell';
 /**
  * Maps API documentation topic ids onto the relevant file, in the right module.
  * @param {string} root The content root for API documentation
- * (anything other than 'apidoc' will be ignored).
+ * (anything other than 'apidocs' will be ignored).
  * @param {string} id The topic's id, in the form:
  * [module-technical-name]/[source-filename-without-extension].
  * The file name does not include the path under the module.
