@@ -3,6 +3,7 @@
 
 // TODO: enable global require for non-DecentCMS dependencies, so we can load them only once, save on memory and ramp-up times. Should be fine for common libraries such as async.
 // TODO: maybe, inject scope by property rather than constructor, to remove the requirement for service implementers to implement a constructor with scope as the parameter.
+// TODO: enable constructor injection of all dependencies.
 
 var async = require('async');
 var util = require('util');
@@ -15,9 +16,7 @@ var util = require('util');
  * Otherwise, a new instance is created on each call.
  * Don't call this directly, it should only be internally used by scope methods.
  * @param {object} scope The scope.
- * @param {Function|object} ServiceClass The class to instantiate.
- *  This constructor must always take a scope as its first argument.
- *  It can also take an optional 'options' argument, unless it's a shell singleton.
+ * @param {Function|object} ServiceClass The class to instantiate. This constructor must always take a scope as its first argument. It can also take an optional 'options' argument, unless it's a shell singleton.
  * @param {object} options Options to pass into the service's constructor.
  * @returns {object} An instance of the service, or null if it wasn't found.
  */
@@ -32,10 +31,10 @@ function construct(scope, ServiceClass, options) {
  * @description
  * Gets the instance for a singleton service.
  * This should not be called, except by scope methods.
- * @param {object} scope         The scoped object.
- * @param {string} service       The service name.
- * @param {number} index         The index at which the service is to be cached.
- * @param {object} options       The options to pass into the service constructor.
+ * @param {object} scope The scoped object.
+ * @param {string} service The service name.
+ * @param {number} index The index at which the service is to be cached.
+ * @param {object} options The options to pass into the service constructor.
  * @returns {object} The singleton instance.
  */
 function getSingleton(scope, service, index, options) {
@@ -115,9 +114,9 @@ function initializeService(scope, ServiceClass) {
  * callService, and lifecycle methods that can be used to get service instances
  * that are scoped to the object, live and die with it.
  * @mixin
- * @param {string} name          The name of the scope.
+ * @param {string} name The name of the scope.
  * @param {object} objectToScope The object that must be made a scope.
- * @param {object} services      A map of the services to be made available from require.
+ * @param {object} services A map of the services to be made available from require.
  * @param {object} [parentScope] An optional parent scope that may have valid instances of services to hand down.
  */
 function scope(name, objectToScope, services, parentScope) {
@@ -126,11 +125,13 @@ function scope(name, objectToScope, services, parentScope) {
 
   if (services) {
     // Shallow copy services so that the service collection is per scope.
-    var servicesCopy = objectToScope.services = [];
+    var servicesCopy = objectToScope.services = {};
     Object.getOwnPropertyNames(services).forEach(function copyService(serviceName) {
       servicesCopy[serviceName] = services[serviceName];
     });
   }
+  // Register the scope itself as a service:
+  objectToScope.services[name] = [objectToScope];
   objectToScope.scopeName = name;
   objectToScope.parentScope = parentScope;
 
@@ -138,6 +139,7 @@ function scope(name, objectToScope, services, parentScope) {
    * @description
    * Initialize services for this scope. This is called automatically if the scope was built
    * with a set of services. Otherwise, it must be called manually.
+   * @returns {object} The scope.
    */
   objectToScope.initialize = function() {
     if (this.services) {
@@ -154,15 +156,16 @@ function scope(name, objectToScope, services, parentScope) {
       }
       this._scopeInitialized = true;
     }
+    return objectToScope;
   };
 
   /**
    * @description
    * Registers a service into the scope's registry, making it available for require and
    * getServices. This will initialize the service if the scope is already initialized.
-   * @param {string} name     The service name implemented by ServiceClass.
-   * @param {Function|object} ServiceClass The service constructor,
-   *                          or the static service object to register.
+   * @param {string} name The service name implemented by ServiceClass.
+   * @param {Function|object} ServiceClass The service constructor, or the static service object to register.
+   * @returns {object} The scope.
    */
   objectToScope.register = function(name, ServiceClass) {
     if (!this.services[name]) {
@@ -178,6 +181,7 @@ function scope(name, objectToScope, services, parentScope) {
         initializeService(objectToScope, ServiceClass);
       }
     }
+    return objectToScope;
   };
 
   /**
@@ -232,9 +236,10 @@ function scope(name, objectToScope, services, parentScope) {
    * Calls a method on each registered service of the specified name,
    * asynchronously.
    * @param {string} service The name of the service.
-   * @param {string} method  The name of the method.
+   * @param {string} method The name of the method.
    * @param {object} options The parameter to pass to the method.
-   * @param {Function} done  The function to call when all service methods have returned.
+   * @param {Function} done The function to call when all service methods have returned.
+   * @returns {object} The scope.
    */
   objectToScope.callService = function callService(service, method, options, done) {
     async.eachSeries(
@@ -249,6 +254,7 @@ function scope(name, objectToScope, services, parentScope) {
       },
       done
     );
+    return objectToScope;
   };
 
   /**
@@ -274,7 +280,7 @@ function scope(name, objectToScope, services, parentScope) {
    * then the function, then methodC on all instances of service3.
    *
    * @param {string} service The service name.
-   * @param {string} method  The method name.
+   * @param {string} method The method name.
    * @returns {Function} A function that takes an options object and a callback as a parameter.
    */
   objectToScope.lifecycle = function lifecycle(service, method) {
@@ -297,6 +303,18 @@ function scope(name, objectToScope, services, parentScope) {
     return function lifecycle(options, done) {
       async.applyEachSeries(methodArray, options, done);
     };
+  };
+
+  /**
+   * @description
+   * Transforms an object into a sub-scope of this scope.
+   * @param {string} name The name of the scope.
+   * @param {object} subScope The object that must be made a scope.
+   * @returns {object} The newly scoped object.
+   */
+  objectToScope.makeSubScope = function(name, subScope) {
+    scope(name, subScope, objectToScope.services, objectToScope);
+    return subScope;
   };
 
   objectToScope.instances = {};

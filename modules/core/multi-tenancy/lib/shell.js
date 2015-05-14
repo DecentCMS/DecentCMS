@@ -358,8 +358,7 @@ Shell.prototype.handleRequest = function(request, response, next) {
     response: response
   };
   // Mix-in scope into request
-  scope('request', request, self.services, self);
-  request.register('request', request);
+  self.makeSubScope('request', request);
   // Let services register themselves with the request
   self.emit(Shell.startRequestEvent, context);
 
