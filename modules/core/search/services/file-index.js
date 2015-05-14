@@ -147,6 +147,7 @@ FileIndex.prototype._compare = function compare(a, b) {
  * @param {Boolean} [sorted] Is the index sorted already?
  */
 FileIndex.prototype._addToIndex = function addToIndex(index, indexEntries, id, sorted) {
+  // TODO; can we apply a faster algorithm to find where to insert the entries?
   var self = this;
   if (indexEntries) {
     if (!Array.isArray(indexEntries)) {
