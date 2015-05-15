@@ -7,18 +7,9 @@ var async = require('async');
 /**
  * An in-memory index implementation with file storage suitable for small sites.
  * @param {object} scope The scope.
- * @param {RegExp|string} [idFilter] A regular expression that validates
- *   content item ids before they are read and indexed.
- * @param {Function} map The map function takes a content item and returns
- *   an array of index entries, a single index entry, or null.
- *   An index entry should have an id property.
- *   The index will automatically add an `itemId` property set to be the id of
- *   the item that was used to build the index entries.
- * @param {Function} [orderBy] The function that defines the order
- *   on which the index entry should be sorted.
- *   The sort order can be a simple string, date, number, or it can be an array,
- *   in which case the items in the array will be used one after the other.
- *   It takes an index entry, and returns the sort order.
+ * @param {RegExp} [idFilter] A regular expression that validates content item ids before they are read and indexed.
+ * @param {Function} map The map function takes a content item and returns an array of index entries, a single index entry, or null. An index entry should have an id property. The index will automatically add an `itemId` property set to be the id of the item that was used to build the index entries.
+ * @param {Function} [orderBy] The function that defines the order on which the index entry should be sorted. The sort order can be a simple string, date, number, or it can be an array, in which case the items in the array will be used one after the other. It takes an index entry, and returns the sort order.
  * @param {string} [name] A name for the index. If not provided, one will be built from the other parameters.
  * @constructor
  */
@@ -144,9 +135,8 @@ FileIndex.prototype._compare = function compare(a, b) {
 
 /**
  * Adds index entries to the provided internal index.
- * @param {Array} index The internal index array to which the entries
- *   will be added.
- * @param {Array|object|null} indexEntries The result of a map call.
+ * @param {Array} index The internal index array to which the entries will be added.
+ * @param {Array} indexEntries The result of a map call.
  * @param {string} id The id of the item that was mapped.
  * @param {Boolean} [sorted] Is the index sorted already?
  */
@@ -330,18 +320,11 @@ FileIndexFactory.scope = 'shell';
 
 /**
  * Gets or creates the index for the provided map and order by functions.
- * @param {RegExp|string} [idFilter] A regular expression that validates
- *   content item ids before they are read and indexed.
- * @param {Function} map The map function. It takes a content item and
- *   returns null, an index entry, or an array of index entries.
- * @param {Function} [orderBy] The function that defines the order
- *   on which the index entries should be sorted.
- *   It takes an index entry, and returns the sort order.
- *   The sort order can be a simple string, date, number, or it can be an array,
- *   in which case the items in the array will be used one after the other.
- *   It is recommended to name the order function.
- * @returns {object} The index object.
+ * @param {RegExp} [idFilter] A regular expression that validates content item ids before they are read and indexed.
+ * @param {Function} map The map function. It takes a content item and returns null, an index entry, or an array of index entries.
+ * @param {Function} [orderBy] The function that defines the order on which the index entries should be sorted. It takes an index entry, and returns the sort order. The sort order can be a simple string, date, number, or it can be an array, in which case the items in the array will be used one after the other. It is recommended to name the order function.
  * @param {string} [name] A unique name for the index. If it's not provided, one will be generated from the source code of the filter, map, and orderBy parameters.
+ * @returns {object} The index object.
  */
 FileIndexFactory.prototype.getIndex = function getIndex(idFilter, map, orderBy, name) {
   name = name || FileIndex._toName(idFilter, map, orderBy);

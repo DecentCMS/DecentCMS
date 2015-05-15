@@ -13,10 +13,8 @@ var fileContentEnumerator = {
    * Gets an asynchronous enumerator for all the items in the store.
    * @param {object} context The context.
    * @param {object} context.scope The scope.
-   * @param {RegExp|string} [context.idFilter] A regular expression that validates
-   *   content item ids before they are read and indexed.
-   * @returns {Function} The function that gets the next item.
-   *   It takes a callback function as its parameter
+   * @param {RegExp} [context.idFilter] A regular expression that validates content item ids before they are read and indexed.
+   * @returns {Function} The function that gets the next item. It takes a callback function as its parameter
    */
   getItemEnumerator: function(context) {
     var path = require('path');
@@ -41,11 +39,7 @@ var fileContentEnumerator = {
         }));
     /**
      * Looks for the next item in the store.
-     * @param {Function} callback the function that gets called
-     *   when the item has been fetched.
-     *   This function takes an error object and the item as its
-     *   parameters. When all items have been enumerated, the
-     *   callback is called without parameters.
+     * @param {Function} callback the function that gets called when the item has been fetched. This function takes an error object and the item as its parameters. When all items have been enumerated, the callback is called without parameters.
      */
     var getNextItem = function getNextItem(callback) {
       var found = false;

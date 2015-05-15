@@ -74,12 +74,7 @@ FileResolution.prototype.getCacheKey = function(pathTokens) {
  * have the file, but a service in module 2 depends on module 1,
  * then the path of the file in module 2 is returned.
  *
- * @param {String|RegExp} fileName
- * The local path under the module's root of the file to find,
- * or the pattern to match. More than one argument may be passed,
- * each of which can be a string or regular expression representing
- * the name of parent folders.
- *
+ * @param {RegExp} fileName The local path under the module's root of the file to find, or the pattern to match. More than one argument may be passed, each of which can be a string or regular expression representing the name of parent folders.
  * @returns {String} The physical path of the found file, or null if it wasn't found.
  */
 FileResolution.prototype.resolve = function(fileName) {
@@ -130,12 +125,7 @@ FileResolution.prototype.resolve = function(fileName) {
  * Finds all occurrences of the file whose path is passed in,
  * in order of dependency, starting from dependencies.
  *
- * @param {String|RegExp} fileName
- * The local path under the module's root of the file to find,
- * or the pattern to match. More than one argument may be passed,
- * each of which can be a string or regular expression representing
- * the name of parent folders.
- *
+ * @param {RegExp} fileName  The local path under the module's root of the file to find, or the pattern to match. More than one argument may be passed, each of which can be a string or regular expression representing the name of parent folders.
  * @returns {Array} The list of paths found.
  */
 FileResolution.prototype.all = function(fileName) {

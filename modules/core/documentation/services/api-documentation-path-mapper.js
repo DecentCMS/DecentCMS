@@ -14,13 +14,9 @@ ApiDocumentationPathMapper.scope = 'shell';
 
 /**
  * Maps API documentation topic ids onto the relevant file, in the right module.
- * @param {string} root The content root for API documentation
- * (anything other than 'apidocs' will be ignored).
- * @param {string} id The topic's id, in the form:
- * [module-technical-name]/[source-filename-without-extension].
- * The file name does not include the path under the module.
- * @returns {string[]} The list of possible paths for a source file with
- * JsDoc comments to be extracted.
+ * @param {string} root The content root for API documentation (anything other than 'apidocs' will be ignored).
+ * @param {string} id The topic's id, in the form: `[module-technical-name]/[source-filename-without-extension]`. The file name does not include the path under the module.
+ * @returns {string[]} The list of possible paths for a source file with JsDoc comments to be extracted.
  */
 ApiDocumentationPathMapper.prototype.mapIdToPath = function mapApiDocumentationIdToPath(root, id) {
   var path = require('path');
