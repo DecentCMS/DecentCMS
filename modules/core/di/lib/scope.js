@@ -16,7 +16,7 @@ var util = require('util');
  * Otherwise, a new instance is created on each call.
  * Don't call this directly, it should only be internally used by scope methods.
  * @param {object} scope The scope.
- * @param {Function|object} ServiceClass The class to instantiate. This constructor must always take a scope as its first argument. It can also take an optional 'options' argument, unless it's a shell singleton.
+ * @param {Function} ServiceClass The class to instantiate. This constructor must always take a scope as its first argument. It can also take an optional 'options' argument, unless it's a shell singleton.
  * @param {object} options Options to pass into the service's constructor.
  * @returns {object} An instance of the service, or null if it wasn't found.
  */
@@ -89,8 +89,8 @@ function getSingleton(scope, service, index, options) {
  * @description
  * Initializes a service by calling its init method, and wiring up
  * its static events.
- * @param {object} scope The scope
- * @param ServiceClass
+ * @param {object} scope The scope.
+ * @param {Function} ServiceClass The service class to initialize.
  */
 function initializeService(scope, ServiceClass) {
   if (!ServiceClass) return;
@@ -105,6 +105,189 @@ function initializeService(scope, ServiceClass) {
       })
     });
   }
+}
+
+/**
+ * @description
+ * Initialize services for this scope. This is called automatically if the scope was built
+ * with a set of services. Otherwise, it must be called manually.
+ * @returns {object} The scope.
+ */
+function scope$initialize() {
+  if (this.services) {
+    // Initialize all services except those that are scoped to some other scope
+    for (var serviceName in this.services) {
+      var serviceClasses = this.services[serviceName];
+      if (!serviceClasses) continue;
+      for (var i = 0; i < serviceClasses.length; i++) {
+        var ServiceClass = serviceClasses[i];
+        if (!ServiceClass.scope || ServiceClass.scope === this.scopeName) {
+          initializeService(this, ServiceClass);
+        }
+      }
+    }
+    this._scopeInitialized = true;
+  }
+  return this;
+}
+
+/**
+ * @description
+ * Registers a service into the scope's registry, making it available for require and
+ * getServices. This will initialize the service if the scope is already initialized.
+ * @param {string} name The service name implemented by ServiceClass.
+ * @param {Function} ServiceClass The service constructor, or the static service object to register.
+ * @returns {object} The scope.
+ */
+function scope$register(name, ServiceClass) {
+  if (!this.services[name]) {
+    this.services[name] = [ServiceClass];
+  }
+  else {
+    this.services[name].push(ServiceClass);
+  }
+  if (this._scopeInitialized) {
+    // Scope has already initialized its services, so any new one that gets added
+    // must also be initialized.
+    if (!ServiceClass.hasOwnProperty('scope') || ServiceClass.scope === this.scopeName) {
+      initializeService(this, ServiceClass);
+    }
+  }
+  return this;
+}
+
+/**
+ * @description
+ * Returns an instance of a service implementing the named contract passed as a parameter.
+ * If more than one service exists for that contract, one instance that
+ * has dependencies on any other service for that contract is returned. Do not
+ * count on any particular service being returned if that is the case among the ones
+ * that have the most dependencies.
+ * A new instance is returned every time the function is called, unless the service
+ * is static, or if it is a scope singleton.
+ *
+ * @param {String} service  The name of the contract for which a service instance is required.
+ * @param {object} options Options to pass into the service's constructor.
+ * @returns {object} An instance of the service, or null if it wasn't found.
+ */
+function scope$require(service, options) {
+  var services = this.services[service];
+  var ServiceClass = services && services.length > 0 ?
+    services[services.length - 1] : null;
+  if (!ServiceClass) return null;
+  if (ServiceClass.isScopeSingleton) {
+    return getSingleton(this, service, services.length - 1, options);
+  }
+  return construct(this, ServiceClass, options);
+}
+
+/**
+ * @description
+ * Returns a list of service instances that are implementing the named contract passed as a parameter.
+ * The services are returned in order of dependency: if service A has a dependency
+ * on service B, B is guaranteed to appear earlier in the list.
+ * New instances are returned every time the function is called.
+ *
+ * @param {String} service The name of the contract for which service instances are required.
+ * @param {object} options Options to pass into the services' constructors.
+ * @returns {Array} An array of instances of the service.
+ */
+function scope$getServices(service, options) {
+  var self = this;
+  if (!(service in self.services)) return [];
+  return self.services[service].map(function (ServiceClass, index) {
+    if (ServiceClass.isScopeSingleton) {
+      return getSingleton(self, service, index, options);
+    }
+    return construct(self, ServiceClass, options);
+  });
+}
+
+/**
+ * @description
+ * Calls a method on each registered service of the specified name,
+ * asynchronously.
+ * @param {string} service The name of the service.
+ * @param {string} method The name of the method.
+ * @param {object} options The parameter to pass to the method.
+ * @param {Function} done The function to call when all service methods have returned.
+ * @returns {object} The scope.
+ */
+function scope$callService(service, method, options, done) {
+  async.eachSeries(
+    this.getServices(service),
+    function callMethod(service, next) {
+      if (service[method]) {
+        service[method](options, next);
+      }
+      else {
+        next();
+      }
+    },
+    done
+  );
+  return this;
+}
+
+/**
+ * @description
+ * Creates a lifecycle function that calls into all the
+ * service methods specified in an alternated list of
+ * service names, and method names as parameters.
+ * It is possible to replace service/method pairs with
+ * a function(options, done) that will be called as part
+ * of the lifecycle execution.
+ *
+ * For example:
+ *
+ *   scope.lifecycle(
+ *     'service1', 'methodA',
+ *     'service2', 'methodB',
+ *     function(options, done) {...},
+ *     'service3', 'methodC'
+ *   )
+ *
+ * returns a function that will call methodA on all instances
+ * of service1, then methodB on all instances of service2,
+ * then the function, then methodC on all instances of service3.
+ *
+ * @param {string} service The service name.
+ * @param {string} method The method name.
+ * @returns {Function} A function that takes an options object and a callback as a parameter.
+ */
+function scope$lifecycle(service, method) {
+  var methodArray = [];
+  for (var i = 0; i < arguments.length; i++) {
+    var serviceName = arguments[i];
+    if (typeof(serviceName) === 'function') {
+      methodArray.push(serviceName);
+      continue;
+    }
+    var services = this.getServices(serviceName);
+    (function (methodName) {
+      Array.prototype.push.apply(
+        methodArray,
+        services.map(function serviceToMethod(service) {
+          return service[methodName].bind(service);
+        })
+      );
+    })(arguments[++i]);
+  }
+  return function lifecycle(options, done) {
+    async.applyEachSeries(methodArray, options, done);
+  };
+}
+
+/**
+ * @description
+ * Transforms an object into a sub-scope of this scope.
+ * @param {string} name The name of the scope.
+ * @param {object} subScope The object that must be made a scope.
+ * @returns {object} The newly scoped object.
+ */
+function scope$makeSubScope(name, subScope) {
+  scope(name, subScope, this.services, this);
+  return subScope;
 }
 
 /**
@@ -135,187 +318,13 @@ function scope(name, objectToScope, services, parentScope) {
   objectToScope.scopeName = name;
   objectToScope.parentScope = parentScope;
 
-  /**
-   * @description
-   * Initialize services for this scope. This is called automatically if the scope was built
-   * with a set of services. Otherwise, it must be called manually.
-   * @returns {object} The scope.
-   */
-  objectToScope.initialize = function() {
-    if (this.services) {
-      // Initialize all services except those that are scoped to some other scope
-      for (var serviceName in this.services) {
-        var serviceClasses = this.services[serviceName];
-        if (!serviceClasses) continue;
-        for (var i = 0; i < serviceClasses.length; i++) {
-          var ServiceClass = serviceClasses[i];
-          if (!ServiceClass.scope || ServiceClass.scope === this.scopeName) {
-            initializeService(this, ServiceClass);
-          }
-        }
-      }
-      this._scopeInitialized = true;
-    }
-    return objectToScope;
-  };
-
-  /**
-   * @description
-   * Registers a service into the scope's registry, making it available for require and
-   * getServices. This will initialize the service if the scope is already initialized.
-   * @param {string} name The service name implemented by ServiceClass.
-   * @param {Function|object} ServiceClass The service constructor, or the static service object to register.
-   * @returns {object} The scope.
-   */
-  objectToScope.register = function(name, ServiceClass) {
-    if (!this.services[name]) {
-      this.services[name] = [ServiceClass];
-    }
-    else {
-      this.services[name].push(ServiceClass);
-    }
-    if (this._scopeInitialized) {
-      // Scope has already initialized its services, so any new one that gets added
-      // must also be initialized.
-      if (!ServiceClass.hasOwnProperty('scope') || ServiceClass.scope === objectToScope.scopeName) {
-        initializeService(objectToScope, ServiceClass);
-      }
-    }
-    return objectToScope;
-  };
-
-  /**
-   * @description
-   * Returns an instance of a service implementing the named contract passed as a parameter.
-   * If more than one service exists for that contract, one instance that
-   * has dependencies on any other service for that contract is returned. Do not
-   * count on any particular service being returned if that is the case among the ones
-   * that have the most dependencies.
-   * A new instance is returned every time the function is called, unless the service
-   * is static, or if it is a scope singleton.
-   *
-   * @param {String} service  The name of the contract for which a service instance is required.
-   * @param {object} options Options to pass into the service's constructor.
-   * @returns {object} An instance of the service, or null if it wasn't found.
-   */
-  objectToScope.require = function require(service, options) {
-    var services = this.services[service];
-    var ServiceClass = services && services.length > 0 ?
-      services[services.length - 1] : null;
-    if (!ServiceClass) return null;
-    if (ServiceClass.isScopeSingleton) {
-      return getSingleton(this, service, services.length - 1, options);
-    }
-    return construct(this, ServiceClass, options);
-  };
-
-  /**
-   * @description
-   * Returns a list of service instances that are implementing the named contract passed as a parameter.
-   * The services are returned in order of dependency: if service A has a dependency
-   * on service B, B is guaranteed to appear earlier in the list.
-   * New instances are returned every time the function is called.
-   *
-   * @param {String} service The name of the contract for which service instances are required.
-   * @param {object} options Options to pass into the services' constructors.
-   * @returns {Array} An array of instances of the service.
-   */
-  objectToScope.getServices = function getServices(service, options) {
-    var self = this;
-    if (!(service in self.services)) return [];
-    return self.services[service].map(function(ServiceClass, index) {
-      if (ServiceClass.isScopeSingleton) {
-        return getSingleton(self, service, index, options);
-      }
-      return construct(self, ServiceClass, options);
-    });
-  };
-
-  /**
-   * @description
-   * Calls a method on each registered service of the specified name,
-   * asynchronously.
-   * @param {string} service The name of the service.
-   * @param {string} method The name of the method.
-   * @param {object} options The parameter to pass to the method.
-   * @param {Function} done The function to call when all service methods have returned.
-   * @returns {object} The scope.
-   */
-  objectToScope.callService = function callService(service, method, options, done) {
-    async.eachSeries(
-      this.getServices(service),
-      function callMethod(service, next) {
-        if (service[method]) {
-          service[method](options, next);
-        }
-        else {
-          next();
-        }
-      },
-      done
-    );
-    return objectToScope;
-  };
-
-  /**
-   * @description
-   * Creates a lifecycle function that calls into all the
-   * service methods specified in an alternated list of
-   * service names, and method names as parameters.
-   * It is possible to replace service/method pairs with
-   * a function(options, done) that will be called as part
-   * of the lifecycle execution.
-   *
-   * For example:
-   *
-   *   scope.lifecycle(
-   *     'service1', 'methodA',
-   *     'service2', 'methodB',
-   *     function(options, done) {...},
-   *     'service3', 'methodC'
-   *   )
-   *
-   * returns a function that will call methodA on all instances
-   * of service1, then methodB on all instances of service2,
-   * then the function, then methodC on all instances of service3.
-   *
-   * @param {string} service The service name.
-   * @param {string} method The method name.
-   * @returns {Function} A function that takes an options object and a callback as a parameter.
-   */
-  objectToScope.lifecycle = function lifecycle(service, method) {
-    var methodArray = [];
-    for (var i = 0; i < arguments.length; i++) {
-      var serviceName = arguments[i];
-      if (typeof(serviceName) === 'function') {
-        methodArray.push(serviceName);
-        continue;
-      }
-      var services = this.getServices(serviceName);
-      var methodName = arguments[++i];
-      Array.prototype.push.apply(
-        methodArray,
-        services.map(function serviceToMethod(service) {
-          return service[methodName].bind(service);
-        })
-      );
-    }
-    return function lifecycle(options, done) {
-      async.applyEachSeries(methodArray, options, done);
-    };
-  };
-
-  /**
-   * @description
-   * Transforms an object into a sub-scope of this scope.
-   * @param {string} name The name of the scope.
-   * @param {object} subScope The object that must be made a scope.
-   * @returns {object} The newly scoped object.
-   */
-  objectToScope.makeSubScope = function(name, subScope) {
-    scope(name, subScope, objectToScope.services, objectToScope);
-    return subScope;
-  };
+  objectToScope.initialize = scope$initialize;
+  objectToScope.register = scope$register;
+  objectToScope.require = scope$require;
+  objectToScope.getServices = scope$getServices;
+  objectToScope.callService = scope$callService;
+  objectToScope.lifecycle = scope$lifecycle;
+  objectToScope.makeSubScope = scope$makeSubScope;
 
   objectToScope.instances = {};
   if (services) {
