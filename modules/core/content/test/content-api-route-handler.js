@@ -51,8 +51,8 @@ describe('Content API Route Handler', function() {
   middleware(app);
 
   var processedShapes = [
-    {foo: 'fou'},
-    {bar: 'barre'}
+    {foo: 'fou', meta: {name: 'foo'}},
+    {bar: 'barre', meta: {name: 'bar'}}
   ];
   var request = {
     require: function() {
@@ -134,7 +134,10 @@ describe('Content API Route Handler', function() {
     handler(request, response, function() {
       expect(fetchedId).to.equal('foo:bar/baz');
       expect(mimeType).to.equal('json');
-      expect(responseBody).to.deep.equal(processedShapes);
+      expect(responseBody).to.deep.equal({
+        foo: processedShapes[0],
+        bar: processedShapes[1]
+      });
       done();
     });
   });

@@ -22,7 +22,10 @@ var ContentApiRouteHandler = {
   register: function registerContentApiMiddleware(scope, context) {
     context.expressApp.register(ContentApiRouteHandler.routePriority, function bindContentMiddleware(app) {
       app.get('/api/src(/*)?', function contentSrcMiddleware(request, response, next) {
-        if (request.routed) {next();return;}
+        if (request.routed) {
+          next();
+          return;
+        }
         var id = request.path === '/api/src'
           ? '/' : require('querystring').unescape(request.path.substr(9));
         response.type('json');
@@ -60,7 +63,10 @@ var ContentApiRouteHandler = {
         }
       });
       app.get('/api/shapes(/*)?', function contentShapeMiddleware(request, response, next) {
-        if (request.routed) {next();return;}
+        if (request.routed) {
+          next();
+          return;
+        }
         var id = request.path === '/api/shapes'
           ? '/' : require('querystring').unescape(request.path.substr(12));
         response.type('json');
@@ -84,28 +90,34 @@ var ContentApiRouteHandler = {
                 temp: {item: item, shapes: []}
               };
               request.callService('shape-handler', 'handle', {
-                  scope: request,
-                  shape: shape
-                }, function renderShapeJson(err) {
-                  if (err) {
-                    response.status(500);
-                    response.json({error: err});
-                    next(err);
-                    return;
+                scope: request,
+                shape: shape
+              }, function renderShapeJson(err) {
+                if (err) {
+                  response.status(500);
+                  response.json({error: err});
+                  next(err);
+                  return;
+                }
+                // Remove the meta.item and temp.item from each shape before rendering,
+                // to avoid circular structures that JSON won't serialize, then copy all
+                // shapes to the result object.
+                var shapes = shape.temp.shapes;
+                var result = {};
+                shapes.forEach(function removeTempItem(shape) {
+                  delete shape.temp;
+                  if (shape.meta) {
+                    delete shape.meta.item;
+                    result[shape.meta.name] = shape;
                   }
-                  // Remove the meta.item and temp.item from each shape before rendering, to avoid circular structures that JSON won't serialize
-                  var shapes = shape.temp.shapes;
-                  shapes.forEach(function removeTempItem(shape) {
-                    if (shape.meta) delete shape.meta.item;
-                    delete shape.temp;
-                  });
-                  // Send the serialized list of shapes.
-                  response.json(shapes);
-
-                  request.routed = true;
-                  request.handled = true;
-                  next();
                 });
+                // Send the serialized list of shapes.
+                response.json(result);
+
+                request.routed = true;
+                request.handled = true;
+                next();
+              });
             }
             else {
               response.status(404);
