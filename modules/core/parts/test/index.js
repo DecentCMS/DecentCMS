@@ -101,7 +101,7 @@ describe('Title Part Handler', function() {
       var newShapes = context.shape.temp.shapes;
       expect(newShapes[0])
         .to.deep.equal({
-          meta: {type: 'title', item: item},
+          meta: {type: 'title', name: 'title', item: item},
           temp: {displayType: 'summary'},
           text: 'Foo'
         });

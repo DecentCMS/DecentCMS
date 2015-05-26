@@ -106,7 +106,7 @@ describe('Search part', function() {
           meta: {
             alternates: ["search-results-search", "search-results-idx", "search-results-search-idx"],
             item: context.shape,
-            name: "search",
+            name: "search-results",
             type: "search-results"
           },
           temp: {displayType: "main"},
@@ -116,7 +116,7 @@ describe('Search part', function() {
           where: 'entry.foo[0] === "t"',
           orderBy: "entry.foo",
           pageSize: 0,
-          result: [
+          results: [
             {id: 10, foo: 'ten'},
             {id: 3, foo: 'three'},
             {id: 2, foo: 'two'}
@@ -147,7 +147,7 @@ describe('Search part', function() {
     context.shape.temp.item = context.shape;
 
     SearchPart.handle(context, function() {
-      expect(context.shape.temp.shapes[0].result).to.equal(15);
+      expect(context.shape.temp.shapes[0].results).to.equal(15);
       done();
     });
   });
@@ -173,7 +173,7 @@ describe('Search part', function() {
     context.shape.temp.item = context.shape;
 
     SearchPart.handle(context, function() {
-      expect(context.shape.temp.shapes[0].result).to.deep.equal([
+      expect(context.shape.temp.shapes[0].results).to.deep.equal([
         {id: 9, foo: 'nine'},
         {id: 7, foo: 'seven'},
         {id: 6, foo: 'six'}
@@ -181,7 +181,7 @@ describe('Search part', function() {
       expect(context.shape.temp.shapes[1]).to.deep.equal({
         meta: {
           type: 'pagination',
-          name: 'search',
+          name: 'search-pagination',
           alternates: ['pagination-search', 'pagination-idx', 'pagination-search-idx'],
           item: context.shape
         },
@@ -221,7 +221,7 @@ describe('Search part', function() {
     context.shape.temp.item = context.shape;
 
     SearchPart.handle(context, function() {
-      expect(context.shape.temp.shapes[0].result).to.deep.equal([
+      expect(context.shape.temp.shapes[0].results).to.deep.equal([
         {id: 9, foo: 'nine'},
         {id: 1, foo: 'one'},
         {id: 7, foo: 'seven'}
@@ -229,7 +229,7 @@ describe('Search part', function() {
       expect(context.shape.temp.shapes[1]).to.deep.equal({
         meta: {
           type: 'pagination',
-          name: 'search',
+          name: 'search-pagination',
           alternates: ['pagination-search', 'pagination-idx', 'pagination-search-idx'],
           item: context.shape
         },

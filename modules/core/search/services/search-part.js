@@ -20,21 +20,21 @@ var SearchPart = {
    * The search to perform is specified on `context.temp.item.[part-name]`.
    *
    * The part has the following properties:
-   * 
-   * Type    | Property              | Description
-   * --------|-----------------------|-------------------------------------------------------------------------------------------------
-   * string  | indexName             | The name of the index to use or create.
-   * string  | [idFilter]            | A filter regular expression to apply to item ids before they are handed to the indexing process.
-   * string  | map                   | A mapping expression for the index. It can refer to the passed-in content item as `item`. It can evaluate as null, an object, or an array of objects.
-   * string  | orderBy               | An ordering expression for the index. It can refer to the passed-in index entry as `entry`. It can evaluate as an object, or an array.
-   * string  | [where]               | A where expression. It can refer to the index entry to filter as `entry`. It evaluates as a Boolean.
-   * string  | [reduce]              | The body of a reduce function. It can refer to the previous value as `val`, the index entry as `entry`, and the index of the entry as `i`. It returns the new value. The part will pass null as the first initial value, so the function should create what it needs if it sees null. If not specified, an array of index entries is the result.
-   * number  | [page]                | The 0-based page number to display. The default is 0. The page number will be overwritten with the value from the querystring if there is one.
-   * number  | [pageSize]            | The size of the page. If zero, all results are shown. The default value is 10.
-   * string  | [pageParameter]       | The name for the pagination parameter that will be added to the querystring on pagination. The default is 'p'. Using different page parameter names enables multiple search results to have independent pagination.
-   * Boolean | [displayPages]        | True if page numbers should be displayed in pagination.
-   * Boolean | [displayNextPrevious] | True if pagination should have next and previous buttons.
-   * Boolean | [displayFirstLast]    |True if buttons to go to the first and last pages should be displayed by pagination.
+   *
+   *  Property              | Type      | Description
+   * -----------------------|-----------|-------------------------------------------------------------------------------------------------
+   *  indexName             | `string`  | The name of the index to use or create.
+   *  [idFilter]            | `string`  | A filter regular expression to apply to item ids before they are handed to the indexing process.
+   *  map                   | `string`  | A mapping expression for the index. It can refer to the passed-in content item as `item`. It can evaluate as null, an object, or an array of objects.
+   *  orderBy               | `string`  | An ordering expression for the index. It can refer to the passed-in index entry as `entry`. It can evaluate as an object, or an array.
+   *  [where]               | `string`  | A where expression. It can refer to the index entry to filter as `entry`. It evaluates as a Boolean.
+   *  [reduce]              | `string`  | The body of a reduce function. It can refer to the previous value as `val`, the index entry as `entry`, and the index of the entry as `i`. It returns the new value. The part will pass null as the first initial value, so the function should create what it needs if it sees null. If not specified, an array of index entries is the result.
+   *  [page]                | `number`  | The 0-based page number to display. The default is 0. The page number will be overwritten with the value from the querystring if there is one.
+   *  [pageSize]            | `number`  | The size of the page. If zero, all results are shown. The default value is 10.
+   *  [pageParameter]       | `string`  | The name for the pagination parameter that will be added to the querystring on pagination. The default is 'p'. Using different page parameter names enables multiple search results to have independent pagination.
+   *  [displayPages]        | `Boolean` | True if page numbers should be displayed in pagination.
+   *  [displayNextPrevious] | `Boolean` | True if pagination should have next and previous buttons.
+   *  [displayFirstLast]    | `Boolean` | True if buttons to go to the first and last pages should be displayed by pagination.
    *
    * @param {object} context The context object.
    * @param {object} context.shape The shape to handle.
@@ -118,7 +118,7 @@ var SearchPart = {
           // Change the part into a proper shape
           searchPart.meta = {
             type: 'search-results',
-            name: partName,
+            name: partName + '-results',
             alternates: [
               'search-results-' + partName,
               'search-results-' + searchPart.indexName,
@@ -127,8 +127,8 @@ var SearchPart = {
             item: item
           };
           searchPart.temp = {displayType: temp.displayType};
-          // Set the reduced result
-          searchPart.result = reduced;
+          // Set the reduced results
+          searchPart.results = reduced;
           temp.shapes.push(searchPart);
           // If no pagination, because it's been configured that way,
           // or because there's a reduce function, we're done.
@@ -145,7 +145,7 @@ var SearchPart = {
             temp.shapes.push({
               meta: {
                 type: 'pagination',
-                name: partName,
+                name: partName + '-pagination',
                 alternates: [
                   'pagination-' + partName,
                   'pagination-' + searchPart.indexName,
