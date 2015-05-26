@@ -6897,7 +6897,7 @@ body {
   float: right;
   margin-top: 3px;
 }
-li {
+.breadcrumb li {
   text-transform: capitalize;
 }
 .main table {
