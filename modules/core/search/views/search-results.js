@@ -2,12 +2,12 @@
 'use strict';
 
 module.exports = function searchResultsTemplate(searchResultsPart, renderer, done) {
-  var result = searchResultsPart.result;
-  if (Array.isArray(result)) {
+  var results = searchResultsPart.results;
+  if (Array.isArray(results)) {
     renderer.startTag('ul', {
       'class': 'search-results search-results-' + searchResultsPart.meta.name
     });
-    searchResultsPart.result.forEach(function renderResultEntry(entry) {
+    searchResultsPart.results.forEach(function renderResultEntry(entry) {
       renderer.startTag('li');
       if (entry.url) {
         renderer.tag('a', {href: entry.url}, entry.title);
@@ -22,6 +22,6 @@ module.exports = function searchResultsTemplate(searchResultsPart, renderer, don
       .finally(done);
   }
   else {
-    renderer.write(result).finally(done);
+    renderer.write(results).finally(done);
   }
 };
