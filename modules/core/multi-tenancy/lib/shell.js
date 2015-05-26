@@ -10,8 +10,7 @@ var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 var path = require('path');
 var fs = require('fs');
-var async = require('async');
-var scope = require('decent-core-dependency-injection').scope;
+var scope = require('decent-injection');
 var NullServices = require('./null-services');
 
 /**

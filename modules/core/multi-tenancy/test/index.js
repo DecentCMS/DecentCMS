@@ -7,7 +7,7 @@ var EventEmitter = require('events').EventEmitter;
 var path = require('path');
 var IncomingMessage = require('http').IncomingMessage;
 var ServerResponse = require('http').ServerResponse;
-var scope = require('decent-core-dependency-injection').scope;
+var scope = require('decent-injection');
 
 var Shell = require('../lib/shell');
 
