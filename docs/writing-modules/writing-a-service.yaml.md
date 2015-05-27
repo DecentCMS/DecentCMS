@@ -68,10 +68,13 @@ The scope is especially important to define for services that must
 persist throughout the lifetime of their scope.
 For example, a service the instances of which must remain available
 for the duration of the request would have a declared scope of
-"request", and should be marked as scope singletons:
+"request", and should be a scope singletons (that's the default).
+If a service should not persist throughout the life of the scope, and
+should instead have a new instance created every time it's created,
+it should be marked `transient`:
 
 ```js
-MyService.isScopeSingleton = true;
+MyService.transient = true;
 ```
 
 This way, all code that requires that service during a given request

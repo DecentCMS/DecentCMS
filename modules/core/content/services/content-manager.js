@@ -12,7 +12,6 @@ function ContentManager(scope) {
 ContentManager.feature = 'content';
 ContentManager.service = 'content-manager';
 ContentManager.scope = 'shell';
-ContentManager.isScopeSingleton = true;
 
 /**
  * @description

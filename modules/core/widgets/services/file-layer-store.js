@@ -10,7 +10,6 @@ function FileLayerStore(scope) {
   this.scope = scope;
 }
 FileLayerStore.scope = 'shell';
-FileLayerStore.isScopeSingleton = true;
 FileLayerStore.service = 'layer-store';
 FileLayerStore.feature = 'file-layer-store';
 

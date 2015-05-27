@@ -121,6 +121,5 @@ function WinstonLogger(scope) {
 WinstonLogger.feature = 'winston-logger';
 WinstonLogger.service = 'log';
 WinstonLogger.scope = 'shell';
-WinstonLogger.isScopeSingleton = true;
 
 module.exports = WinstonLogger;

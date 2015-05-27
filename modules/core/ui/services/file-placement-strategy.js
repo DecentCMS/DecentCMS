@@ -112,7 +112,6 @@ function FilePlacementStrategy(scope) {
 }
 FilePlacementStrategy.service = 'placement-strategy';
 FilePlacementStrategy.scope = 'shell';
-FilePlacementStrategy.isScopeSingleton = true;
 FilePlacementStrategy.feature = 'file-placement-strategy';
 FilePlacementStrategy.dependencies = ['decent-core-io'];
 

@@ -12,7 +12,6 @@ function WidgetRouteHandler(scope) {
 }
 WidgetRouteHandler.service = 'route-handler';
 WidgetRouteHandler.feature = 'widgets';
-WidgetRouteHandler.isScopeSingleton = true;
 WidgetRouteHandler.scope = 'request';
 
 /**

@@ -309,6 +309,7 @@ describe('Shell', function() {
       var SomeClass = function(shell) {
         this.scope = shell;
       };
+      SomeClass.transient = true;
       var shell = scope('', new Shell(), {
         service: [SomeClass]
       });
@@ -327,7 +328,6 @@ describe('Shell', function() {
       var SomeClass = function(shell) {
         this.scope = shell;
       };
-      SomeClass.isScopeSingleton = true;
       SomeClass.scope = '';
       var shell = scope('', new Shell(), {
         service: [SomeClass]
@@ -345,7 +345,6 @@ describe('Shell', function() {
       var SomeClass = function(shell) {
         this.scope = shell;
       };
-      SomeClass.isScopeSingleton = true;
       SomeClass.scope = '';
       var shell1 = scope('', new Shell(), {service: [SomeClass]});
       var shell2 = scope('', new Shell(), {service: [SomeClass]});
@@ -486,6 +485,7 @@ describe('Shell', function() {
 
     it('will give a different instance of a service every time', function() {
       var ServiceClass1 = serviceClassFactory(1);
+      ServiceClass1.transient = true;
       var stubs = {};
       var resolvedPathToService = path.resolve('path/to/module1/lib/service1');
       stubs[resolvedPathToService] = ServiceClass1;

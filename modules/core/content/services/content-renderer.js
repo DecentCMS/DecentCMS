@@ -12,7 +12,6 @@ function ContentRenderer(scope) {
 ContentRenderer.feature = 'content';
 ContentRenderer.service = 'renderer';
 ContentRenderer.scope = 'request';
-ContentRenderer.isScopeSingleton = true;
 
 /**
  * @description

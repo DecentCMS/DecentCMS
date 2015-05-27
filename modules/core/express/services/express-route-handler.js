@@ -33,7 +33,6 @@ function ExpressRouteHandler(scope) {
 }
 ExpressRouteHandler.service = 'route-handler';
 ExpressRouteHandler.feature = 'express';
-ExpressRouteHandler.isScopeSingleton = true;
 ExpressRouteHandler.scope = 'shell';
 
 /**

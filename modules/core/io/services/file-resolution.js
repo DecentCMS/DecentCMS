@@ -44,7 +44,6 @@ function FileResolution(scope) {
 }
 FileResolution.feature = 'file-resolution';
 FileResolution.scope = 'shell';
-FileResolution.isScopeSingleton = true;
 
 /**
  * @description

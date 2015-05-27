@@ -22,7 +22,6 @@ function DefaultThemeSelector(scope) {
 DefaultThemeSelector.service = 'theme-selector';
 DefaultThemeSelector.feature = 'default-theme-selector';
 DefaultThemeSelector.scope = 'shell';
-DefaultThemeSelector.isScopeSingleton = true;
 
 /**
  * Looks at a theme's manifest and determines whether it should be active for the

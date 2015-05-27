@@ -16,6 +16,6 @@
     "proxyquire": "*"
   },
   "dependencies": {
-    "decent-injection": "^0.1.0"
+    "decent-injection": "^0.2.0"
   }
 }

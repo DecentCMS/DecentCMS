@@ -15,7 +15,6 @@ function FileNavigationProvider(scope) {
 }
 FileNavigationProvider.service = 'navigation-provider';
 FileNavigationProvider.feature = 'file-navigation-provider';
-FileNavigationProvider.isScopeSingleton = true;
 FileNavigationProvider.scope = 'shell';
 
 /**

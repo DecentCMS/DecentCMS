@@ -13,7 +13,6 @@ function ContentStorageManager(scope) {
 ContentStorageManager.feature = 'content';
 ContentStorageManager.service = 'storage-manager';
 ContentStorageManager.scope = 'request';
-ContentStorageManager.isScopeSingleton = true;
 
 /**
  * @description
