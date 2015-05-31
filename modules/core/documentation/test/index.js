@@ -713,8 +713,10 @@ describe('Documentation TOC part', function() {
     tocItem.temp.item = tocItem;
     scope.itemId = 'apidocs:module1/service1';
     tocPart.handle({
+      part: tocItem.toc,
+      partName: 'toc',
       scope: scope,
-      shape: tocItem
+      shapes: tocItem.temp.shapes
     }, function() {
       expect(tocItem.toc.topLevelTOC).to.deep.equal([
         {itemId: 'docs:', area: null, module: null, section: null, name: 'index', number: '0', title: 'Root', url: 'url:docs:'},
@@ -798,8 +800,10 @@ describe('Documentation TOC part', function() {
         delete scope.documentationTOC;
         tocItem.toc = {};
         tocPart.handle({
+          part: tocItem.toc,
+          partName: 'toc',
           scope: scope,
-          shape: tocItem
+          shapes: tocItem.temp.shapes
         }, function() {
           expect(tocItem.toc.topLevelTOC.map(getId)).to.deep.equal(topTOC);
           check(id);

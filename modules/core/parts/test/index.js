@@ -1,6 +1,7 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 var expect = require('chai').expect;
+var async = require('async');
 
 // TODO: be consistent about putting the item on temp, not meta.
 
@@ -28,31 +29,18 @@ describe('Text Part Handler', function() {
       tags: ['foo', 'bar']
     };
     var context = {
-      shape: {
-        meta: {
-          type: 'content'
-        },
-        temp: {
-          item: item,
-          displayType: 'summary',
-          shapes: []
-        }
-      },
-      scope: {
-        require: function require(service) {
-          if (service === 'content-manager') {
-            return {
-              getParts: function() {
-                return ['body', 'summary', 'other', 'disclaimer'];
-              }
-            };
-          }
-        }
-      }
+      shapes: [],
+      item: item,
+      displayType: 'summary',
+      scope: {}
     };
 
-    TextPart.handle(context, function() {
-      var newShapes = context.shape.temp.shapes;
+    async.eachSeries(['body', 'summary', 'disclaimer'], function(partName, next) {
+      context.partName = partName;
+      context.part = item[partName];
+      TextPart.handle(context, next);
+    }, function() {
+      var newShapes = context.shapes;
       expect(newShapes[0])
         .to.deep.equal({
           meta: {type: 'text', name: 'body', alternates: ['text-body'], item: item},
@@ -167,31 +155,18 @@ describe('URL Part Handler', function() {
       tags: ['foo', 'bar']
     };
     var context = {
-      shape: {
-        meta: {
-          type: 'content'
-        },
-        temp: {
-          item: item,
-          displayType: 'summary',
-          shapes: []
-        }
-      },
-      scope: {
-        require: function require(service) {
-          if (service === 'content-manager') {
-            return {
-              getParts: function() {
-                return ['permalink', 'license'];
-              }
-            };
-          }
-        }
-      }
+      shapes: [],
+      item: item,
+      displayType: 'summary',
+      scope: {}
     };
 
-    UrlPart.handle(context, function() {
-      var newShapes = context.shape.temp.shapes;
+    async.eachSeries(['permalink', 'license'], function(partName, next) {
+      context.partName = partName;
+      context.part = item[partName];
+      UrlPart.handle(context, next);
+    }, function() {
+      var newShapes = context.shapes;
       expect(newShapes[0])
         .to.deep.equal({
           meta: {type: 'url', name: 'permalink', alternates: ['url-permalink'], item: item},

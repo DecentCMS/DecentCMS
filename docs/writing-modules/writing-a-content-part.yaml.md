@@ -53,11 +53,15 @@ anything with it, nothing will change.
 The first bit of code we have to write is a shape handler service.
 When the content item gets added to the page, it's in the form of
 a "content" shape.
-DecentCMS will then make a call to all "shape-handler" services,
+DecentCMS will then make a call to all `shape-handler` services,
 that can then decide to handle properties of the content item and
 add its own shapes under the "content" shape.
-In the case of the tags part, we're going to base that decision on
-the type definition, only handling properties of type "tags".
+Shape handlers can decide to act on any shape, but most handlers act
+only on a specific type of part.
+There is an easier way to build this type of handler, that eliminates
+most of the boilerplate code that would otherwise be necessary.
+Instead of implementing a `shape-handler` service, we're going to
+implement a `tags-part-handler`.
 The following `tags-part.js` file should be placed under the
 `services` directory of your module.
 
@@ -69,41 +73,34 @@ The following `tags-part.js` file should be placed under the
  */
 var TagsPart = {
   feature: 'sample-tags',
-  service: 'shape-handler',
+  service: 'tags-part-handler',
   /**
-   * Adds a tags shape to `context.shape.temp.shapes` for each tags
-   * part on the content item.
+   * Adds a tags shape to `context.shapes` for the tags part on the context.
    * @param {object} context The context object.
-   * @param {object} context.shape
-   * The shape to handle. Its `temp.item` is a reference to the content item.
+   * @param {object} context.part The tags part to handle.
+   * @param {string} context.partName The name of the part.
+   * @param {string} context.displayType The display type.
+   * @param {object} context.item A reference to the content item.
+   * @param {Array} context.shapes The shapes array to which new shapes must be pushed.
    * @param {object} context.scope The scope.
    * @param {Function} done The callback.
    */
   handle: function handleTagsPart(context, done) {
-    var content = context.shape;
-    if (!content.meta
-      || content.meta.type !== 'content'
-      || !content.temp) return done();
-    var temp = content.temp;
-    var item = temp.item;
-    var scope = context.scope;
-    var contentManager = scope.require('content-manager');
-    var tagsParts = contentManager.getParts(item, 'tags');
-    for (var i = 0; i < tagsParts.length; i++) {
-      var partName = tagsParts[i];
-      var part = item[partName];
-      if (!part) continue;
-      temp.shapes.push({
-        meta: {
-          type: 'tags',
-          name: partName,
-          alternates: ['tags-' + partName],
-          item: item
-        },
-        temp: {displayType: temp.displayType},
-        tags: part || []
-      });
-    }
+    var shapes = context.shapes;
+    // No sense in doing anything if there isn't a shapes collection to output to.
+    if (!shapes) {done();return;}
+    // Push a new shape for this part.
+    var part = context.part;
+    shapes.push({
+      meta: {
+        type: 'tags',
+        name: context.partName,
+        alternates: ['tags-' + context.partName],
+        item: context.item
+      },
+      temp: {displayType: context.displayType},
+      tags: part || []
+    });
     done();
   }
 };
@@ -111,13 +108,12 @@ var TagsPart = {
 module.exports = TagsPart;
 ```
 
-The code first checks the type of the shape currently being handled.
-If it's not "content", it just calls `done`.
-If it is, it gets the content manager and asks it to find the list of
-parts of type "tags".
-It then loops over those, and adds a `tags` shape for each tags part.
-
-We're almost done: the handler creates shapes for each tags part, now
+The code first checks that there is a collection of shapes to add new
+ones to.
+If there isn't, it just calls `done`.
+Otherwise, it just pushes a new shape that has the part itself (which
+is just an array of strings) as its `tags` property.
+We're almost done: the handler created shapes for each tags part, now
 we need to place these parts, and render them.
 
 Default placement for the parts shape can be defined from the

@@ -82,30 +82,32 @@ describe('Search part', function() {
 
   var SearchPart = require('../services/search-part');
 
-  it("Can return a filtered list of entries", function(done) {
+  it("can return a filtered list of entries", function(done) {
+    var item = {
+      search: {
+        indexName: 'idx',
+        idFilter: 'exp',
+        map: '{foo: item.title, id: item.id}',
+        where: 'entry.foo[0] === "t"',
+        orderBy: 'entry.foo',
+        pageSize: 0
+      }
+    };
     var context = {
-      shape: {
-        meta: {type: 'content'},
-        temp: {shapes: [], displayType: 'main'},
-        search: {
-          indexName: 'idx',
-          idFilter: 'exp',
-          map: '{foo: item.title, id: item.id}',
-          where: 'entry.foo[0] === "t"',
-          orderBy: 'entry.foo',
-          pageSize: 0
-        }
-      },
+      shapes:[],
+      part: item.search,
+      partName: 'search',
+      item: item,
+      displayType: 'main',
       scope: scope
     };
-    context.shape.temp.item = context.shape;
 
     SearchPart.handle(context, function() {
-      expect(context.shape.temp.shapes).to.deep.equal([
+      expect(context.shapes).to.deep.equal([
         {
           meta: {
             alternates: ["search-results-search", "search-results-idx", "search-results-search-idx"],
-            item: context.shape,
+            item: item,
             name: "search-results",
             type: "search-results"
           },
@@ -127,63 +129,67 @@ describe('Search part', function() {
     });
   });
 
-  it("Can reduce the index", function(done) {
+  it("can reduce the index", function(done) {
+    var item = {
+      search: {
+        indexName: 'idx',
+        idFilter: 'exp',
+        map: '{id: item.id, foo: item.title}',
+        where: 'entry.foo[0] === "t"',
+        orderBy: 'entry.id',
+        reduce: 'return (val || 0) + entry.id;',
+        pageSize: 0
+      }
+    };
     var context = {
-      shape: {
-        meta: {type: 'content'},
-        temp: {shapes: [], displayType: 'main'},
-        search: {
-          indexName: 'idx',
-          idFilter: 'exp',
-          map: '{id: item.id, foo: item.title}',
-          where: 'entry.foo[0] === "t"',
-          orderBy: 'entry.id',
-          reduce: 'return (val || 0) + entry.id;',
-          pageSize: 0
-        }
-      },
+      shapes: [],
+      item: item,
+      part: item.search,
+      partName: 'search',
+      displayType: 'main',
       scope: scope
     };
-    context.shape.temp.item = context.shape;
 
     SearchPart.handle(context, function() {
-      expect(context.shape.temp.shapes[0].results).to.equal(15);
+      expect(context.shapes[0].results).to.equal(15);
       done();
     });
   });
 
-  it("Can paginate filtered results", function(done) {
+  it("can paginate filtered results", function(done) {
+    var item = {
+      search: {
+        indexName: 'idx',
+        idFilter: 'exp',
+        map: '{id: item.id, foo: item.title}',
+        where: 'entry.id > 2',
+        orderBy: 'entry.foo',
+        pageSize: 3,
+        page: 1,
+        displayPages: true
+      }
+    };
     var context = {
-      shape: {
-        meta: {type: 'content'},
-        temp: {shapes: [], displayType: 'main'},
-        search: {
-          indexName: 'idx',
-          idFilter: 'exp',
-          map: '{id: item.id, foo: item.title}',
-          where: 'entry.id > 2',
-          orderBy: 'entry.foo',
-          pageSize: 3,
-          page: 1,
-          displayPages: true
-        }
-      },
+      part: item.search,
+      partName: 'search',
+      item: item,
+      displayType: 'main',
+      shapes: [],
       scope: scope
     };
-    context.shape.temp.item = context.shape;
 
     SearchPart.handle(context, function() {
-      expect(context.shape.temp.shapes[0].results).to.deep.equal([
+      expect(context.shapes[0].results).to.deep.equal([
         {id: 9, foo: 'nine'},
         {id: 7, foo: 'seven'},
         {id: 6, foo: 'six'}
       ]);
-      expect(context.shape.temp.shapes[1]).to.deep.equal({
+      expect(context.shapes[1]).to.deep.equal({
         meta: {
           type: 'pagination',
           name: 'search-pagination',
           alternates: ['pagination-search', 'pagination-idx', 'pagination-search-idx'],
-          item: context.shape
+          item: item
         },
         temp: {displayType: 'main'},
         page: 1,
@@ -201,37 +207,39 @@ describe('Search part', function() {
     });
   });
 
-  it("Can paginate unfiltered results", function(done) {
+  it("can paginate unfiltered results", function(done) {
+    var item = {
+      search: {
+        indexName: 'idx',
+        idFilter: 'exp',
+        map: '{id: item.id, foo: item.title}',
+        orderBy: 'entry.foo',
+        pageSize: 3,
+        page: 1,
+        displayPages: true
+      }
+    };
     var context = {
-      shape: {
-        meta: {type: 'content'},
-        temp: {shapes: [], displayType: 'main'},
-        search: {
-          indexName: 'idx',
-          idFilter: 'exp',
-          map: '{id: item.id, foo: item.title}',
-          orderBy: 'entry.foo',
-          pageSize: 3,
-          page: 1,
-          displayPages: true
-        }
-      },
+      part: item.search,
+      partName: 'search',
+      item: item,
+      displayType: 'main',
+      shapes: [],
       scope: scope
     };
-    context.shape.temp.item = context.shape;
 
     SearchPart.handle(context, function() {
-      expect(context.shape.temp.shapes[0].results).to.deep.equal([
+      expect(context.shapes[0].results).to.deep.equal([
         {id: 9, foo: 'nine'},
         {id: 1, foo: 'one'},
         {id: 7, foo: 'seven'}
       ]);
-      expect(context.shape.temp.shapes[1]).to.deep.equal({
+      expect(context.shapes[1]).to.deep.equal({
         meta: {
           type: 'pagination',
           name: 'search-pagination',
           alternates: ['pagination-search', 'pagination-idx', 'pagination-search-idx'],
-          item: context.shape
+          item: item
         },
         temp: {displayType: 'main'},
         page: 1,

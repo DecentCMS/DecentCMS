@@ -7,46 +7,37 @@ var path = require('path');
  */
 var UrlPart = {
   feature: 'core-parts',
-  service: 'shape-handler',
+  service: 'url-part-handler',
   /**
-   * Adds a url shape to `context.shape.temp.shapes` for each part of type 'url'.
+   * Adds a url shape to `context.shapes` for the URL part on the context.
    * @param {object} context The context object.
-   * @param {object} context.shape The shape to handle. It has a `url` and an optional `text` property.
+   * @param {object} context.part The text part to handle.
+   * @param {string} context.partName The name of the part.
+   * @param {string} context.displayType The display type.
+   * @param {object} context.item A reference to the content item.
+   * @param {Array} context.shapes The shapes array to which new shapes must be pushed.
    * @param {object} context.scope The scope.
    * @param {Function} done The callback.
    */
   handle: function handleUrlPart(context, done) {
-    var content = context.shape;
-    if (!content.meta
-      || content.meta.type !== 'content'
-      || !content.temp) return done();
-    var temp = content.temp;
-    var item = temp.item;
-    var scope = context.scope;
-    var contentManager = scope.require('content-manager');
-    var urlParts = contentManager.getParts(item, 'url');
-    for (var i = 0; i < urlParts.length; i++) {
-      var partName = urlParts[i];
-      var part = item[partName];
-      if (!part) continue;
-      var url = typeof(part) === 'string'
-        ? part
-        : part.url;
-      var text = part.text || url;
-      if (temp.shapes) {
-        temp.shapes.push({
-          meta: {
-            type: 'url',
-            name: partName,
-            alternates: ['url-' + partName],
-            item: item
-          },
-          temp: {displayType: temp.displayType},
-          text: text,
-          url: url
-        });
-      }
-    }
+    var shapes = context.shapes;
+    if (!shapes) {done();return;}
+    var part = context.part;
+    var url = typeof(part) === 'string'
+      ? part
+      : part.url;
+    var text = part.text || url;
+    shapes.push({
+      meta: {
+        type: 'url',
+        name: context.partName,
+        alternates: ['url-' + context.partName],
+        item: context.item
+      },
+      temp: {displayType: context.displayType},
+      text: text,
+      url: url
+    });
     done();
   }
 };

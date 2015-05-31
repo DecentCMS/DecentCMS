@@ -15,7 +15,7 @@
   "license": "MIT",
   "main": "server.js",
   "engines": {
-    "node": ">=0.10.x"
+    "node": ">=0.12.x"
   },
   "author": {
     "name": "Bertrand Le Roy",
