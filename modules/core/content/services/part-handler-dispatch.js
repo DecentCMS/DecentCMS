@@ -4,15 +4,25 @@
 var async = require('async');
 
 /**
- * This part handler dispatches calls to part handlers.
+ * This part handler dispatch handler calls part handlers.
+ * The part handlers must implement a service name of the form
+ * `[part-type]-part-handler`.
+ * Part handlers take a context object and a callback function.
+ * 
+ * Param       | Type   | Description
+ * ------------|--------|------------------------------------------------------------------
+ * part        | *      | The part to handle.
+ * partName    | string | The name of the part.
+ * displayType | string | The display type.
+ * item        | object | The content item that the part is a part of.
+ * shapes      | Array  | The array of shapes that the part handler can push new shapes to.
+ * scope       | object | The scope.
  */
-var ShapePart = {
+var PartHandlerDispatch = {
   feature: 'content',
   service: 'shape-handler',
   /**
-   * Calls part handlers for each part on content shapes.
-   * The part handlers must have a service name of the form
-   * `[part-type]-part-handler.
+   * Calls part handlers for each part on `context.content.shape`.
    * @param {object} context The context object.
    * @param {object} context.shape The shape to handle. It has the content item for which the parts will be dispatched on its `temp.item`.
    * @param {object} context.scope The scope.
@@ -50,4 +60,4 @@ var ShapePart = {
   }
 };
 
-module.exports = ShapePart;
+module.exports = PartHandlerDispatch;
