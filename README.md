@@ -56,9 +56,16 @@ and contributor feedback.
 
 Near future milestones are:
 
+* Flattening module dependencies to reduce startup time, disk, and memory footprints
+* Extraction of multi-tenancy code as a standalone library
 * Workflows
 * Authentication and basic dashboard infrastructure
 * All features manageable through dashboard
+
+Longer-term milestones:
+
+* Move from Grunt to Gulp
+* Move to EcmaScript 6 (not before stable Node support)
 
 Past milestones:
 
