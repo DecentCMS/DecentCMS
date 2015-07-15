@@ -23,12 +23,13 @@ The following features are implemented:
 * Themes
 * Multi-tenancy
 * Navigation menus
-* Querying
+* Querying (file-based index provider)
 * Content type system
 * Widgets
 * Documentation
 * Express compatibility
 * File-based content store
+* CouchDB content store
 * Markdown
 * Template overloading
 * Code-based asynchronous view engine
@@ -40,7 +41,7 @@ The following features are implemented:
 
 Future features include:
 
-* Document database as the content store
+* CouchDB index provider
 * Localization implementation
 * Dashboard
 * Workflows
