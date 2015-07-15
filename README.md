@@ -4,8 +4,6 @@ Its design principles are inherited from Drupal and Orchard CMS.
 State
 -----
 
-[![Join the chat at https://gitter.im/DecentCMS/DecentCMS](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/DecentCMS/DecentCMS?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 The current state of DecentCMS is: naked.
 
 The system can handle very simple sites, in a runtime-only fashion.
@@ -96,3 +94,5 @@ The source code for DecentCMS is hosted on Github:
 
 The web site for the project can be found here:
 <http://decentcms.org>
+
+[![Join the chat at https://gitter.im/DecentCMS/DecentCMS](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/DecentCMS/DecentCMS?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
