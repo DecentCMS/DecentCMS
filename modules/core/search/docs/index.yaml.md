@@ -200,7 +200,7 @@ as such should be used as much as possible.
 
 The mapping expression copies the title and URL of the item into
 index entries.
-The search part doesn't require that you write entire function like
+The search part doesn't require that you write the entire function like
 the API does.
 Instead, a simple expression can be used, that will be wrapped into a
 function automatically.
