@@ -44,16 +44,16 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "devDependencies": {
-    "chai": "*",
-    "grunt-mocha-test": "*",
-    "mocha": "*",
-    "proxyquire": "*"
+    "chai": "^4.1.2",
+    "grunt-mocha-test": "^0.13.3",
+    "mocha": "^5.2.0",
+    "proxyquire": "^2.1.0"
   },
   "dependencies": {
-    "async": "*",
-    "dustjs-helpers": "*",
-    "dustjs-linkedin": "*",
-    "flasync": "*",
-    "htmlencode": "*"
+    "async": "^2.6.1",
+    "dustjs-helpers": "^1.7.4",
+    "dustjs-linkedin": "^2.7.5",
+    "flasync": "^0.2.3",
+    "htmlencode": "0.0.4"
   }
 }

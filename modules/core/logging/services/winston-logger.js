@@ -10,6 +10,7 @@
  */
 function WinstonLogger(scope) {
   var winston = require('winston');
+  require('winston-daily-rotate-file');
 
   var self = this;
   self.scope = scope;
@@ -29,8 +30,8 @@ function WinstonLogger(scope) {
       delete settings[transportName];
     }
   }
-  settings.transports = transports;
-  var logger = self.logger = new (winston.Logger)(settings);
+  settings.transports = self.transports = transports;
+  var logger = self.logger = winston.createLogger(settings);
 
   /**
    * Logs a message at the verbose level.
@@ -99,11 +100,9 @@ function WinstonLogger(scope) {
    * @param {string} msg The message.
    * @param {object} [meta]
    * An object to dump along with the message in order to give more information.
-   * @param {Function} [callback] An optional callback.
    */
-  this.log = function(level, msg, meta, callback) {
-    arguments[1] = t(msg);
-    logger[level].apply(logger, arguments);
+  this.log = function(level, msg, meta) {
+    logger.log(level, t(msg), meta);
   };
 
   /**

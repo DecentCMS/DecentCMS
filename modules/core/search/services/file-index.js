@@ -35,7 +35,8 @@ function FileIndex(scope, idFilter, map, orderBy, name) {
   }
   var thatIndexPath = this.indexPath = path.join(indexPath, this.name) + '.json';
   if (fs.existsSync(thatIndexPath)) {
-    this._index = require(thatIndexPath);
+    var indexContents = fs.readFileSync(thatIndexPath);
+    this._index = JSON.parse(indexContents);
   }
 }
 

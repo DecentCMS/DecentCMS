@@ -33,9 +33,9 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "devDependencies": {
-    "chai": "*",
-    "grunt-mocha-test": "*",
-    "mocha": "*",
-    "proxyquire": "*"
+    "chai": "^4.1.2",
+    "grunt-mocha-test": "^0.13.3",
+    "mocha": "^5.2.0",
+    "proxyquire": "^2.1.0"
   }
 }

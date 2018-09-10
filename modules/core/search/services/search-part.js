@@ -28,7 +28,7 @@ var SearchPart = {
    *  map                   | `string`  | A mapping expression for the index. It can refer to the passed-in content item as `item`. It can evaluate as null, an object, or an array of objects.
    *  orderBy               | `string`  | An ordering expression for the index. It can refer to the passed-in index entry as `entry`. It can evaluate as an object, or an array.
    *  [where]               | `string`  | A where expression. It can refer to the index entry to filter as `entry`. It evaluates as a Boolean.
-   *  [reduce]              | `string`  | The body of a reduce function. It can refer to the previous value as `val`, the index entry as `entry`, and the index of the entry as `i`. It returns the new value. The part will pass null as the first initial value, so the function should create what it needs if it sees null. If not specified, an array of index entries is the result.
+   *  [reduce]              | `string`  | A reduce expression. It can refer to the previous value as `val`, the index entry as `entry`, and the index of the entry as `i`. It evaluates as the new value. The part will pass null as the first initial value, so the function should create what it needs if it sees null. If not specified, an array of index entries is the result.
    *  [page]                | `number`  | The 0-based page number to display. The default is 0. The page number will be overwritten with the value from the querystring if there is one.
    *  [pageSize]            | `number`  | The size of the page. If zero, all results are shown. The default value is 10.
    *  [pageParameter]       | `string`  | The name for the pagination parameter that will be added to the querystring on pagination. The default is 'p'. Using different page parameter names enables multiple search results to have independent pagination.
@@ -162,7 +162,7 @@ var SearchPart = {
     // Prepare the AST for the reduce function.
     var reduce = null;
     if (searchPart.reduce) {
-      var reduceSource = '(function(val, entry, i){' + searchPart.reduce + '})(val, entry, i)';
+      var reduceSource = searchPart.reduce;
       var reduceAst = searchAstCache[reduceSource] || (searchAstCache[reduceSource] = parse(reduceSource).body[0].expression);
       // The reduce function doesn't handle pagination.
       reduce = function reduce(val, entry, i) {

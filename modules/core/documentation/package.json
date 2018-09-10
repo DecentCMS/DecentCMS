@@ -24,13 +24,13 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "dependencies": {
-    "async": "*",
-    "jsdoc-to-markdown": "*"
+    "async": "^2.6.1",
+    "jsdoc-to-markdown": "^4.0.1"
   },
   "devDependencies": {
-    "chai": "*",
-    "grunt-mocha-test": "*",
-    "mocha": "*",
-    "proxyquire": "*"
+    "chai": "^4.1.2",
+    "grunt-mocha-test": "^0.13.3",
+    "mocha": "^5.2.0",
+    "proxyquire": "^2.1.0"
   }
 }

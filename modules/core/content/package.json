@@ -22,16 +22,16 @@
     "test": "./test/index"
   },
   "devDependencies": {
-    "async": "*",
-    "chai": "*",
-    "grunt": "*",
-    "grunt-mocha-test": "*",
-    "proxyquire": "*"
+    "async": "^2.6.1",
+    "chai": "^4.1.2",
+    "grunt": "^1.0.3",
+    "grunt-mocha-test": "^0.13.3",
+    "proxyquire": "^2.1.0"
   },
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "dependencies": {
-    "snippable": "*",
-    "yamljs": "*"
+    "snippable": "^0.1.1",
+    "yamljs": "^0.3.0"
   }
 }

@@ -28,15 +28,15 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "dependencies": {
-    "async": "*",
-    "esprima": "^2.2.0",
-    "lunr": "*",
-    "static-eval": "^0.2.4"
+    "async": "^2.6.1",
+    "esprima": "^4.0.1",
+    "lunr": "^2.3.3",
+    "static-eval": "^2.0.0"
   },
   "devDependencies": {
-    "chai": "*",
-    "grunt-mocha-test": "*",
-    "mocha": "*",
-    "proxyquire": "*"
+    "chai": "^4.1.2",
+    "grunt-mocha-test": "^0.13.3",
+    "mocha": "^5.2.0",
+    "proxyquire": "^2.1.0"
   }
 }

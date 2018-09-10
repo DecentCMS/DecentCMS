@@ -63,6 +63,7 @@ describe('File Index', function() {
     existsSync: function() {return indexExists;},
     mkdirSync: function(path) {newDir = path;},
     writeFileSync: function(path, data) {newFiles[path] = data;},
+    readFileSync: function(path) {return newFiles[path] || JSON.stringify(stubs[path]);},
     '@noCallThru': true
   };
   var stubs = {

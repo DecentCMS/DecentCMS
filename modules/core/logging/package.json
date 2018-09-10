@@ -7,7 +7,9 @@
     "winston-logger": {
       "name": "Winston Logger",
       "description": "Integration of Winston logger.",
-      "dependencies": ["localization"]
+      "dependencies": [
+        "localization"
+      ]
     }
   },
   "main": "./index",
@@ -17,11 +19,13 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "dependencies": {
-    "winston": "*"
+    "winston": "^3.1.0",
+    "winston-transport": "^4.2.0",
+    "winston-daily-rotate-file": "^3.3.2"
   },
   "devDependencies": {
-    "mocha": "*",
-    "chai": "*",
-    "grunt-mocha-test": "*"
+    "chai": "^4.1.2",
+    "grunt-mocha-test": "^0.13.3",
+    "mocha": "^5.2.0"
   }
 }

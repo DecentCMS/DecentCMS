@@ -137,7 +137,7 @@ describe('Search part', function() {
         map: '{id: item.id, foo: item.title}',
         where: 'entry.foo[0] === "t"',
         orderBy: 'entry.id',
-        reduce: 'return (val || 0) + entry.id;',
+        reduce: '(val || 0) + entry.id',
         pageSize: 0
       }
     };

@@ -24,9 +24,9 @@
     "test": "./test/index"
   },
   "devDependencies": {
-    "chai": "^2.3.0",
-    "grunt-mocha-test": "^0.12.7",
-    "mocha": "^2.2.4",
-    "proxyquire": "^1.4.0"
+    "chai": "^4.1.2",
+    "grunt-mocha-test": "^0.13.3",
+    "mocha": "^5.2.0",
+    "proxyquire": "^2.1.0"
   }
 }

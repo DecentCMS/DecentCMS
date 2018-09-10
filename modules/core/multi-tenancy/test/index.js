@@ -90,11 +90,9 @@ describe('Shell', function() {
     });
 
     it('can be discovered from the /sites folder', function() {
-      var dir;
       var stubs = {
         fs: {
           readdirSync: function(dirPath) {
-            dir = dirPath;
             return ['site1', 'site2'];
           }
         }
@@ -110,10 +108,8 @@ describe('Shell', function() {
       var PhoniedShell = proxyquire('../lib/shell', stubs);
       PhoniedShell.discover();
 
-      expect(PhoniedShell.list)
-        .to.have.deep.property('site1.name', 'Site 1');
-      expect(PhoniedShell.list)
-        .to.have.deep.property('site2.name', 'Site 2');
+      expect(PhoniedShell.list.site1.name).to.equal('Site 1');
+      expect(PhoniedShell.list.site2.name).to.equal('Site 2');
     });
 
     it('is resolved by a host match on port 80', function() {
