@@ -8,10 +8,12 @@ var async = require('async');
 var TextPart = require('../services/text-part');
 var TitlePart = require('../services/title-part');
 var UrlPart = require('../services/url-part');
+var DatePart = require('../services/date-part');
 var ShapePart = require('../services/shape-part');
 var TextView = require('../views/text');
 var TitleView = require('../views/title');
 var UrlView = require('../views/url');
+var DateView = require('../views/date');
 
 describe('Text Part Handler', function() {
   it('adds shapes for each text part', function(done) {
@@ -180,6 +182,52 @@ describe('URL Part Handler', function() {
           temp: {displayType: 'summary'},
           text: 'http://opensource.org/licenses/MIT',
           url: 'http://opensource.org/licenses/MIT'
+        });
+      done();
+    });
+  });
+});
+
+describe('Date Part Handler', function() {
+  it('adds shapes for each date part', function(done) {
+    var item = {
+      title: 'Foo',
+      created: "May 21, 1970",
+      lastModified: new Date(Date.UTC(2018, 9, 6)),
+      body: {
+        src: 'body.md',
+        text: 'Lorem ipsum'
+      },
+      tags: ['foo', 'bar']
+    };
+    var context = {
+      shapes: [],
+      item: item,
+      displayType: 'summary',
+      scope: {}
+    };
+
+    async.eachSeries(['created', 'lastModified'], function(partName, next) {
+      context.partName = partName;
+      context.part = item[partName];
+      DatePart.handle(context, next);
+    }, function() {
+      var newShapes = context.shapes;
+      expect(newShapes[0])
+        .to.deep.equal({
+          date: new Date(1970, 4, 21),
+          locale: 'en-US',
+          meta: {type: 'date', name: 'created', alternates: ['date-created'], item: item},
+          temp: {displayType: 'summary'},
+          options: {}
+        });
+      expect(newShapes[1])
+        .to.deep.equal({
+          date: new Date(Date.UTC(2018, 9, 6)),
+          locale: 'en-US',
+          meta: {type: 'date', name: 'lastModified', alternates: ['date-lastModified'], item: item},
+          temp: {displayType: 'summary'},
+          options: {}
         });
       done();
     });
@@ -374,6 +422,36 @@ describe('URL Part View', function() {
   it('renders a link', function(done) {
     UrlView({text: text, url: url}, renderer, function() {
       expect(html).to.equal('<a href="http://decentcms.org">Lorem ipsum</a>');
+      done();
+    });
+  });
+});
+
+describe('Date Part View', function() {
+  var text = 'Lorem ipsum';
+  var date = new Date(1970, 4, 21);
+  var html = '';
+  var renderer = {
+    tag: function tag(tagName, attributes, content) {
+      html += '<' + tagName;
+      Object.getOwnPropertyNames(attributes).forEach(function(attributeName) {
+        html += ' ' + attributeName + '="' + attributes[attributeName] + '"';
+      });
+      html += '>' + content + '</' + tagName + '>';
+      return renderer;
+    },
+    finally: function final(callback) {
+      callback();
+    }
+  };
+
+  beforeEach(function() {
+    html = '';
+  });
+
+  it('renders a time', function(done) {
+    DateView({text: text, date: date, locale: 'en-US'}, renderer, function() {
+      expect(html).to.equal('<time datetime="Thu May 21 1970 00:00:00 GMT-0700 (PDT)">5/21/1970, 12:00:00 AM</time>');
       done();
     });
   });
