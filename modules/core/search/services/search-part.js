@@ -64,7 +64,7 @@ var SearchPart = {
     var partName = context.partName;
     
     // Prepare an AST for the mapping and order by functions.
-    var mapSource = '(' + searchPart.map + ')';
+    var mapSource = '(' + (searchPart.map || '{}') + ')';
     var mapAst = searchAstCache[mapSource] || (searchAstCache[mapSource] = parse(mapSource).body[0].expression);
     var orderBySource = '(' + searchPart.orderBy + ')';
     var orderByAst = searchAstCache[orderBySource] || (searchAstCache[orderBySource] = parse(orderBySource).body[0].expression);
