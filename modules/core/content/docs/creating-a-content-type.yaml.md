@@ -61,5 +61,5 @@ The content manager also has a helper method for getting the names of
 all the parts of a given type:
 
 ```js
-var textPartNames = cm.getParts(someItem, 'text');
+var textPartNames = cm.getPartNames(someItem, 'text');
 ```

@@ -29,9 +29,8 @@ var ShapePart = {
     var shapeHelper = scope.require('shape');
     var contentManager = scope.require('content-manager');
     var type = contentManager.getType(item);
-    Object.getOwnPropertyNames(item).forEach(function(partName) {
-      if (partName === 'meta' || partName === 'temp') return;
-      var part = item[partName];
+    var parts = contentManager.getParts(item);
+    parts.forEach(function (part) {
       if (!part) return;
       var shapeName = (part.meta ? part.meta.shape : null)
         || (type && type.parts[partName] ? type.parts[partName].shape : null)

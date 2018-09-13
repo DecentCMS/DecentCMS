@@ -141,7 +141,7 @@ var scope = {
         };
       case 'content-manager':
         return {
-          getParts: function() {
+          getPartNames: function() {
             return ['toc'];
           }
         };

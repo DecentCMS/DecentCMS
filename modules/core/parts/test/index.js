@@ -273,7 +273,7 @@ describe('Shape Part Handler', function() {
           switch (service) {
             case 'content-manager':
               return {
-                getParts: function() {
+                getPartNames: function() {
                   return ['inline-shape1', 'body', 'shape-from-type'];
                 },
                 getType: function() {
