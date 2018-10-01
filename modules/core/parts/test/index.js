@@ -274,7 +274,7 @@ describe('Shape Part Handler', function() {
             case 'content-manager':
               return {
                 getPartNames: function() {
-                  return ['inline-shape1', 'body', 'shape-from-type'];
+                  return ['inline-shape1', 'inline-shape2', 'body', 'shape-from-type', 'tags'];
                 },
                 getType: function() {
                   return {
