@@ -87,38 +87,28 @@ var jsDocContentFileParser = {
       source = repositoryResolver.resolve(filePath, 'display');
     }
 
-    // Make a readable stream out of the contents of the file.
-    var stringStream = new Readable();
-    stringStream.push(context.data);
-    stringStream.push(null);
-
-    // Prepare a stream to receive the markdown output.
-    var resultStream = new PassThrough();
-    var md = [];
-    resultStream.on('data', function(data) {md.push(data);});
-    resultStream.on('end', function() {
-      // Build the content item.
-      var service = require(filePath);
-      context.item = {
-        meta: {
-          type: "api-documentation"
-        },
-        title: title,
-        scope: service.scope,
-        service: service.service,
-        feature: service.feature,
-        path: path.resolve(filePath).substr(root.length).replace(/\\/g, '/'),
-        source: source,
-        body: {
-          flavor: 'markdown',
-          text: md.join()
-        }
-      };
-      // Cache it
-      fs.writeFile(cacheFile, JSON.stringify(context.item, 0), nextStore);
-    });
-    // Then push that stream into the JsDoc parser
-    stringStream.pipe(jsdoc2md.render()).pipe(resultStream);
+    jsdoc2md.render({source: context.data})
+      .then(function(md) {
+        // Build the content item.
+        var service = require(filePath);
+        context.item = {
+          meta: {
+            type: "api-documentation"
+          },
+          title: title,
+          scope: service.scope,
+          service: service.service,
+          feature: service.feature,
+          path: path.resolve(filePath).substr(root.length).replace(/\\/g, '/'),
+          source: source,
+          body: {
+            flavor: 'markdown',
+            text: md
+          }
+        };
+        // Cache it
+        fs.writeFile(cacheFile, JSON.stringify(context.item, 0), nextStore);
+      });
   }
 };
 
