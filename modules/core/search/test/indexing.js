@@ -135,11 +135,15 @@ describe('File Index', function() {
           }
         };
       }
+    },
+    'part-loader': {
+      load: function(context) {}
     }
   };
   var scope = {
     require: function(service) {return services[service];},
-    getServices: function(service) {return [services[service]];}
+    getServices: function(service) {return [services[service]];},
+    callService: function(service, method, context, callback) {services[service][method](context);callback();}
   };
   var indexFactory = new FileIndexFactory(scope);
 

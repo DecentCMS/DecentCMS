@@ -362,8 +362,11 @@ Shell.prototype.handleRequest = function(request, response, next) {
   self.emit(Shell.startRequestEvent, context);
 
   var lifecycle = request.lifecycle(
+    // Handle the route
     'route-handler', 'handle',
+    // Fetch relevant contents from storage
     'storage-manager', 'fetchContent',
+    // Render the page
     'renderer', 'render'
   );
   lifecycle(context, function lifecycleDone(err) {

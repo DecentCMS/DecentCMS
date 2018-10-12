@@ -33,7 +33,6 @@ var fileContentStore = {
 
     var scope = context.scope;
     var shapeHelper = scope.require('shape');
-    var shell = scope.require('shell');
     var log = scope.require('log');
 
     var items = context.items = context.items || {};

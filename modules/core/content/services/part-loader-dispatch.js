@@ -33,13 +33,12 @@ var PartLoaderDispatch = {
     var item = context.item;
     var scope = context.scope;
     var contentManager = scope.require('content-manager');
-    var type = contentManager.getType(item);
-    var parts = contentManager.getParts(item);
-    async.each(parts, function (part, next) {
-      var partType = contentManager.getPartType(part, type);
+    var partNames = contentManager.getPartNames(item);
+    async.each(partNames, function (partName, next) {
+      var partType = contentManager.getPartType(item, partName);
       if (!partType) {next(); return;}
       scope.callService(partType + '-part-loader', 'load', {
-        part: part,
+        part: item[partName],
         partName: partName,
         item: item,
         scope: scope
