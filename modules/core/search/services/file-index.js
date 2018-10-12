@@ -10,10 +10,11 @@ var async = require('async');
  * @param {RegExp} [idFilter] A regular expression that validates content item ids before they are read and indexed.
  * @param {Function} map The map function takes a content item and returns an array of index entries, a single index entry, or null. An index entry should have an id property. The index will automatically add an `itemId` property set to be the id of the item that was used to build the index entries.
  * @param {Function} [orderBy] The function that defines the order on which the index entry should be sorted. The sort order can be a simple string, date, number, or it can be an array, in which case the items in the array will be used one after the other. It takes an index entry, and returns the sort order.
+ * @param {boolean} [descending] True reverses the order.
  * @param {string} [name] A name for the index. If not provided, one will be built from the other parameters.
  * @constructor
  */
-function FileIndex(scope, idFilter, map, orderBy, name) {
+function FileIndex(scope, idFilter, map, orderBy, descending, name) {
   if (typeof(idFilter) === 'function') {
     orderBy = map;
     map = idFilter;
@@ -23,6 +24,7 @@ function FileIndex(scope, idFilter, map, orderBy, name) {
   this.idFilter = idFilter;
   this.map = map;
   this.orderBy = orderBy;
+  this.descending = !!descending;
   this.name = name || FileIndex._toName(map, orderBy);
   this._unsortedIndex = null;
   this._index = null;
@@ -128,10 +130,10 @@ FileIndex.prototype._compare = function compare(a, b) {
   for (var i = 0; i < a.length && i < b.length; i++) {
     var ai = a[i];
     var bi = b[i];
-    if ((!ai && bi) || ai < bi) return -1;
-    if ((!bi && ai) || bi < ai) return 1;
+    if ((!ai && bi) || ai < bi) return this.descending ? 1 : -1;
+    if ((!bi && ai) || bi < ai) return this.descending ? -1 : 1;
   }
-  return a.length - b.length;
+  return this.descending ? b.length - a.length : a.length - b.length;
 };
 
 /**
@@ -193,10 +195,15 @@ FileIndex.prototype.build = function build() {
         return;
       }
       if (item) {
-        log.info('Indexing item', {item: item.id});
-        var indexEntries = self.map(item);
-        self._addToIndex(unsortedIndex, indexEntries, item.id);
-        iterate(iterator);
+        self.scope.callService('part-loader', 'load', {
+          scope: self.scope,
+          item: item
+        }, function() {
+          log.info('Indexing item', {item: item.id});
+          var indexEntries = self.map(item);
+          self._addToIndex(unsortedIndex, indexEntries, item.id);
+          iterate(iterator);
+        });
       }
       else {
         next();
@@ -324,13 +331,14 @@ FileIndexFactory.scope = 'shell';
  * @param {RegExp} [idFilter] A regular expression that validates content item ids before they are read and indexed.
  * @param {Function} map The map function. It takes a content item and returns null, an index entry, or an array of index entries.
  * @param {Function} [orderBy] The function that defines the order on which the index entries should be sorted. It takes an index entry, and returns the sort order. The sort order can be a simple string, date, number, or it can be an array, in which case the items in the array will be used one after the other. It is recommended to name the order function.
+ * @param {boolean} [descending] True to reverse order.
  * @param {string} [name] A unique name for the index. If it's not provided, one will be generated from the source code of the filter, map, and orderBy parameters.
  * @returns {object} The index object.
  */
-FileIndexFactory.prototype.getIndex = function getIndex(idFilter, map, orderBy, name) {
+FileIndexFactory.prototype.getIndex = function getIndex(idFilter, map, orderBy, descending, name) {
   name = name || FileIndex._toName(idFilter, map, orderBy);
   if (this.indexes[name]) return this.indexes[name];
-  var index = this.indexes[name] = new FileIndex(this.scope, idFilter, map, orderBy, name);
+  var index = this.indexes[name] = new FileIndex(this.scope, idFilter, map, orderBy, descending, name);
   if (!index._index && !index._unsortedIndex) {
     process.nextTick(index.build.bind(index));
   }
