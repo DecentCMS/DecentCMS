@@ -69,7 +69,7 @@
  *
  *     {@metas/}
  */
-var CodeViewEngine = function CodeViewEngine(scope) {
+var DustViewEngine = function DustViewEngine(scope) {
   this.scope = scope;
 
   var RenderStream = require('./render-stream');
@@ -278,9 +278,9 @@ var CodeViewEngine = function CodeViewEngine(scope) {
     });
   };
 };
-CodeViewEngine.service = 'view-engine';
-CodeViewEngine.feature = 'dust-view-engine';
-CodeViewEngine.scope = 'shell';
-CodeViewEngine.prototype.extension = 'tl';
+DustViewEngine.service = 'view-engine';
+DustViewEngine.feature = 'dust-view-engine';
+DustViewEngine.scope = 'shell';
+DustViewEngine.prototype.extension = 'tl';
 
-module.exports = CodeViewEngine;
+module.exports = DustViewEngine;
