@@ -164,6 +164,9 @@ FilePlacementStrategy.prototype.placeShapes = function filePlace(context, done) 
     var shape = shapes[i];
     if (shape.meta && shape.meta.type && this.placement[shape.meta.type]) {
       var placementItem = this.placement[shape.meta.type];
+      if (placementItem.alternate) {
+        shapeHelper.alternates(shape).push(placementItem.alternate);
+      }
       shapeHelper.place(rootShape, placementItem.path, shape, placementItem.order);
       shapes.splice(i--, 1);
     }
