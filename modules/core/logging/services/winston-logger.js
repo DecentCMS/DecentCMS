@@ -10,6 +10,7 @@
  */
 function WinstonLogger(scope) {
   var winston = require('winston');
+  require('winston-daily-rotate-file');
 
   var self = this;
   self.scope = scope;
