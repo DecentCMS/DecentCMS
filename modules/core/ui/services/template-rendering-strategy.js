@@ -62,12 +62,13 @@ function TemplateRenderingStrategy(scope) {
       var template = shapeTemplates[alternate];
       if (!template) {
         var templatePath = fileResolver.resolve(
-          'views', new RegExp(alternate + '\\.' + extensionExpression));
+          'views', new RegExp('^' + alternate + '\\.' + extensionExpression + '$'));
         if (templatePath) {
           var extension = path.extname(templatePath).substr(1);
           var viewEngine = viewEngineMap[extension];
           viewEngine.load(templatePath, function onTemplateLoaded(template) {
             shapeTemplates[alternate] = template;
+            template.templatePath = templatePath;
             template(shape, renderer, done);
           });
           return;
