@@ -20,6 +20,5 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "dependencies": {
-    "async": "^2.6.1"
   }
 }
