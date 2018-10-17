@@ -34,7 +34,7 @@ module.exports = function paginationTemplate(paginationPart, renderer, done) {
   if (paginationPart.displayNextPrevious) {
     renderer
       .startTag('li', paginationPart.page === 0 ? {'class': 'disabled'} : {})
-      .tag('a', {href: getPageUrl(paginationPart.page - 1)}, '&lt;')
+      .tag('a', {href: paginationPart.page === 0 ? '#' : getPageUrl(paginationPart.page - 1)}, '&lt;')
       .endTag();
   }
   if (paginationPart.displayPages) {
@@ -56,7 +56,7 @@ module.exports = function paginationTemplate(paginationPart, renderer, done) {
   if (paginationPart.displayNextPrevious) {
     renderer
       .startTag('li', paginationPart.page === lastPage ? {'class': 'disabled'} : {})
-      .tag('a', {href: getPageUrl(paginationPart.page + 1)}, '&gt;')
+      .tag('a', {href: paginationPart.page === lastPage ? '#': getPageUrl(paginationPart.page + 1)}, '&gt;')
       .endTag();
   }
   if (paginationPart.displayFirstLast) {
