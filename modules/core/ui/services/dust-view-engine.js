@@ -68,6 +68,17 @@
  * Renders registered meta tags.
  *
  *     {@metas/}
+ * 
+ * Date
+ * ----
+ * Formats a date using the Luxon library.
+ * value: the date to format.
+ * format: the format string to use (see <https://moment.github.io/luxon/docs/manual/formatting.html> for reference).
+ * 
+ *      {@date format/}
+ * 
+ * Note: you may need to install Node with full ICU support, in order
+ * to format with locales other than 'en-US'.
  */
 var DustViewEngine = function DustViewEngine(scope) {
   this.scope = scope;
@@ -76,6 +87,7 @@ var DustViewEngine = function DustViewEngine(scope) {
   var dust = require('dustjs-linkedin');
   dust.config.whitespace = !!scope.debug;
   dust.helper = require('dustjs-helpers');
+  var DateTime = require('luxon').DateTime;
 
   function getDustTemplate(templatePath) {
     return function dustTemplate(shape, renderer, next) {
@@ -256,6 +268,15 @@ var DustViewEngine = function DustViewEngine(scope) {
     innerRenderer._renderMeta();
     return chunk.write(html);
   };
+
+  dust.helpers.date = function dateDustHelper(chunk, context, bodies, params) {
+    var renderer = chunk.root['decent-renderer'];
+    var scope = renderer.scope;
+    var locale = scope.require('shell').settings.locale || 'en-US';
+    var dt = DateTime.fromISO(dust.helpers.tap(params.value, chunk, context)).setLocale(locale);
+    var format = dust.helpers.tap(params.format, chunk, context) || DateTime.DATETIME_SHORT;
+    return chunk.write(dt.toFormat(format));
+  }
 
   /**
    * @description
