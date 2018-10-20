@@ -47,6 +47,12 @@ var ShapeItemPromiseHandler = {
     var shape = scope.require('shape');
     var shapeTemp = shape.temp(itemShape);
     shapeTemp.item = item;
+    // Also copy the parts to the top level, which is useful
+    // for content templates not using zones and placement.
+    Object.getOwnPropertyNames(item).forEach(function(partName) {
+      if (partName === 'meta' || partName === 'temp') return;
+      itemShape[partName] = item[partName];
+    });
     // Add content-theType and content-stereotype alternates.
     var alternates = shape.alternates(itemShape);
     alternates.push('content-' + item.meta.type);
