@@ -40,7 +40,10 @@ var Shape = {
         var next = root[path[i]];
         if (!next) {
           next = root[path[i]] = {
-            meta: {type: 'zone'},
+            meta: {
+              type: 'zone',
+              name: path[i]
+            },
             temp: {
               parent: root,
               items: [],
