@@ -37,7 +37,7 @@ NavigationHandler.prototype.handle = function handleNavigation(context, done) {
     var shapeHelper = scope.require('shape');
     shapeHelper.place(layout, 'navigation', {
       meta: {type: 'menu'},
-      site: scope.require('shell'),
+      site: scope.require('shell').settings,
       name: navigationContext.menu,
       items: navigationContext.items,
       current: current

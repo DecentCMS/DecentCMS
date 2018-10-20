@@ -78,7 +78,7 @@ ContentRenderer.prototype.render = function render(context, pageBuilt) {
   var shapes = scope.shapes;
   var layout = scope.layout = {
     meta: {type: 'layout'},
-    site: scope.require('shell'),
+    site: scope.require('shell').settings,
     temp: {}
   };
   var renderStream = scope.require('render-stream');

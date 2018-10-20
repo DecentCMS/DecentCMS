@@ -55,6 +55,7 @@
     "dustjs-linkedin": "^2.7.5",
     "flasync": "^0.2.3",
     "htmlencode": "0.0.4",
+    "js-object-pretty-print": "^0.3.0",
     "luxon": "^1.4.3"
   }
 }
