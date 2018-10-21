@@ -8,7 +8,7 @@ var async = require('async');
 var TextPart = require('../services/text-part');
 var TitlePart = require('../services/title-part');
 var UrlPart = require('../services/url-part');
-var DatePart = require('../services/date-part');
+var DatePart = require('../services/date-part-handler');
 var ShapePart = require('../services/shape-part');
 var TextView = require('../views/text');
 var TitleView = require('../views/title');
@@ -300,22 +300,22 @@ describe('Shape Part Handler', function() {
       var newShapes = context.shape.temp.shapes;
       expect(newShapes[0])
         .to.deep.equal({
-          meta: {type: 'from-inline', name: 'inline-shape1', alternates: ['from-inline-inline-shape1'], item: item},
-          temp: {displayType: 'summary'},
+          meta: {type: 'from-inline', name: 'inline-shape1', alternates: ['from-inline-inline-shape1']},
+          temp: {displayType: 'summary', item: item},
           foo: 'fou 1',
           bar: 'barre 1'
         });
       expect(newShapes[1])
         .to.deep.equal({
-          meta: {type: 'from-inline', name: 'inline-shape2', alternates: ['from-inline-inline-shape2'], item: item},
-          temp: {displayType: 'summary'},
+          meta: {type: 'from-inline', name: 'inline-shape2', alternates: ['from-inline-inline-shape2']},
+          temp: {displayType: 'summary', item: item},
           foo: 'fou 2',
           bar: 'barre 2'
         });
       expect(newShapes[2])
         .to.deep.equal({
-          meta: {type: 'from-type', name: 'shape-from-type', alternates: ['from-type-shape-from-type'], item: item},
-          temp: {displayType: 'summary'},
+          meta: {type: 'from-type', name: 'shape-from-type', alternates: ['from-type-shape-from-type']},
+          temp: {displayType: 'summary', item: item},
           baz: 'base'
         });
       done();
@@ -451,7 +451,7 @@ describe('Date Part View', function() {
 
   it('renders a time', function(done) {
     DateView({text: text, date: date, locale: 'en-US'}, renderer, function() {
-      expect(html).to.equal('<time datetime="Thu May 21 1970 00:00:00 GMT-0700 (PDT)">5/21/1970, 12:00:00 AM</time>');
+      expect(html).to.equal('<time datetime="Thu May 21 1970 00:00:00 GMT-0700 (Pacific Daylight Time)">5/21/1970, 12:00:00 AM</time>');
       done();
     });
   });

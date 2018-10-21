@@ -176,8 +176,8 @@ describe('File Index', function() {
   });
 
   it("yields the same index for the same name, but different map and order", function() {
-    var indexA = indexFactory.getIndex('foo', mapNull, orderBy, 'index-name');
-    var indexB = indexFactory.getIndex('bar', function() {}, function() {}, 'index-name');
+    var indexA = indexFactory.getIndex('foo', mapNull, orderBy, false, 'index-name');
+    var indexB = indexFactory.getIndex('bar', function() {}, function() {}, false,  'index-name');
 
     expect(indexA).to.equal(indexB);
   });

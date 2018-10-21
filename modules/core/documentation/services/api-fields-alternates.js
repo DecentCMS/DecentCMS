@@ -23,10 +23,11 @@ var ShapeHandler = {
     var shape = context.shape;
     var shapeHelper = context.scope.require('shape');
     var shapeMeta = shapeHelper.meta(shape);
+    var shapeTemp = shapeHelper.temp(shape);
     if (shapeMeta
         && (shapeMeta.type === 'text' || shapeMeta.type === 'url')
-        && shapeMeta.item && shapeMeta.item.meta
-        && shapeMeta.item.meta.type === 'api-documentation'
+        && shapeTemp.item && shapeTemp.item.meta
+        && shapeTemp.item.meta.type === 'api-documentation'
         && shapeMeta.name
         && ['scope', 'feature', 'service', 'path', 'source'].indexOf(shapeMeta.name) !== -1) {
       shapeHelper.alternates(shape).push('api-field');

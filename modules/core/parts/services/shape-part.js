@@ -42,8 +42,9 @@ var ShapePart = {
         meta.type = shapeName;
         meta.name = partName;
         meta.alternates = [shapeName + '-' + partName];
-        meta.item = item;
-        shapeHelper.temp(part).displayType = temp.displayType;
+        var shapeTemp = shapeHelper.temp(part);
+        shapeTemp.item = item;
+        shapeTemp.displayType = temp.displayType;
         temp.shapes.push(part);
       }
     });
