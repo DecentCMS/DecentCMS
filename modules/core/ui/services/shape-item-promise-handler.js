@@ -37,6 +37,9 @@ var ShapeItemPromiseHandler = {
 
     var renderer = context.renderStream;
     var storageManager = scope.require('storage-manager');
+    var contentManager = scope.require('content-manager');
+    var shapeHelper = scope.require('shape');
+
     var item = storageManager.getAvailableItem(itemShape.id);
     if (!item) {
       done();
@@ -49,9 +52,13 @@ var ShapeItemPromiseHandler = {
     shapeTemp.item = item;
     // Also copy the parts to the top level, which is useful
     // for content templates not using zones and placement.
-    Object.getOwnPropertyNames(item).forEach(function(partName) {
+    contentManager.getPartNames(item).forEach(function(partName) {
       if (partName === 'meta' || partName === 'temp') return;
-      itemShape[partName] = item[partName];
+      var part = itemShape[partName] = item[partName];
+      if (typeof(part) === 'object') {
+        var meta = shapeHelper.meta(part);
+        if (!meta.type) meta.type = contentManager.getPartType(item, partName);
+      }
     });
     // Add content-theType and content-stereotype alternates.
     var alternates = shape.alternates(itemShape);
