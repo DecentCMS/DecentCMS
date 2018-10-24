@@ -54,7 +54,7 @@ var ShapeItemPromiseHandler = {
     // for content templates not using zones and placement.
     contentManager.getPartNames(item).forEach(function(partName) {
       if (partName === 'meta' || partName === 'temp') return;
-      var part = itemShape[partName] = item[partName];
+      var part = itemShape['_' + partName] = item[partName];
       if (typeof(part) === 'object') {
         var meta = shapeHelper.meta(part);
         if (!meta.type) meta.type = contentManager.getPartType(item, partName);

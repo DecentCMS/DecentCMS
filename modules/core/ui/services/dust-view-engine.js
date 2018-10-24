@@ -301,6 +301,7 @@ var DustViewEngine = function DustViewEngine(scope) {
     var scope = renderer.scope;
     var locale = scope.require('shell').settings.locale || 'en-US';
     var val = dust.helpers.tap(params.value, chunk, context);
+    if (!val) return chunk;
     var dt = (val.constructor === Date ? DateTime.fromJSDate(val) : DateTime.fromISO(val))
       .setLocale(locale);
     var format = dust.helpers.tap(params.format, chunk, context) || DateTime.DATETIME_SHORT;
