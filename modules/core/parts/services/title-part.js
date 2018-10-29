@@ -37,8 +37,8 @@ var TitlePart = {
     }
     if (temp.shapes) {
       temp.shapes.push({
-        meta: {type: 'title', name: 'title', item: item},
-        temp: {displayType: temp.displayType},
+        meta: {type: 'title', name: 'title'},
+        temp: {displayType: temp.displayType, item: item},
         text: title
       });
     }

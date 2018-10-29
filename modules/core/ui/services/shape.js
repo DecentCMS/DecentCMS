@@ -25,7 +25,7 @@ var Shape = {
    *                       where the shape will be added on the
    *                       last part of the path.
    */
-  place: function (root, path, shape, order) {
+  place: function placeShape(root, path, shape, order) {
     if (path === '-') return;
     path = Array.isArray(path) ? path : path.split('/');
     var tempRoot = this.temp(root);
@@ -65,10 +65,10 @@ var Shape = {
    * @param {object} shape The shape.
    * @returns {object} The meta object for the shape.
    */
-  meta: function (shape) {
+  meta: function shapeMeta(shape) {
     return shape.meta ? shape.meta : shape.meta = {};
   },
-  alternates: function(shape) {
+  alternates: function shapeAlternates(shape) {
     var meta = Shape.meta(shape);
     return meta.alternates ? meta.alternates : meta.alternates = [];
   },
@@ -80,7 +80,7 @@ var Shape = {
    * @param {object} shape The shape.
    * @returns {object} The temp object for the shape.
    */
-  temp: function (shape) {
+  temp: function shapeTemp(shape) {
     return shape.temp ? shape.temp : shape.temp = {};
   },
   /**
@@ -91,7 +91,7 @@ var Shape = {
    * @param {string} orderString The order string to parse.
    * @returns {Array} The parsed array of orders.
    */
-  parseOrder: function (orderString) {
+  parseOrder: function parseOrder(orderString) {
     if (!orderString) return [];
     return orderString
       .split('.')
@@ -109,7 +109,7 @@ var Shape = {
    * @param {object} shape The shape to insert.
    * @param {string=} order The order string.
    */
-  insert: function (shapes, shape, order) {
+  insert: function insertShape(shapes, shape, order) {
     var meta = this.meta(shape);
     var parsedOrder = meta.order = this.parseOrder(order);
     for (var i = 0; i < shapes.length; i++) {
@@ -141,6 +141,39 @@ var Shape = {
     }
     // Didn't find anything that should go after ours, so add to the end.
     shapes.push(shape);
+  },
+
+  /**
+   * Makes a deep clone of a shape, skipping temp properties throughout the tree.
+   * Circular references are skipped.
+   * @param {object} shape The shape to clone.
+   * @returns {object} The clone of hte shape.
+   */
+  copy: function copyShape(shape) {
+    var known = arguments.length > 1 ? arguments[1] : new Set();
+    if (typeof(shape) !== 'object') return shape;
+    if (shape instanceof Date) {
+      return shape.toISOString();
+    }
+    if (Array.isArray(shape)) {
+      var arrayResult = [];
+      shape.forEach(function(item, i) {
+        arrayResult[i] = Shape.copy(item, known);
+      });
+      return arrayResult;
+    }
+    // This is a non-array object
+    known.add(shape);
+    var result = {};
+    for (var subName of Object.getOwnPropertyNames(shape)) {
+      if (subName !== 'temp') {
+        var sub = shape[subName];
+        if (!known.has(sub)) {
+          result[subName] = Shape.copy(sub, known);
+        }
+      }
+    }
+    return result;
   }
 };
 

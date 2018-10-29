@@ -34,10 +34,12 @@ var TextPart = {
       meta: {
         type: 'text',
         name: context.partName,
-        alternates: ['text-' + context.partName],
+        alternates: ['text-' + context.partName]
+      },
+      temp: {
+        displayType: context.displayType,
         item: context.item
       },
-      temp: {displayType: context.displayType},
       text: text,
       flavor: flavor
     });

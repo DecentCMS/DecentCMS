@@ -26,7 +26,9 @@ var DatePart = {
     context.item[context.partName] = {
       meta: {
         type: 'date',
-        name: context.partName,
+        name: context.partName
+      },
+      temp: {
         item: context.item
       },
       locale: locale,

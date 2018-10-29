@@ -58,7 +58,9 @@ var DocumentationEditButtonHandler = {
           var item = content.temp.item;
           content.temp.shapes.push({
             meta: {
-              type: 'documentation-edit-button',
+              type: 'documentation-edit-button'
+            },
+            temp: {
               item: item
             },
             text: item.text,

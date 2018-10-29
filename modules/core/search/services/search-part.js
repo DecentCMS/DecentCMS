@@ -108,10 +108,12 @@ var SearchPart = {
           'search-results-' + partName,
           'search-results-' + searchPart.indexName,
           'search-results-' + partName + '-' + searchPart.indexName
-        ],
+        ]
+      };
+      searchPart.temp = {
+        displayType: context.displayType,
         item: context.item
       };
-      searchPart.temp = {displayType: context.displayType};
       // Set the reduced results
       searchPart.results = reduced;
       shapes.push(searchPart);
@@ -129,10 +131,12 @@ var SearchPart = {
               'pagination-' + partName,
               'pagination-' + searchPart.indexName,
               'pagination-' + partName + '-' + searchPart.indexName
-            ],
+            ]
+          },
+          temp: {
+            displayType: context.displayType,
             item: context.item
           },
-          temp: {displayType: context.displayType},
           page: page,
           pageSize: pageSize,
           count: count,

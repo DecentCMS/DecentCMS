@@ -45,22 +45,22 @@ describe('Text Part Handler', function() {
       var newShapes = context.shapes;
       expect(newShapes[0])
         .to.deep.equal({
-          meta: {type: 'text', name: 'body', alternates: ['text-body'], item: item},
-          temp: {displayType: 'summary'},
+          meta: {type: 'text', name: 'body', alternates: ['text-body']},
+          temp: {displayType: 'summary', item: item},
           text: 'Lorem ipsum',
           flavor: 'md'
         });
       expect(newShapes[1])
         .to.deep.equal({
-          meta: {type: 'text', name: 'summary', alternates: ['text-summary'], item: item},
-          temp: {displayType: 'summary'},
+          meta: {type: 'text', name: 'summary', alternates: ['text-summary']},
+          temp: {displayType: 'summary', item: item},
           text: 'Lorem',
           flavor: 'plain-text'
         });
       expect(newShapes[2])
         .to.deep.equal({
-          meta: {type: 'text', name: 'disclaimer', alternates: ['text-disclaimer'], item: item},
-          temp: {displayType: 'summary'},
+          meta: {type: 'text', name: 'disclaimer', alternates: ['text-disclaimer']},
+          temp: {displayType: 'summary', item: item},
           text: 'Not my fault',
           flavor: 'strawberry'
         });
@@ -91,8 +91,8 @@ describe('Title Part Handler', function() {
       var newShapes = context.shape.temp.shapes;
       expect(newShapes[0])
         .to.deep.equal({
-          meta: {type: 'title', name: 'title', item: item},
-          temp: {displayType: 'summary'},
+          meta: {type: 'title', name: 'title'},
+          temp: {displayType: 'summary', item: item},
           text: 'Foo'
         });
       done();
@@ -171,15 +171,15 @@ describe('URL Part Handler', function() {
       var newShapes = context.shapes;
       expect(newShapes[0])
         .to.deep.equal({
-          meta: {type: 'url', name: 'permalink', alternates: ['url-permalink'], item: item},
-          temp: {displayType: 'summary'},
+          meta: {type: 'url', name: 'permalink', alternates: ['url-permalink']},
+          temp: {displayType: 'summary', item: item},
           text: 'Tales From The Evil Empire',
           url: 'http://weblogs.asp.net/bleroy'
         });
       expect(newShapes[1])
         .to.deep.equal({
-          meta: {type: 'url', name: 'license', alternates: ['url-license'], item: item},
-          temp: {displayType: 'summary'},
+          meta: {type: 'url', name: 'license', alternates: ['url-license']},
+          temp: {displayType: 'summary', item: item},
           text: 'http://opensource.org/licenses/MIT',
           url: 'http://opensource.org/licenses/MIT'
         });
@@ -217,16 +217,16 @@ describe('Date Part Handler', function() {
         .to.deep.equal({
           date: new Date(1970, 4, 21),
           locale: 'en-US',
-          meta: {type: 'date', name: 'created', alternates: ['date-created'], item: item},
-          temp: {displayType: 'summary'},
+          meta: {type: 'date', name: 'created', alternates: ['date-created']},
+          temp: {displayType: 'summary', item: item},
           options: {}
         });
       expect(newShapes[1])
         .to.deep.equal({
           date: new Date(Date.UTC(2018, 9, 6)),
           locale: 'en-US',
-          meta: {type: 'date', name: 'lastModified', alternates: ['date-lastModified'], item: item},
-          temp: {displayType: 'summary'},
+          meta: {type: 'date', name: 'lastModified', alternates: ['date-lastModified']},
+          temp: {displayType: 'summary', item: item},
           options: {}
         });
       done();

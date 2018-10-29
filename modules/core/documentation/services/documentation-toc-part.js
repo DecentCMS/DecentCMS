@@ -35,10 +35,12 @@ var DocumentationTocPart = {
     shape.meta = {
       type: 'documentation-toc',
       name: partName,
-      alternates: ['documentation-toc-' + partName],
+      alternates: ['documentation-toc-' + partName]
+    };
+    shape.temp = {
+      displayType: context.displayType,
       item: item
     };
-    shape.temp = { displayType: context.displayType };
     // Lookup the cache on the request.
     var cachedToc = scope.documentationTOC;
     if (cachedToc) {

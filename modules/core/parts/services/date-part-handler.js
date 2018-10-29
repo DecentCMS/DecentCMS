@@ -23,18 +23,23 @@ var DatePartHandler = {
     var shapes = context.shapes;
     if (!shapes) {done();return;}
     var part = context.part;
-    var date = part instanceof Date
-      ? part : new Date(Date.parse(part));
+    var date = part instanceof Date ? part
+      : part.date ?
+        part.date instanceof Date ? part.date
+        : new Date(Date.parse(part.date))
+      : new Date(Date.parse(part));
     var locale = part.locale || (part.meta ? part.meta.locale : null) || 'en-US';
     var options = part.options || {};
     shapes.push({
       meta: {
         type: 'date',
         name: context.partName,
-        alternates: ['date-' + context.partName],
+        alternates: ['date-' + context.partName]
+      },
+      temp: {
+        displayType: context.displayType,
         item: context.item
       },
-      temp: {displayType: context.displayType},
       locale: locale,
       options: options,
       date: date

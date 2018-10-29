@@ -115,6 +115,7 @@ var DustViewEngine = function DustViewEngine(scope) {
   dust.helper = require('dustjs-helpers');
   var DateTime = require('luxon').DateTime;
   var pretty = require('js-object-pretty-print').pretty;
+  var shapeHelper = scope.require('shape');
 
   function getDustTemplate(templatePath) {
     return function dustTemplate(shape, renderer, next) {
@@ -308,45 +309,8 @@ var DustViewEngine = function DustViewEngine(scope) {
     return chunk.write(dt.toFormat(format));
   }
 
-  /**
-   * Creates a deep clone of the passed-in object that avoids circular references and
-   * skips properties named 'temp' and 'meta'.
-   * Non-objects are returned, not cloned
-   * (this may be an issue if deep property graphs have been grafted to those).
-   * @param {*} obj The object to clone.
-   * @param {Set} known The set of objects already found by calls up the recursion stack.
-   * @returns {object} The deep clone.
-   */
-  function deepFilteredClone(obj, known) {
-    if (!known) known = new Set();
-    if (typeof(obj) !== 'object') return obj;
-    if (Array.isArray(obj)) {
-      var arrayResult = [];
-      obj.forEach(function(item, i) {
-        arrayResult[i] = deepFilteredClone(item, known);
-      });
-      return arrayResult;
-    }
-    // This is a non-array object
-    known.add(obj);
-    var result = {};
-    for (var subName of Object.getOwnPropertyNames(obj)) {
-      if (subName === 'temp' || subName === 'meta') {
-        result[subName] = '... (skipped)';
-      }
-      else {
-        var sub = obj[subName];
-        if (known.has(sub)) {
-          result[subName] = '... [circular reference]';
-        }
-        else result[subName] = deepFilteredClone(sub, known);
-      }
-    }
-    return result;
-  }
-
   dust.filters.dump = function dumpDustFilter(value) {
-    var filteredValue = deepFilteredClone(value);
+    var filteredValue = shapeHelper.copy(value);
     return pretty(filteredValue, 2, 'HTML');
   }
 

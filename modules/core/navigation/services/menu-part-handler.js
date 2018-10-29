@@ -34,10 +34,12 @@ var MenuPartHandler = {
         alternates: [
           'menu-' + context.partName,
           'menu-' + id
-        ],
+        ]
+      };
+      shape.temp = {
+        displayType: context.displayType,
         item: context.item
       };
-      shape.temp = {displayType: context.displayType};
       shape.items = navigationContext.items;
       shape.current = context.scope.url;
       shapes.push(shape);
