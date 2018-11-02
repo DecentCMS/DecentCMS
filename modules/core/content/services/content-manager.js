@@ -18,7 +18,7 @@ ContentManager.scope = 'shell';
  * @param {object} item The content item.
  * @returns {string} The content type name, or null if it can't be found.
  */
-ContentManager.prototype.getTypeName = function getType(item) {
+ContentManager.prototype.getTypeName = function getTypeName(item) {
   return item && item.meta ? item.meta.type : null;
 }
 
