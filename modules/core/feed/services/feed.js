@@ -28,6 +28,7 @@ function fetchItem(id, scope, callback) {
               result[shape.meta.name] = shape;
             }
           });
+          result.meta = item.meta;
           callback(null, result);
           return;
         });
