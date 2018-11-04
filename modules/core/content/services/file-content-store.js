@@ -64,6 +64,7 @@ var fileContentStore = {
                 return;
               }
               part.text = data.toString();
+              part.flavor = path.extname(part.src).substr(1);
               next();
             });
           }

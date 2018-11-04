@@ -20,8 +20,8 @@ var TextPartLoader = {
    * @param {Function} done The callback.
    */
   load: function loadTextPart(context, done) {
-    if (typeof(context.part) === 'string') context.part = context.item[context.partName] = {text: context.part};
-    var text = context.part.text;
+    if (typeof(context.part) !== 'object') context.part = context.item[context.partName] = {text: context.part};
+    var text = context.part.text || '';
     var flavor = context.part.flavor || context.itemType.parts[context.partName].flavor || 'plain-text';
     var html = null;
     switch(flavor) {
