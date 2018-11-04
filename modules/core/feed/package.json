@@ -14,6 +14,8 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "dependencies": {
-    "feed": "^2.0.1"
+    "esprima": "^4.0.1",
+    "feed": "^2.0.1",
+    "static-eval": "^2.0.0"
   }
 }

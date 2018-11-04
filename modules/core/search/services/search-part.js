@@ -57,7 +57,7 @@ var SearchPart = {
     // Prepare dependencies.
     var shell = scope.require('shell');
     var request = scope.require('request');
-    var searchAstCache = shell['search-ast-cache'] || (shell['search-ast-cache'] = {});
+    var astCache = shell['ast-cache'] || (shell['ast-cache'] = {});
     var evaluate = require('static-eval');
     var parse = require('esprima').parse;
     var searchPart = context.part;
@@ -65,9 +65,9 @@ var SearchPart = {
     
     // Prepare an AST for the mapping and order by functions.
     var mapSource = '(' + (searchPart.map || '{}') + ')';
-    var mapAst = searchAstCache[mapSource] || (searchAstCache[mapSource] = parse(mapSource).body[0].expression);
+    var mapAst = astCache[mapSource] || (astCache[mapSource] = parse(mapSource).body[0].expression);
     var orderBySource = '(' + searchPart.orderBy + ')';
-    var orderByAst = searchAstCache[orderBySource] || (searchAstCache[orderBySource] = parse(orderBySource).body[0].expression);
+    var orderByAst = astCache[orderBySource] || (astCache[orderBySource] = parse(orderBySource).body[0].expression);
     var descending = !!searchPart.descending;
     // Prepare the index.
     var index = indexService.getIndex({
@@ -85,7 +85,7 @@ var SearchPart = {
     var where = null;
     if (searchPart.where) {
       var whereSource = '(' + searchPart.where + ')';
-      var whereAst = searchAstCache[whereSource] || (searchAstCache[whereSource] = parse(whereSource).body[0].expression);
+      var whereAst = astCache[whereSource] || (astCache[whereSource] = parse(whereSource).body[0].expression);
       where = function where(entry) {
         return evaluate(whereAst, {entry: entry});
       };
@@ -169,7 +169,7 @@ var SearchPart = {
     var reduce = null;
     if (searchPart.reduce) {
       var reduceSource = searchPart.reduce;
-      var reduceAst = searchAstCache[reduceSource] || (searchAstCache[reduceSource] = parse(reduceSource).body[0].expression);
+      var reduceAst = astCache[reduceSource] || (astCache[reduceSource] = parse(reduceSource).body[0].expression);
       // The reduce function doesn't handle pagination.
       reduce = function reduce(val, entry, i) {
         return evaluate(reduceAst, {val: val, entry: entry, i: i});

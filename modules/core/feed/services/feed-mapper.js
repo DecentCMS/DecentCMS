@@ -12,77 +12,62 @@ const DefaultFeedMapper = {
    * @returns {object} The mapped feed data.
    */
   map: function mapItemToFeed(scope, item) {
-    const feed = {author: {}};
     const cm = scope.require('content-manager');
-    const token = scope.require('tokens');
     const shape = scope.require('shape');
     const meta = shape.meta(item);
+    const parse = require('esprima').parse;
+    const evaluate = require('static-eval');
+    const astCache = scope['ast-cache'] || (scope['ast-cache'] = {});
+    const parseToAst = source => astCache[source] || (astCache[source] = parse('(' + source + ')').body[0].expression);
+    const parseToFunction = source => (item, site) => evaluate(parseToAst(source), {item, site});
     // Find mapping data if it exists, use default mappings otherwise
-    const feedMapping = {
-      title: '{{title.text}}',
-      description: '{{body.text}}',
-      id: '{{itemUrl}}',
-      link: '{{itemUrl}}',
-      image: '{{baseUrl}}{{site.icon}}',
-      favicon: '{{baseUrl}}{{site.favicon}}',
-      copyright: '{{site.copyright}}',
+    let feedMapping = (item, site) => ({
+      title: item.title && item.title.text ? item.title.text : item.title ? item.title : site.name,
+      description: item.body ? item.body.text : null,
+      id: item.url,
+      link: item.url,
+      image: site.baseUrl + site.icon,
+      favicon: site.baseUrl + site.favicon,
+      copyright: site.copyright,
       generator: 'DecentCMS',
-      authorName: '{{site.authors|join>, }}',
-      email: '{{site.email}}',
+      author: {
+        name: site.authors.join(', '),
+        email: site.email
+      },
       postsShapeName: 'query-results',
       postsShapeProperty: 'results'
-    };
-    const postMapping = {
-      title: '{{title}}',
-      id: '{{baseUrl}}/{{url}}',
-      link: '{{baseUrl}}/{{url}}',
-      description: '{{summary}}',
-      content: '{{body.text}}',
-      authorName: '{{authors|join>, }}',
-      email: '{{email}}',
-      date: '{{date}}',
-      image: '{{image}}'
-    };
+    });
+    let postMapping = (post, site) => ({
+      title: post.title,
+      id: site.baseUrl + '/' + post.url,
+      link: site.baseUrl + '/' + post.url,
+      description: post.summary,
+      content: post.body ? post.body.text : null,
+      author: {
+        name: post.authors ? post.authors.join(', ') : null,
+        email: post.email
+      },
+      date: new Date(post.date),
+      image: post.image
+    });
+    const compose = (f1, f2) => (item, site) => Object.assign(f1(item, site), f2(item, site));
     const type = cm.getType(item);
     if (type) {
-      if (type.feedMapping) Object.assign(feedMapping, type.feedMapping);
-      if (type.postMapping) Object.assign(postMapping, type.postMapping);
+      if (type.feedMapping) feedMapping = compose(feedMapping, parseToFunction(type.feedMapping));
+      if (type.postMapping) postMapping = compose(postMapping, parseToFunction(type.postMapping));
     }
-    if (meta.feedMapping) Object.assign(feedMapping, meta.feedMapping);
-    if (meta.postMapping) Object.assign(postMapping, meta.postMapping);
+    if (meta.feedMapping) feedMapping = compose(feedMapping, parseToFunction(meta.feedMapping));
+    if (meta.postMapping) postMapping = compose(postMapping, parseToFunction(meta.postMapping));
     // Map the feed properties
-    Object.getOwnPropertyNames(feedMapping)
-      .forEach(property => {
-        const value = token.interpolate(feedMapping[property], item);
-        switch (property) {
-          case 'authorName':
-            feed.author.name = value;
-            break;
-          case 'email':
-            feed.author.email = value;
-            break;
-          case 'authorLink':
-            feed.author.link = value;
-          default:
-            feed[property] = value;
-        }
-      });
+    const feed = feedMapping(item, scope.settings);
     feed.posts = [];
-    const postsShape = item[feedMapping.postsShapeName];
+    const postsShape = item[feed.postsShapeName];
     if (postsShape) {
-      const posts = postsShape[feedMapping.postsShapeProperty];
+      const posts = postsShape[feed.postsShapeProperty];
       if (posts) {
         posts.forEach(post => {
-          post.baseUrl = item.baseUrl;
-          post.itemUrl = item.itemUrl;
-          const mappedPost = {};
-          Object.getOwnPropertyNames(postMapping)
-            .forEach(property => {
-              const value = token.interpolate(postMapping[property], post);
-              if (value === '???') return;
-              mappedPost[property] = value;
-            });
-          mappedPost.date = new Date(mappedPost.date);
+          post.url = post.url || site.baseUrl + post.id;
+          const mappedPost = postMapping(post, scope.settings);
           feed.posts.push(mappedPost);
         });
       }
