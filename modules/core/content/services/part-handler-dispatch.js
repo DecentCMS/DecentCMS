@@ -41,9 +41,11 @@ var PartHandlerDispatch = {
     var partNames = contentManager.getPartNames(item);
     async.each(partNames, function (partName, next) {
       var partType = contentManager.getPartType(item, partName);
-      if (!partType || !item[partName]) {next(); return;}
+      var part = item[partName];
+      if (!partType || !part) {next(); return;}
+      if (typeof(part) === 'object' && !part.site) part.site = scope.require('shell').settings;
       scope.callService(partType + '-part-handler', 'handle', {
-        part: item[partName],
+        part: part,
         partName: partName,
         displayType: temp.displayType,
         item: item,
