@@ -5,7 +5,7 @@ var async = require('async');
 
 // TODO: be consistent about putting the item on temp, not meta.
 
-var TextPart = require('../services/text-part');
+var TextPart = require('../services/text-part-handler');
 var TitlePart = require('../services/title-part');
 var UrlPart = require('../services/url-part');
 var DatePart = require('../services/date-part-handler');

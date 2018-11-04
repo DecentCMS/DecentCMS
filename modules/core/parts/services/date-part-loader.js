@@ -4,7 +4,7 @@
 /**
  * The date part loader parses date strings into real date objects.
  */
-var DatePart = {
+var DatePartLoader = {
   feature: 'core-parts',
   service: 'date-part-loader',
   /**
@@ -12,7 +12,9 @@ var DatePart = {
    * @param {object} context The context object.
    * @param {object} context.part The date part to handle.
    * @param {string} context.partName The name of the part.
+   * @param {string} context.partType The type name of the part.
    * @param {object} context.item A reference to the content item.
+   * @param {object} context.itemType The type definition for the content item.
    * @param {object} context.scope The scope.
    * @param {Function} done The callback.
    */
@@ -39,4 +41,4 @@ var DatePart = {
   }
 };
 
-module.exports = DatePart;
+module.exports = DatePartLoader;

@@ -16,7 +16,9 @@ var async = require('async');
  * ------------|--------|------------------------------------------------------------------
  * part        | *      | The part to load.
  * partName    | string | The name of the part.
+ * partType    | string | The type name for the part.
  * item        | object | The content item that the part is a part of.
+ * itemType    | string | The type definition for the item.
  * scope       | object | The scope.
  */
 var PartLoaderDispatch = {
@@ -33,6 +35,7 @@ var PartLoaderDispatch = {
     var item = context.item;
     var scope = context.scope;
     var contentManager = scope.require('content-manager');
+    var itemType = contentManager.getType(item);
     var partNames = contentManager.getPartNames(item);
     async.each(partNames, function (partName, next) {
       var partType = contentManager.getPartType(item, partName);
@@ -40,7 +43,9 @@ var PartLoaderDispatch = {
       scope.callService(partType + '-part-loader', 'load', {
         part: item[partName],
         partName: partName,
+        partType: partType,
         item: item,
+        itemType: itemType,
         scope: scope
       }, next);
     }, done);

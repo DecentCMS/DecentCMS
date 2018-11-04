@@ -7,7 +7,7 @@ var path = require('path');
  * of the text can be inferred from the extension on a path
  * property on the part if it exist.
  */
-var TextPart = {
+var TextPartHandler = {
   feature: 'core-parts',
   service: 'text-part-handler',
   /**
@@ -41,10 +41,11 @@ var TextPart = {
         item: context.item
       },
       text: text,
+      html: part.html,
       flavor: flavor
     });
     done();
   }
 };
 
-module.exports = TextPart;
+module.exports = TextPartHandler;
