@@ -168,7 +168,7 @@ var Shape = {
     for (var subName of Object.getOwnPropertyNames(shape)) {
       if (subName !== 'temp') {
         var sub = shape[subName];
-        if (!known.has(sub)) {
+        if (sub && !known.has(sub)) {
           result[subName] = Shape.copy(sub, known);
         }
       }
