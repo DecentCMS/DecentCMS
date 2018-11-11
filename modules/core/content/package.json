@@ -32,6 +32,7 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "dependencies": {
+    "marked": "^0.5.1",
     "snippable": "^0.1.1",
     "yamljs": "^0.3.0"
   }

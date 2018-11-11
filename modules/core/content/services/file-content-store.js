@@ -133,6 +133,7 @@ var fileContentStore = {
               var parserContext = {
                 scope: scope,
                 path: p,
+                id: id,
                 data: data.toString()
               };
               scope.callService(

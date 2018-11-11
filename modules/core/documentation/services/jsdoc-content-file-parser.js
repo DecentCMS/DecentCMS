@@ -91,7 +91,7 @@ var jsDocContentFileParser = {
       .then(function(md) {
         // Build the content item.
         var service = require(filePath);
-        context.item = {
+        context.item = Object.assign(context.item || {}, {
           meta: {
             type: "api-documentation"
           },
@@ -105,7 +105,7 @@ var jsDocContentFileParser = {
             flavor: 'markdown',
             text: md
           }
-        };
+        });
         // Cache it
         fs.writeFile(cacheFile, JSON.stringify(context.item, 0), nextStore);
       });
