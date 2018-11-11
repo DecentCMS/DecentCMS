@@ -48,8 +48,13 @@ var ShapeItemPromiseHandler = {
     // Morph the shape into a content shape, then copy the item onto it.
     shapeMeta.type = 'content';
     var shape = scope.require('shape');
+    // Copy some additional contextual data to temp
     var shapeTemp = shape.temp(itemShape);
     shapeTemp.item = item;
+    const port = scope.connection.localPort;
+    const isDefaultPort = port === (scope.protocol === 'https' ? 443 : 80);
+    const baseUrl = `${scope.protocol}://${scope.hostname}${isDefaultPort ? '': `:${port}`}`;
+    shapeTemp.baseUrl = baseUrl;
     // Also copy the parts to the top level, which is useful
     // for content templates not using zones and placement.
     contentManager.getPartNames(item).forEach(function(partName) {
