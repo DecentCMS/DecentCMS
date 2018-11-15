@@ -6,6 +6,7 @@ var async = require('async');
 // TODO: be consistent about putting the item on temp, not meta.
 
 var TextPart = require('../services/text-part-handler');
+var TextPartLoader = require('../services/text-part-loader');
 var TitlePart = require('../services/title-part');
 var UrlPart = require('../services/url-part');
 var DatePart = require('../services/date-part-handler');
@@ -341,16 +342,22 @@ describe('Text Part View', function() {
   });
 
   it('renders plain text HTML-encoded, with br tags for carriage returns', function(done) {
-    TextView({text: text, flavor: 'plain-text'}, renderer, function() {
-      expect(html).to.equal('Lorem<br/>\r\n&lt;b&gt;ipsum&lt;/b&gt;.');
-      done();
+    var part = {text: text, flavor: 'plain-text'};
+    TextPartLoader.load({part}, () => {
+      TextView(part, renderer, function() {
+        expect(html).to.equal('Lorem<br/>\r\n&lt;b&gt;ipsum&lt;/b&gt;.');
+        done();
+      });
     });
   });
 
   it('renders html as is', function(done) {
-    TextView({text: text, flavor: 'html'}, renderer, function() {
-      expect(html).to.equal(text);
-      done();
+    var part = {text: text, flavor: 'html'};
+    TextPartLoader.load({part}, () => {
+      TextView(part, renderer, function() {
+        expect(html).to.equal(text);
+        done();
+      });
     });
   });
 
@@ -363,15 +370,18 @@ describe('Text Part View', function() {
         return text + text;
       }
     };
-    renderer.scope = {
+    var scope = {
       getServices: function() {
         return [flavorHandler];
       }
     };
 
-    TextView({text: 'foo', flavor: 'custom'}, renderer, function() {
-      expect(html).to.equal('foofoo');
-      done();
+    var part = {text: 'foo', flavor: 'custom'};
+    TextPartLoader.load({part, scope}, () => {
+      TextView(part, renderer, function() {
+        expect(html).to.equal('foofoo');
+        done();
+      });
     });
   });
 });

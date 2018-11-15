@@ -30,7 +30,7 @@ var TextPartHandler = {
       : part.text;
     var flavor = part.flavor
       || (part.src ? path.extname(part.src).substr(1) : 'plain-text');
-    shapes.push({
+    var shape = {
       meta: {
         type: 'text',
         name: context.partName,
@@ -41,9 +41,10 @@ var TextPartHandler = {
         item: context.item
       },
       text: text,
-      html: part.html,
       flavor: flavor
-    });
+    };
+    if (part.html) shape.html = part.html;
+    shapes.push(shape);
     done();
   }
 };

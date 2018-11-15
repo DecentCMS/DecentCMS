@@ -279,6 +279,7 @@ describe('File Content Enumerator', function() {
           "bar/baz": {
             body: {
               text: "*markdown*",
+              flavor: "md",
               src: "baz.md"
             },
             id: "bar/baz",
@@ -295,6 +296,7 @@ describe('File Content Enumerator', function() {
           "bar/multipart": {
             body: {
               text: "multipart *markdown*",
+              html: "<p>multipart <em>markdown</em></p>\n",
               flavor: "markdown"
             },
             id: "bar/multipart",
@@ -311,6 +313,7 @@ describe('File Content Enumerator', function() {
           "bar/yaml": {
             body: {
               text: "YAML *markdown*",
+              flavor: "md",
               src: "yaml.md"
             },
             id: "bar/yaml",
@@ -348,6 +351,7 @@ describe('File Content Enumerator', function() {
           "bar/baz": {
             body: {
               text: "*markdown*",
+              flavor: "md",
               src: "baz.md"
             },
             id: "bar/baz",
@@ -364,6 +368,7 @@ describe('File Content Enumerator', function() {
           "bar/yaml": {
             body: {
               text: "YAML *markdown*",
+              flavor: "md",
               src: "yaml.md"
             },
             id: "bar/yaml",

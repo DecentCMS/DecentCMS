@@ -1,8 +1,6 @@
 // DecentCMS (c) 2015 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 var expect = require('chai').expect;
-var proxyquire = require('proxyquire');
-var path = require('path');
 
 describe('Content API Route Handler', function() {
   var ContentRouteHandler = require('../services/content-api-route-handler');
@@ -10,7 +8,7 @@ describe('Content API Route Handler', function() {
   var middleware = null;
   var context = {
     expressApp: {
-      register: function(priority, registration) {
+      register: function(_, registration) {
         middleware = registration;
       }
     }
@@ -27,7 +25,7 @@ describe('Content API Route Handler', function() {
     promiseToGet: function(id) {
       fetchedId = id;
     },
-    fetchContent: function(context, done) {
+    fetchContent: function(_, done) {
       if (triggerError) {
         done('oops');
         return;
@@ -41,30 +39,40 @@ describe('Content API Route Handler', function() {
       return item;
     }
   };
-  ContentRouteHandler.register({}, context);
-  var handlers = {};
-  var app = {
-    get: function(r, h) {
-      handlers[r] = h;
-    }
-  };
-  middleware(app);
 
   var processedShapes = [
     {foo: 'fou', meta: {name: 'foo'}},
     {bar: 'barre', meta: {name: 'bar'}}
   ];
-  var request = {
-    require: function() {
-      return storageManager;
-    },
-    callService: function(service, method, context, callback) {
-      if (triggerServiceError) {
-        callback('service oops');
-        return;
+  var services = {
+    shape: {
+      copy: item => {
+        var copy = Object.assign({}, item);
+        delete copy.temp;
+        return copy;
       }
-      context.shape.temp.shapes = processedShapes;
-      callback();
+    },
+    "storage-manager": storageManager,
+    "shape-handler": {
+      handle: function(context, callback) {
+        if (triggerServiceError) {
+          callback('service oops');
+          return;
+        }
+        context.shape.temp.shapes = processedShapes;
+        callback();
+      }
+    },
+    "part-loader": {
+      load: function(context, callback) {
+        callback();
+      }
+    }
+  };
+  var request = {
+    require: service => services[service],
+    callService: function(service, method, context, callback) {
+      services[service][method](context, callback)
     }
   };
   var response = {
@@ -81,6 +89,14 @@ describe('Content API Route Handler', function() {
       status = code;
     }
   };
+  ContentRouteHandler.register(request, context);
+  var handlers = {};
+  var app = {
+    get: function(r, h) {
+      handlers[r] = h;
+    }
+  };
+  middleware(app);
 
   beforeEach(function() {
     fetchedId = null;
@@ -100,7 +116,6 @@ describe('Content API Route Handler', function() {
       expect(fetchedId).to.equal('foo:bar/baz');
       expect(item.id).to.equal('foo:bar/baz');
       expect(item.foo).to.equal('bar');
-      expect(item.temp).to.not.be.ok;
       expect(mimeType).to.equal('json');
       expect(responseBody).to.deep.equal({foo: 'bar', id: 'foo:bar/baz'});
       done();
