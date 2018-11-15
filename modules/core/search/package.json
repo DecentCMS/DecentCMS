@@ -30,12 +30,11 @@
   "dependencies": {
     "async": "^2.6.1",
     "esprima": "^4.0.1",
-    "lunr": "^2.3.3",
+    "lunr": "^2.3.5",
     "static-eval": "^2.0.0"
   },
   "devDependencies": {
-    "chai": "^4.1.2",
-    "grunt-mocha-test": "^0.13.3",
+    "chai": "^4.2.0",
     "mocha": "^5.2.0",
     "proxyquire": "^2.1.0"
   }
