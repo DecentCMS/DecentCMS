@@ -60,11 +60,7 @@ Near future milestones are:
 * Workflows
 * Authentication and basic dashboard infrastructure
 * All features manageable through dashboard
-
-Longer-term milestones:
-
-* Move from Grunt to Gulp
-* Move to EcmaScript 6 (not before stable Node support)
+* Move to EcmaScript 2018
 
 Past milestones:
 
