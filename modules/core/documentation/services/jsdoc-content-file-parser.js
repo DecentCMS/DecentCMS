@@ -72,9 +72,6 @@ var jsDocContentFileParser = {
 
     // More required libraries
     var jsdoc2md = require('jsdoc-to-markdown');
-    var stream = require('stream');
-    var Readable = stream.Readable;
-    var PassThrough = stream.PassThrough;
 
     // Generate a title from the file name.
     var fileNameToString = context.scope.require('filename-to-string').transform;

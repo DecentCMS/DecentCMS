@@ -228,7 +228,7 @@ var DocumentationTocPart = {
         // Done building the TOC.
         // If the current topic is a module-less, section-less topic,
         // there's no local TOC.
-        if (!entryForCurrent || !(entryForCurrent.module || entryForCurrent.section)) {
+        if (!entryForCurrent || !(entryForCurrent.module || entryForCurrent.section) || !localTOC) {
           localTOC = [];
         }
         // If the current topic was never found, remove
