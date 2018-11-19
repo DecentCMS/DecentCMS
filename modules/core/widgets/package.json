@@ -20,14 +20,13 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "dependencies": {
-    "async": "*",
-    "esprima": "*",
-    "static-eval": "*"
+    "async": "^2.6.1",
+    "esprima": "^4.0.1",
+    "static-eval": "^2.0.0"
   },
   "devDependencies": {
-    "chai": "*",
-    "mocha": "*",
-    "proxyquire": "*",
-    "grunt-mocha-test": "*"
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "proxyquire": "^2.1.0"
   }
 }

@@ -16,12 +16,11 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "dependencies": {
-    "compression": "^1.4.3",
-    "express": "*"
+    "compression": "^1.7.3",
+    "express": "^4.16.4"
   },
   "devDependencies": {
-    "chai": "*",
-    "grunt-mocha-test": "*",
-    "mocha": "*"
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0"
   }
 }

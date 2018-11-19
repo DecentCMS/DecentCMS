@@ -1,5 +1,6 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
+var marked = require('marked');
 
 /**
  * @description
@@ -17,7 +18,8 @@ function parseYamlMarkdown(data) {
   var md = parts[1];
   item.body = {
     flavor: 'markdown',
-    text: md
+    text: md,
+    html: marked.parse(md)
   };
   return item;
 }
@@ -44,7 +46,7 @@ var jsonYamlMarkdownFileParser = {
       ? parseYamlMarkdown(data)
       : null;
     if (item) {
-      context.item = item;
+      context.item = Object.assign(context.item || {}, item);
     }
     nextParser();
   }

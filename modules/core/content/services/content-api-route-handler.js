@@ -20,6 +20,7 @@ var ContentApiRouteHandler = {
    * @param {object} context.expressApp The Express application object.
    */
   register: function registerContentApiMiddleware(scope, context) {
+    var shapeHelper = scope.require('shape');
     context.expressApp.register(ContentApiRouteHandler.routePriority, function bindContentMiddleware(app) {
       app.get('/api/src(/*)?', function contentSrcMiddleware(request, response, next) {
         if (request.routed) {
@@ -44,8 +45,7 @@ var ContentApiRouteHandler = {
             }
             var item = storage.getAvailableItem(id);
             if (item) {
-              delete item.temp;
-              response.json(item);
+              response.json(shapeHelper.copy(item));
 
               request.routed = true;
               request.handled = true;
@@ -85,39 +85,40 @@ var ContentApiRouteHandler = {
             }
             var item = storage.getAvailableItem(id);
             if (item) {
-              var shape = {
-                meta: {type: 'content'},
-                temp: {item: item, shapes: []}
-              };
-              request.callService('shape-handler', 'handle', {
-                scope: request,
-                shape: shape
-              }, function renderShapeJson(err) {
-                if (err) {
-                  response.status(500);
-                  response.json({error: err});
-                  next(err);
-                  return;
-                }
-                // Remove the meta.item and temp.item from each shape before rendering,
-                // to avoid circular structures that JSON won't serialize, then copy all
-                // shapes to the result object.
-                var shapes = shape.temp.shapes;
-                var result = {};
-                shapes.forEach(function removeTempItem(shape) {
-                  delete shape.temp;
-                  if (shape.meta) {
-                    delete shape.meta.item;
-                    result[shape.meta.name] = shape;
+              scope.callService('part-loader', 'load', {
+                scope: scope,
+                item: item
+              }, function () {
+                var shape = {
+                  meta: {type: 'content'},
+                  temp: {item: item, shapes: []}
+                };
+                request.callService('shape-handler', 'handle', {
+                  scope: request,
+                  shape: shape
+                }, function renderShapeJson(err) {
+                  if (err) {
+                    response.status(500);
+                    response.json({error: err});
+                    next(err);
+                    return;
                   }
+                  var shapes = shape.temp.shapes;
+                  var result = {};
+                  shapes.forEach(function removeTempItem(shape) {
+                    delete shape.temp;
+                    if (shape.meta) {
+                      result[shape.meta.name] = shape;
+                    }
+                  });
+                  // Send the serialized list of shapes.
+                  response.json(shapeHelper.copy(result));
+  
+                  request.routed = true;
+                  request.handled = true;
+                  next();
                 });
-                // Send the serialized list of shapes.
-                response.json(result);
-
-                request.routed = true;
-                request.handled = true;
-                next();
-              });
+                });
             }
             else {
               response.status(404);

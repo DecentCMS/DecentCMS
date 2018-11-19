@@ -63,6 +63,7 @@ describe('File Index', function() {
     existsSync: function() {return indexExists;},
     mkdirSync: function(path) {newDir = path;},
     writeFileSync: function(path, data) {newFiles[path] = data;},
+    readFileSync: function(path) {return newFiles[path] || JSON.stringify(stubs[path]);},
     '@noCallThru': true
   };
   var stubs = {
@@ -134,11 +135,15 @@ describe('File Index', function() {
           }
         };
       }
+    },
+    'part-loader': {
+      load: function(context) {}
     }
   };
   var scope = {
     require: function(service) {return services[service];},
-    getServices: function(service) {return [services[service]];}
+    getServices: function(service) {return [services[service]];},
+    callService: function(service, method, context, callback) {services[service][method](context);callback();}
   };
   var indexFactory = new FileIndexFactory(scope);
 
@@ -171,8 +176,8 @@ describe('File Index', function() {
   });
 
   it("yields the same index for the same name, but different map and order", function() {
-    var indexA = indexFactory.getIndex('foo', mapNull, orderBy, 'index-name');
-    var indexB = indexFactory.getIndex('bar', function() {}, function() {}, 'index-name');
+    var indexA = indexFactory.getIndex('foo', mapNull, orderBy, false, 'index-name');
+    var indexB = indexFactory.getIndex('bar', function() {}, function() {}, false,  'index-name');
 
     expect(indexA).to.equal(indexB);
   });

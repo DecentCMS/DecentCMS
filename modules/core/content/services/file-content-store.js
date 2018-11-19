@@ -33,7 +33,6 @@ var fileContentStore = {
 
     var scope = context.scope;
     var shapeHelper = scope.require('shape');
-    var shell = scope.require('shell');
     var log = scope.require('log');
 
     var items = context.items = context.items || {};
@@ -65,6 +64,7 @@ var fileContentStore = {
                 return;
               }
               part.text = data.toString();
+              part.flavor = path.extname(part.src).substr(1);
               next();
             });
           }
@@ -133,6 +133,7 @@ var fileContentStore = {
               var parserContext = {
                 scope: scope,
                 path: p,
+                id: id,
                 data: data.toString()
               };
               scope.callService(

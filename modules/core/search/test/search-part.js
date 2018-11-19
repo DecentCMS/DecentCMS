@@ -107,11 +107,13 @@ describe('Search part', function() {
         {
           meta: {
             alternates: ["search-results-search", "search-results-idx", "search-results-search-idx"],
-            item: item,
             name: "search-results",
             type: "search-results"
           },
-          temp: {displayType: "main"},
+          temp: {
+            displayType: "main",
+            item: item
+          },
           idFilter: "exp",
           indexName: "idx",
           map: "{foo: item.title, id: item.id}",
@@ -137,7 +139,7 @@ describe('Search part', function() {
         map: '{id: item.id, foo: item.title}',
         where: 'entry.foo[0] === "t"',
         orderBy: 'entry.id',
-        reduce: 'return (val || 0) + entry.id;',
+        reduce: '(val || 0) + entry.id',
         pageSize: 0
       }
     };
@@ -188,10 +190,12 @@ describe('Search part', function() {
         meta: {
           type: 'pagination',
           name: 'search-pagination',
-          alternates: ['pagination-search', 'pagination-idx', 'pagination-search-idx'],
+          alternates: ['pagination-search', 'pagination-idx', 'pagination-search-idx']
+        },
+        temp: {
+          displayType: 'main',
           item: item
         },
-        temp: {displayType: 'main'},
         page: 1,
         pageSize: 3,
         count: 8,
@@ -238,10 +242,12 @@ describe('Search part', function() {
         meta: {
           type: 'pagination',
           name: 'search-pagination',
-          alternates: ['pagination-search', 'pagination-idx', 'pagination-search-idx'],
+          alternates: ['pagination-search', 'pagination-idx', 'pagination-search-idx']
+        },
+        temp: {
+          displayType: 'main',
           item: item
         },
-        temp: {displayType: 'main'},
         page: 1,
         pageSize: 3,
         count: 10,

@@ -1,0 +1,21 @@
+{
+  "name": "decent-core-feed",
+  "friendlyName": "Core Feed",
+  "version": "0.0.0",
+  "description": "RSS, Atom, and JSON feeds for DecentCMS",
+  "features": {
+    "feed": {
+      "name": "Feed",
+      "description": "RSS, Atom, and JSON feeds"
+    }
+  },
+  "main": "index.js",
+  "scripts": {},
+  "author": "Bertrand Le Roy",
+  "license": "MIT",
+  "dependencies": {
+    "esprima": "^4.0.1",
+    "feed": "^2.0.1",
+    "static-eval": "^2.0.0"
+  }
+}

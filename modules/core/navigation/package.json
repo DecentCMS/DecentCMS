@@ -19,7 +19,5 @@
   },
   "author": "Bertrand Le Roy",
   "license": "MIT",
-  "dependencies": {
-    "async": "*"
-  }
+  "dependencies": {}
 }

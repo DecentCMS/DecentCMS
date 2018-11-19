@@ -29,8 +29,8 @@ var ShapePart = {
     var shapeHelper = scope.require('shape');
     var contentManager = scope.require('content-manager');
     var type = contentManager.getType(item);
-    Object.getOwnPropertyNames(item).forEach(function(partName) {
-      if (partName === 'meta' || partName === 'temp') return;
+    var parts = contentManager.getPartNames(item);
+    parts.forEach(function (partName) {
       var part = item[partName];
       if (!part) return;
       var shapeName = (part.meta ? part.meta.shape : null)
@@ -42,8 +42,9 @@ var ShapePart = {
         meta.type = shapeName;
         meta.name = partName;
         meta.alternates = [shapeName + '-' + partName];
-        meta.item = item;
-        shapeHelper.temp(part).displayType = temp.displayType;
+        var shapeTemp = shapeHelper.temp(part);
+        shapeTemp.item = item;
+        shapeTemp.displayType = temp.displayType;
         temp.shapes.push(part);
       }
     });

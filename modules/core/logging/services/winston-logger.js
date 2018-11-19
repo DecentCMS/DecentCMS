@@ -10,13 +10,14 @@
  */
 function WinstonLogger(scope) {
   var winston = require('winston');
+  require('winston-daily-rotate-file');
 
   var self = this;
   self.scope = scope;
   var t = scope.require('localization');
 
   // Obtain transports and their settings from shell settings
-  var settings = scope.settings[WinstonLogger.feature] || {
+  var settings = Object.assign({}, scope.settings[WinstonLogger.feature]) || {
     Console: {}
   };
   var transports = [];
@@ -29,8 +30,8 @@ function WinstonLogger(scope) {
       delete settings[transportName];
     }
   }
-  settings.transports = transports;
-  var logger = self.logger = new (winston.Logger)(settings);
+  settings.transports = self.transports = transports;
+  var logger = self.logger = winston.createLogger(settings);
 
   /**
    * Logs a message at the verbose level.
@@ -40,8 +41,7 @@ function WinstonLogger(scope) {
    * An object to dump along with the message in order to give more information.
    */
   this.verbose = function() {
-    arguments[0] = t(arguments[0]);
-    logger.verbose.apply(logger, arguments);
+    this.log('verbose', ...arguments)
   };
 
   /**
@@ -52,8 +52,7 @@ function WinstonLogger(scope) {
    * An object to dump along with the message in order to give more information.
    */
   this.debug = function() {
-    arguments[0] = t(arguments[0]);
-    logger.debug.apply(logger, arguments);
+    this.log('debug', ...arguments)
   };
 
   /**
@@ -64,8 +63,7 @@ function WinstonLogger(scope) {
    * An object to dump along with the message in order to give more information.
    */
   this.info = function() {
-    arguments[0] = t(arguments[0]);
-    logger.info.apply(logger, arguments);
+    this.log('info', ...arguments)
   };
 
   /**
@@ -76,8 +74,7 @@ function WinstonLogger(scope) {
    * An object to dump along with the message in order to give more information.
    */
   this.warn = function() {
-    arguments[0] = t(arguments[0]);
-    logger.warn.apply(logger, arguments);
+    this.log('warn', ...arguments)
   };
 
   /**
@@ -88,8 +85,7 @@ function WinstonLogger(scope) {
    * An object to dump along with the message in order to give more information.
    */
   this.error = function() {
-    arguments[0] = t(arguments[0]);
-    logger.error.apply(logger, arguments);
+    this.log('error', ...arguments)
   };
 
   /**
@@ -102,8 +98,11 @@ function WinstonLogger(scope) {
    * @param {Function} [callback] An optional callback.
    */
   this.log = function(level, msg, meta, callback) {
-    arguments[1] = t(msg);
-    logger[level].apply(logger, arguments);
+    var params = Object.assign({}, meta);
+    params.level = level;
+    params.message = t(msg);
+    logger.log(params);
+    if (callback) callback();
   };
 
   /**

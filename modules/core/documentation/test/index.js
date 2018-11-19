@@ -141,7 +141,7 @@ var scope = {
         };
       case 'content-manager':
         return {
-          getParts: function() {
+          getPartNames: function() {
             return ['toc'];
           }
         };
@@ -510,7 +510,7 @@ describe('JsDoc File Parser', function() {
       expect(context.item.path).to.equal('/path/to/some-file-to-test.js');
       expect(context.item.source).to.equal('path/to/some-file-to-test.js:display');
       expect(context.item.body.flavor).to.equal('markdown');
-      expect(context.item.body.text).to.equal('<a name=\"foo\"></a>\n## foo()\nA function\n\n');
+      expect(context.item.body.text).to.equal('<a name="foo"></a>\n\n## foo()\nA function\n\n**Kind**: global function  \n');
       done();
     });
   });

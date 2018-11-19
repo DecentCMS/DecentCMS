@@ -3,14 +3,26 @@
 var expect = require('chai').expect;
 
 var Logger = require('../services/winston-logger');
+var Writable = require('stream').Writable;
+
+var memoryStream = new Writable({
+  write: function writeToMemory(chunk, encoding, callback) {
+    this._buffer.push(chunk);
+    callback();
+  }
+});
+(memoryStream.reset = function resetMemoryStream() {memoryStream._buffer = [];})();
+memoryStream.getAll = function getAllMemoryStream(separator) {return memoryStream._buffer.join(separator || '|')};
+memoryStream.deserialize = function deserialize() {return memoryStream._buffer.map(s => JSON.parse(s));};
 
 describe('Winston Logger', function() {
   var scope = {
     settings: {
       'winston-logger': {
-        Memory: {
+        Stream: {
           level: 'verbose',
-          handleExceptions: true
+          handleExceptions: true,
+          stream: memoryStream
         },
         exitOnError: false
       }
@@ -24,65 +36,63 @@ describe('Winston Logger', function() {
   var logger = new Logger(scope);
 
   function reset() {
-    logger.logger.transports.memory.writeOutput = [];
-    logger.logger.transports.memory.errorOutput = [];
-    logger.logger.transports.memory.level = 'verbose';
+    memoryStream.reset();
   }
 
   it('gets its configuration from scope settings', function() {
-    expect(logger.logger.transports.memory.level)
+    expect(logger.transports[0].level)
       .to.equal('verbose');
   });
 
   it('can log localized messages', function() {
     reset();
     logger.log('info', 'test', {foo: 'bar'});
-    expect(logger.logger.transports.memory.writeOutput)
-      .to.deep.equal(['info: info [test] foo=bar']);
+    expect(memoryStream.deserialize()[0])
+      .to.deep.equal({level: 'info', message: '[test]', foo: 'bar'});
   });
 
   it('can log verbose-level messages', function() {
     reset();
     logger.verbose('test', {foo: 'bar'});
-    expect(logger.logger.transports.memory.writeOutput)
-      .to.deep.equal(['verbose: [test] foo=bar']);
+    expect(memoryStream.deserialize()[0])
+      .to.deep.equal({level: 'verbose', message: '[test]', foo: 'bar'});
   });
 
   it('can log debug-level messages', function() {
     reset();
-    logger.logger.transports.memory.level = 'debug';
+    logger.logger.transports[0].level = 'debug';
     logger.debug('test', {foo: 'bar'});
-    expect(logger.logger.transports.memory.errorOutput)
-      .to.deep.equal(['debug: [test] foo=bar']);
+    expect(memoryStream.deserialize()[0])
+      .to.deep.equal({level: 'debug', message: '[test]', foo: 'bar'});
   });
 
   it('can log info messages', function() {
     reset();
     logger.info('test', {foo: 'bar'});
-    expect(logger.logger.transports.memory.writeOutput)
-      .to.deep.equal(['info: [test] foo=bar']);
+    expect(memoryStream.deserialize()[0])
+      .to.deep.equal({level: 'info', message: '[test]', foo: 'bar'});
   });
 
   it('can log warning messages', function() {
     reset();
     logger.warn('test', {foo: 'bar'});
-    expect(logger.logger.transports.memory.writeOutput)
-      .to.deep.equal(['warn: [test] foo=bar']);
+    expect(memoryStream.deserialize()[0])
+      .to.deep.equal({level: 'warn', message: '[test]', foo: 'bar'});
   });
 
   it('can log errors', function() {
     reset();
-    logger.logger.transports.memory.level = 'error';
+    logger.logger.transports[0].level = 'error';
     logger.error('test', {foo: 'bar'});
-    expect(logger.logger.transports.memory.errorOutput)
-      .to.deep.equal(['error: [test] foo=bar']);
+    expect(memoryStream.deserialize()[0])
+      .to.deep.equal({level: 'error', message: '[test]', foo: 'bar'});
   });
 
   it("won't log messages under the transport level", function() {
     reset();
-    logger.logger.transports.memory.level = 'error';
+    logger.logger.transports[0].level = 'error';
     logger.info('test', {foo: 'bar'});
-    expect(logger.logger.transports.memory.errorOutput)
+    expect(memoryStream.deserialize())
       .to.be.empty;
   });
 
@@ -100,7 +110,7 @@ describe('Winston Logger', function() {
     // Put the test runner's listener back in place.
     process.addListener('uncaughtException', testRunnerListener);
 
-    expect(logger.logger.transports.memory.errorOutput[0].substr(0, 45))
-      .to.equal('error: uncaughtException: voluntary exception');
+    expect(memoryStream.deserialize()[0].message.substr(0, 38))
+      .to.equal('uncaughtException: voluntary exception');
   });
 });

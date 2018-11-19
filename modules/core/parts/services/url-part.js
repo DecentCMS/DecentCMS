@@ -31,10 +31,12 @@ var UrlPart = {
       meta: {
         type: 'url',
         name: context.partName,
-        alternates: ['url-' + context.partName],
+        alternates: ['url-' + context.partName]
+      },
+      temp: {
+        displayType: context.displayType,
         item: context.item
       },
-      temp: {displayType: context.displayType},
       text: text,
       url: url
     });

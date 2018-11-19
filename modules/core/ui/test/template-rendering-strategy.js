@@ -28,11 +28,11 @@ describe('Template Rendering Strategy', function() {
   var fileResolver = {
     resolve: function (folder, file) {
       switch(file.source) {
-        case 'zone\\.(ve1|ve2)':
+        case '^zone\\.(ve1|ve2)$':
           return 'path/to/zone.ve1';
-        case 'alternate1\\.(ve1|ve2)':
+        case '^alternate1\\.(ve1|ve2)$':
           return 'path/to/alternate1.ve1';
-        case 'shape1\\.(ve1|ve2)':
+        case '^shape1\\.(ve1|ve2)$':
           return 'template.ve2';
         default:
           return null;

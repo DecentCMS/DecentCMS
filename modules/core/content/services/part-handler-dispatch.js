@@ -6,8 +6,9 @@ var async = require('async');
 /**
  * This part handler dispatch handler calls part handlers.
  * The part handlers must implement a service name of the form
- * `[part-type]-part-handler`.
- * Part handlers take a context object and a callback function.
+ * `[part-type]-part-handler` with a handle method that.
+ * takes a context object and a callback function.
+ * The context object has the following structure:
  * 
  * Param       | Type   | Description
  * ------------|--------|------------------------------------------------------------------
@@ -37,17 +38,12 @@ var PartHandlerDispatch = {
     var item = temp.item;
     var scope = context.scope;
     var contentManager = scope.require('content-manager');
-    var type = contentManager.getType(item);
-    async.each(Object.getOwnPropertyNames(item), function (partName, next) {
-      if (partName === 'meta' || partName === 'temp') {next(); return;}
+    var partNames = contentManager.getPartNames(item);
+    async.each(partNames, function (partName, next) {
+      var partType = contentManager.getPartType(item, partName);
       var part = item[partName];
-      if (!part) {next(); return;}
-      var partType = part.meta && part.meta.type
-        ? part.meta.type
-        : type && type.parts && type.parts[partName]
-        ? type.parts[partName].type
-        : null;
-      if (!partType) {next(); return;}
+      if (!partType || !part) {next(); return;}
+      if (typeof(part) === 'object' && !part.site) part.site = scope.require('shell').settings;
       scope.callService(partType + '-part-handler', 'handle', {
         part: part,
         partName: partName,

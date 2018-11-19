@@ -23,6 +23,12 @@ describe('Shape Item Promise Handler', function() {
               };
             case 'shape':
               return require('../services/shape');
+            case 'content-manager':
+              return {
+                getPartNames: function() {
+                  return [];
+                }
+              };
           }
         },
         lifecycle: function() {

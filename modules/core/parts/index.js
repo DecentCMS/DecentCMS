@@ -3,5 +3,8 @@
 
 module.exports = {
   TextPart: require('./services/text-part'),
-  TitlePart: require('./services/title-part')
+  TitlePart: require('./services/title-part'),
+  UrlPart: require('./services/url-part'),
+  DatePart: require('./services/date-part'),
+  ShapePart: require('./services/shape-part')
 };

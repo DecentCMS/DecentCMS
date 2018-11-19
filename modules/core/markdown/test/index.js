@@ -18,13 +18,13 @@ describe('Markdown', function() {
   });
 
   it('passes options to Marked', function() {
-    var md = new Markdown({}, {gfm: true});
-    var markdown = 'foo_bar_baz';
+    var md = new Markdown({}, {gfm: false});
+    var markdown = '~foo~ bar';
     var html = md.getHtml(markdown);
     expect(html).to.equal('<p>' + markdown + '</p>\n');
 
-    md = new Markdown({}, {gfm: false, pedantic: true});
+    md = new Markdown({}, {gfm: true});
     html = md.getHtml(markdown);
-    expect(html).to.equal('<p>foo<em>bar</em>baz</p>\n');
+    expect(html).to.equal('<p><del>foo</del> bar</p>\n');
   });
 });

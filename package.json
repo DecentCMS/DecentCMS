@@ -1,5 +1,5 @@
 {
-  "name": "DecentCMS",
+  "name": "decent-cms",
   "version": "0.2.0",
   "description": "A Decent CMS written in Node",
   "keywords": [
@@ -22,12 +22,13 @@
     "email": "bertrand@decentcms.com",
     "url": "http://weblogs.asp.net/bleroy"
   },
+  "scripts": {
+    "postinstall": "node ./lib/install-decent-modules.js -- install"
+  },
   "dependencies": {},
   "devDependencies": {
-    "async": "*",
-    "grunt": "*",
-    "grunt-cli": "^0.1.13",
-    "grunt-contrib-imagemin": "*",
-    "grunt-run-grunt": "*"
+    "async": "^2.6.1",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0"
   }
 }

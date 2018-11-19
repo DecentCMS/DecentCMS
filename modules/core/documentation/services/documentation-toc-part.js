@@ -35,10 +35,12 @@ var DocumentationTocPart = {
     shape.meta = {
       type: 'documentation-toc',
       name: partName,
-      alternates: ['documentation-toc-' + partName],
+      alternates: ['documentation-toc-' + partName]
+    };
+    shape.temp = {
+      displayType: context.displayType,
       item: item
     };
-    shape.temp = { displayType: context.displayType };
     // Lookup the cache on the request.
     var cachedToc = scope.documentationTOC;
     if (cachedToc) {
@@ -226,7 +228,7 @@ var DocumentationTocPart = {
         // Done building the TOC.
         // If the current topic is a module-less, section-less topic,
         // there's no local TOC.
-        if (!entryForCurrent || !(entryForCurrent.module || entryForCurrent.section)) {
+        if (!entryForCurrent || !(entryForCurrent.module || entryForCurrent.section) || !localTOC) {
           localTOC = [];
         }
         // If the current topic was never found, remove

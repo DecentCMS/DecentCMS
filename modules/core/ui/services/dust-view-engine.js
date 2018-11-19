@@ -17,8 +17,10 @@
  * -
  * Makes the enclosed string localizable.
  *
+ * ```
  *     {@t}Text to localize{/t}
- *
+ * ```
+ * 
  * Shape
  * -----
  * It adds a 'shape' helper that enables the rendering of
@@ -26,34 +28,44 @@
  * that should point to the shape object to render.
  * Optional parameters are tag and class.
  *
+ * ```
  *     {@shape shape=footer tag="footer" class="main-footer"/}
- *
+ * ```
+ * 
  * Style
  * -----
  * Registers a style sheet.
  * Use the non-minimized name, without extension, as the name parameter.
  *
+ * ```
  *     {@style name="style"/}
- *
+ * ```
+ * 
  * Styles
  * ------
  * Renders the list of registered styles.
  *
+ * ```
  *     {@styles/}
- *
+ * ```
+ * 
  * Script
  * ------
  * Registers a script.
  * Use the non-minimized name, without extension, as the name parameter.
  *
+ * ```
  *     {@script name="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.js"/}
- *
+ * ```
+ * 
  * Scripts
  * -------
  * Renders the list of registered scripts.
  *
+ * ```
  *     {@scripts/}
- *
+ * ```
+ * 
  * Meta
  * ----
  * Registers a meta tag.
@@ -67,15 +79,43 @@
  * -----
  * Renders registered meta tags.
  *
+ * ```
  *     {@metas/}
+ * ```
+ *
+ * Date
+ * ----
+ * Formats a date using the Luxon library.
+ * value: the date to format.
+ * format: the format string to use (see <https://moment.github.io/luxon/docs/manual/formatting.html> for reference).
+ *
+ * ```
+ *      {@date format/}
+ * ```
+ * 
+ * Dump
+ * ----
+ * A filter to pretty-print an object, skipping its 'temp' property.
+ * This is particularly useful to dump the current content and debug templates.
+ * 
+ * ```
+ *      {meta|dump|s}
+ *      {.|dump|s}
+ * ```
+ * 
+ * Note: you may need to install Node with full ICU support, in order
+ * to format with locales other than 'en-US'.
  */
-var CodeViewEngine = function CodeViewEngine(scope) {
+var DustViewEngine = function DustViewEngine(scope) {
   this.scope = scope;
 
   var RenderStream = require('./render-stream');
   var dust = require('dustjs-linkedin');
   dust.config.whitespace = !!scope.debug;
   dust.helper = require('dustjs-helpers');
+  var DateTime = require('luxon').DateTime;
+  var pretty = require('js-object-pretty-print').pretty;
+  var shapeHelper = scope.require('shape');
 
   function getDustTemplate(templatePath) {
     return function dustTemplate(shape, renderer, next) {
@@ -257,6 +297,23 @@ var CodeViewEngine = function CodeViewEngine(scope) {
     return chunk.write(html);
   };
 
+  dust.helpers.date = function dateDustHelper(chunk, context, bodies, params) {
+    var renderer = chunk.root['decent-renderer'];
+    var scope = renderer.scope;
+    var locale = scope.require('shell').settings.locale || 'en-US';
+    var val = dust.helpers.tap(params.value, chunk, context);
+    if (!val) return chunk;
+    var dt = (val.constructor === Date ? DateTime.fromJSDate(val) : DateTime.fromISO(val))
+      .setLocale(locale);
+    var format = dust.helpers.tap(params.format, chunk, context) || DateTime.DATETIME_SHORT;
+    return chunk.write(dt.toFormat(format));
+  }
+
+  dust.filters.dump = function dumpDustFilter(value) {
+    var filteredValue = shapeHelper.copy(value);
+    return pretty(filteredValue, 2, 'HTML');
+  }
+
   /**
    * @description
    * Loads the rendering function from the provided path.
@@ -278,9 +335,9 @@ var CodeViewEngine = function CodeViewEngine(scope) {
     });
   };
 };
-CodeViewEngine.service = 'view-engine';
-CodeViewEngine.feature = 'dust-view-engine';
-CodeViewEngine.scope = 'shell';
-CodeViewEngine.prototype.extension = 'tl';
+DustViewEngine.service = 'view-engine';
+DustViewEngine.feature = 'dust-view-engine';
+DustViewEngine.scope = 'shell';
+DustViewEngine.prototype.extension = 'tl';
 
-module.exports = CodeViewEngine;
+module.exports = DustViewEngine;

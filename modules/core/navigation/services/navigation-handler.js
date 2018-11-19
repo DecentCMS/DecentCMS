@@ -1,8 +1,6 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-var async = require('async');
-
 /**
  * A handler that adds the default navigation menu to the top-level
  * 'navigation' zone.
@@ -34,13 +32,12 @@ NavigationHandler.prototype.handle = function handleNavigation(context, done) {
     menu: 'default',
     items: []
   };
-  this.scope.callService('navigation-provider', 'addRootItems', navigationContext, function() {
-    var site = scope.require('shell');
+  this.scope.callService('navigation-service', 'query', navigationContext, function() {
     var current = scope.url;
     var shapeHelper = scope.require('shape');
     shapeHelper.place(layout, 'navigation', {
       meta: {type: 'menu'},
-      site: site,
+      site: scope.require('shell').settings,
       name: navigationContext.menu,
       items: navigationContext.items,
       current: current

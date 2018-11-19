@@ -12,10 +12,8 @@ There is only an experimental installation procedure for the moment:
 * Install the latest Node.js (it should come with npm, but make sure
   your `npm --version` is more than 2;
   if not, `npm install -g npm` should fix it)
-* `npm install -g grunt-cli`
 * Clone the repository `git clone https://github.com/DecentCMS/DecentCMS.git`
 * From the root of the clone, `npm install`
-* From the root of the clone, `grunt install`
 * Create a web site or clone an existing one under `sites/default`
   (for example from [this sample site][decent-consulting-site],
   or from [the DecentCMS web site][decent-cms-site]).

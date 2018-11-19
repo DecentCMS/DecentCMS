@@ -7,7 +7,7 @@ var path = require('path');
  * of the text can be inferred from the extension on a path
  * property on the part if it exist.
  */
-var TextPart = {
+var TextPartHandler = {
   feature: 'core-parts',
   service: 'text-part-handler',
   /**
@@ -30,19 +30,23 @@ var TextPart = {
       : part.text;
     var flavor = part.flavor
       || (part.src ? path.extname(part.src).substr(1) : 'plain-text');
-    shapes.push({
+    var shape = {
       meta: {
         type: 'text',
         name: context.partName,
-        alternates: ['text-' + context.partName],
+        alternates: ['text-' + context.partName]
+      },
+      temp: {
+        displayType: context.displayType,
         item: context.item
       },
-      temp: {displayType: context.displayType},
       text: text,
       flavor: flavor
-    });
+    };
+    if (part.html) shape.html = part.html;
+    shapes.push(shape);
     done();
   }
 };
 
-module.exports = TextPart;
+module.exports = TextPartHandler;

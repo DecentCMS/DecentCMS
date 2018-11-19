@@ -271,7 +271,7 @@ describe('File Content Enumerator', function() {
             },
             temp: {
               storage: "FileSystem",
-              filePath: "foo\\content\\index.json",
+              filePath: path.join("foo", "content", "index.json"),
               name: "index"
             },
             title: "Home"
@@ -279,6 +279,7 @@ describe('File Content Enumerator', function() {
           "bar/baz": {
             body: {
               text: "*markdown*",
+              flavor: "md",
               src: "baz.md"
             },
             id: "bar/baz",
@@ -287,7 +288,7 @@ describe('File Content Enumerator', function() {
             },
             temp: {
               storage: "FileSystem",
-              filePath: "foo\\content\\bar\\baz.json",
+              filePath: path.join("foo", "content", "bar", "baz.json"),
               name: "baz"
             },
             title: "Foo"
@@ -295,6 +296,7 @@ describe('File Content Enumerator', function() {
           "bar/multipart": {
             body: {
               text: "multipart *markdown*",
+              html: "<p>multipart <em>markdown</em></p>\n",
               flavor: "markdown"
             },
             id: "bar/multipart",
@@ -303,7 +305,7 @@ describe('File Content Enumerator', function() {
             },
             temp: {
               storage: "FileSystem",
-              filePath: "foo\\content\\bar\\multipart.yaml.md",
+              filePath: path.join("foo", "content", "bar", "multipart.yaml.md"),
               name: "multipart"
             },
             "title": "Foo multipart"
@@ -311,6 +313,7 @@ describe('File Content Enumerator', function() {
           "bar/yaml": {
             body: {
               text: "YAML *markdown*",
+              flavor: "md",
               src: "yaml.md"
             },
             id: "bar/yaml",
@@ -319,7 +322,7 @@ describe('File Content Enumerator', function() {
             },
             temp: {
               storage: "FileSystem",
-              filePath: "foo\\content\\bar\\yaml.yaml",
+              filePath: path.join("foo", "content", "bar", "yaml.yaml"),
               name: "yaml"
             },
             title: "Foo YAML"
@@ -348,6 +351,7 @@ describe('File Content Enumerator', function() {
           "bar/baz": {
             body: {
               text: "*markdown*",
+              flavor: "md",
               src: "baz.md"
             },
             id: "bar/baz",
@@ -356,7 +360,7 @@ describe('File Content Enumerator', function() {
             },
             temp: {
               storage: "FileSystem",
-              filePath: "foo\\content\\bar\\baz.json",
+              filePath: path.join("foo", "content", "bar", "baz.json"),
               name: "baz"
             },
             title: "Foo"
@@ -364,6 +368,7 @@ describe('File Content Enumerator', function() {
           "bar/yaml": {
             body: {
               text: "YAML *markdown*",
+              flavor: "md",
               src: "yaml.md"
             },
             id: "bar/yaml",
@@ -372,7 +377,7 @@ describe('File Content Enumerator', function() {
             },
             temp: {
               storage: "FileSystem",
-              filePath: "foo\\content\\bar\\yaml.yaml",
+              filePath: path.join("foo", "content", "bar", "yaml.yaml"),
               name: "yaml"
             },
             title: "Foo YAML"

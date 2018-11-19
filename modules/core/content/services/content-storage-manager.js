@@ -63,6 +63,7 @@ ContentStorageManager.prototype.getAvailableItem = function getAvailableItem(id)
 ContentStorageManager.prototype.fetchContent = function fetchContent(context, callback) {
   var scope = this.scope;
   var itemsToFetch = scope.itemsToFetch;
+  var async = require('async');
   Object.getOwnPropertyNames(itemsToFetch)
     .forEach(function(id) {
       if (scope.items.hasOwnProperty(id)
@@ -83,7 +84,14 @@ ContentStorageManager.prototype.fetchContent = function fetchContent(context, ca
       request: context.request,
       items: scope.items,
       itemsToFetch: itemsToFetch
-    }, callback);
+    }, function() {
+      async.each(scope.items, function(item, next) {
+        scope.callService('part-loader', 'load', {
+          scope: scope,
+          item: item
+        }, next);
+      }, callback);
+    });
   }
   else if (callback) {
     callback();
