@@ -1,7 +1,10 @@
 // DecentCMS (c) 2018 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-const DefaultFeedMapper = {
+/**
+ * Map lists of content items to feeds.
+ */
+const defaultFeedMapper = {
   service: 'feed-mapper',
   feature: 'default-feed-mapper',
   scope: 'shell',
@@ -76,4 +79,4 @@ const DefaultFeedMapper = {
   }
 };
 
-module.exports = DefaultFeedMapper;
+module.exports = defaultFeedMapper;
