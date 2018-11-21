@@ -55,6 +55,7 @@
     "flasync": "^0.2.3",
     "htmlencode": "0.0.4",
     "js-object-pretty-print": "^0.3.0",
-    "luxon": "^1.6.2"
+    "luxon": "^1.6.2",
+    "striptags": "^3.1.1"
   }
 }

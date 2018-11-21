@@ -105,6 +105,23 @@
  * 
  * Note: you may need to install Node with full ICU support, in order
  * to format with locales other than 'en-US'.
+ * 
+ * Plain
+ * -----
+ * A filter that removes tags and newlines from an HTML source.
+ * 
+ * ```
+ *      {body.html|plain}
+ * ```
+ * 
+ * First Paragraph
+ * ---------------
+ * A filter that extracts the plain text from the first paragraph from an HTML string,
+ * or all the text before a `<--more-->` tag.
+ * 
+ * ```
+ *      {body.html|firstp}
+ * ```
  */
 var DustViewEngine = function DustViewEngine(scope) {
   this.scope = scope;
@@ -116,6 +133,7 @@ var DustViewEngine = function DustViewEngine(scope) {
   var DateTime = require('luxon').DateTime;
   var pretty = require('js-object-pretty-print').pretty;
   var shapeHelper = scope.require('shape');
+  var striptags = require('striptags');
 
   function getDustTemplate(templatePath) {
     return function dustTemplate(shape, renderer, next) {
@@ -312,6 +330,23 @@ var DustViewEngine = function DustViewEngine(scope) {
   dust.filters.dump = function dumpDustFilter(value) {
     var filteredValue = shapeHelper.copy(value);
     return pretty(filteredValue, 2, 'HTML');
+  }
+
+  dust.filters.plain = function plainDustFilter(html) {
+    return striptags(html).replace(/\s\s+/gm, ' ').replace(/[\r\n]/gm, ' ').trim();
+  }
+
+  dust.filters.firstp = function firstParagraphDustFilter(html) {
+    var output = html;
+    var more = html.search(/<!--more.*-->/gm);
+    if (more !== -1) {
+      output = html.substr(0, more);
+    }
+    else {
+      var p = html.match(/<p[^>]*>(.*?)<\/p>/gmi) || [];
+      if (p[0]) output = p[0];
+    }
+    return dust.filters.plain(output);
   }
 
   /**
