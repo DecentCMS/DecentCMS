@@ -89,10 +89,8 @@ const feedRouteHandler = {
               const feedMapper = scope.require('feed-mapper');
               if (feedMapper) {
                 item.site = scope.settings;
-                const port = request.connection.localPort;
-                const isDefaultPort = port === (request.protocol === 'https' ? 443 : 80);
-                item.site.baseUrl = item.site.baseUrl || `${request.protocol}://${request.hostname}${isDefaultPort ? '': `:${port}`}`;
-                item.url = item.url || item.site.baseUrl + id;
+                item.baseUrl = request.baseUrl;
+                item.url = item.url || item.baseUrl + id;
                 const feedData = feedMapper.map(scope, item);
                 const posts = feedData.posts || [];
                 delete feedData.posts;

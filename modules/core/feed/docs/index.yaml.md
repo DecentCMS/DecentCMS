@@ -29,8 +29,8 @@ The default feed mapping is as follows:
   description: item.body ? item.body.text : null,
   id: item.url,
   link: item.url,
-  image: site.baseUrl + site.icon,
-  favicon: site.baseUrl + site.favicon,
+  image: item.baseUrl + site.icon,
+  favicon: item.baseUrl + site.favicon,
   copyright: site.copyright,
   generator: 'DecentCMS',
   author: {
@@ -51,8 +51,8 @@ Once the feed has been mapped, each items in the results is mapped as follows:
 ```json
 {
   title: post.title,
-  id: site.baseUrl + '/' + post.url,
-  link: site.baseUrl + '/' + post.url,
+  id: item.baseUrl + '/' + post.url,
+  link: item.baseUrl + '/' + post.url,
   description: post.summary,
   content: post.body ? post.body.text : null,
   author: {

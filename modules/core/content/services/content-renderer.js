@@ -79,7 +79,9 @@ ContentRenderer.prototype.render = function render(context, pageBuilt) {
   var layout = scope.layout = {
     meta: {type: 'layout'},
     site: scope.require('shell').settings,
-    temp: {}
+    temp: {
+      baseUrl: scope.baseUrl
+    }
   };
   var renderStream = scope.require('render-stream');
   // TODO: add filters, that are just additional pipes before res.

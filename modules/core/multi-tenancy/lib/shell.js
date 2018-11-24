@@ -179,6 +179,8 @@ Shell.prototype.canHandle = function(request) {
       // if the same shell is on a server configured and able to answer on both
       // the host and debug host. That should however never happen.
       this.debug = request.debug;
+      // Set the base URL on the request
+      request.baseUrl = `http${this.https ? 's' : ''}://${host}`;//${request.hostname}${isDefaultPort ? '': `:${port}`}`;
       return true;
     }
   }

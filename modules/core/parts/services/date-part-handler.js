@@ -1,6 +1,5 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-var path = require('path');
 
 /**
  * The date part handler creates date shapes.

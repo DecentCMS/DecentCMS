@@ -29,8 +29,8 @@ const defaultFeedMapper = {
       description: item.body ? item.body.text : null,
       id: item.url,
       link: item.url,
-      image: site.baseUrl + site.icon,
-      favicon: site.baseUrl + site.favicon,
+      image: item.baseUrl + site.icon,
+      favicon: item.baseUrl + site.favicon,
       copyright: site.copyright,
       generator: 'DecentCMS',
       author: {
@@ -42,8 +42,8 @@ const defaultFeedMapper = {
     });
     let postMapping = (post, site) => ({
       title: post.title,
-      id: site.baseUrl + '/' + post.url,
-      link: site.baseUrl + '/' + post.url,
+      id: item.baseUrl + '/' + post.url,
+      link: item.baseUrl + '/' + post.url,
       description: post.summary,
       content: post.body ? post.body.text : null,
       author: {
@@ -69,7 +69,7 @@ const defaultFeedMapper = {
       const posts = postsShape[feed.postsShapeProperty];
       if (posts) {
         posts.forEach(post => {
-          post.url = post.url || site.baseUrl + post.id;
+          post.url = post.url || item.baseUrl + post.id;
           const mappedPost = postMapping(post, scope.settings);
           feed.posts.push(mappedPost);
         });

@@ -51,10 +51,8 @@ var ShapeItemPromiseHandler = {
     // Copy some additional contextual data to temp
     var shapeTemp = shape.temp(itemShape);
     shapeTemp.item = item;
-    const port = scope.connection ? scope.connection.localPort : 80;
-    const isDefaultPort = port === (scope.protocol === 'https' ? 443 : 80);
-    const baseUrl = `${scope.protocol}://${scope.hostname}${isDefaultPort ? '': `:${port}`}`;
-    shapeTemp.baseUrl = baseUrl;
+    itemShape.site = scope.require('shell').settings;
+    shapeTemp.baseUrl = scope.baseUrl;
     // Also copy the parts to the top level, which is useful
     // for content templates not using zones and placement.
     contentManager.getPartNames(item).forEach(function(partName) {
