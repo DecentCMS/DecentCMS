@@ -21,11 +21,11 @@ function FileIndex(scope, idFilter, map, orderBy, descending, name) {
     idFilter = null;
   }
   this.scope = scope;
-  this.idFilter = idFilter;
+  this.idFilter = typeof(idFilter) === 'string' ? new RegExp(idFilter) : idFilter;
   this.map = map;
   this.orderBy = orderBy;
   this.descending = !!descending;
-  this.name = name || FileIndex._toName(map, orderBy);
+  this.name = name || FileIndex._toName(idFilter, map, orderBy);
   this._unsortedIndex = null;
   this._index = null;
 
@@ -195,6 +195,7 @@ FileIndex.prototype.build = function build() {
         return;
       }
       if (item) {
+        if (self.idFilter && self.idFilter.test && !self.idFilter.test(item.id)) {next();return;}
         self.scope.callService('part-loader', 'load', {
           scope: self.scope,
           item: item

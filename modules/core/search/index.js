@@ -4,6 +4,6 @@
 module.exports = {
   Index: require('./services/index'),
   FileIndex: require('./services/file-index'),
-  SearchPart: require('./services/search-part'),
+  QueryPart: require('./services/query-part'),
   LunrSearch: require('./services/lunr-search')
 };

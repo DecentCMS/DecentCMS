@@ -13,7 +13,7 @@ item's URL yields a feed of the corresponding flavor.
 Mapping
 -------
 
-This becomes interesting when the content item has a `search-part`: in that case, the feed
+This becomes interesting when the content item has a `query-part`: in that case, the feed
 module can automatically map the search results onto a well-formed feed.
 
 The default mapping should be enough in most cases, as it relies on reasonable conventions
@@ -44,7 +44,7 @@ The default feed mapping is as follows:
 
 The `postShapeName` and `postsShapeProperty` properties of the mapping defines what handled
 shape to map. If this shape and property can't be found in the content zone after being handled
-by the content pipeline. These defaults correspond to the shape that the `search-part` creates.
+by the content pipeline. These defaults correspond to the shape that the `query-part` creates.
 
 Once the feed has been mapped, each items in the results is mapped as follows:
 

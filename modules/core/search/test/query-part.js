@@ -2,7 +2,7 @@
 'use strict';
 var expect = require('chai').expect;
 
-describe('Search part', function() {
+describe('Query part', function() {
   var items = [
     {id: 1, title: 'one'},
     {id: 2, title: 'two'},
@@ -80,11 +80,11 @@ describe('Search part', function() {
     }
   };
 
-  var SearchPart = require('../services/search-part');
+  var QueryPart = require('../services/query-part');
 
   it("can return a filtered list of entries", function(done) {
     var item = {
-      search: {
+      query: {
         indexName: 'idx',
         idFilter: 'exp',
         map: '{foo: item.title, id: item.id}',
@@ -95,19 +95,19 @@ describe('Search part', function() {
     };
     var context = {
       shapes:[],
-      part: item.search,
-      partName: 'search',
+      part: item.query,
+      partName: 'query',
       item: item,
       displayType: 'main',
       scope: scope
     };
 
-    SearchPart.handle(context, function() {
+    QueryPart.handle(context, function() {
       expect(context.shapes).to.deep.equal([
         {
           meta: {
-            alternates: ["search-results-search", "search-results-idx", "search-results-search-idx"],
-            name: "search-results",
+            alternates: ["search-results-query", "search-results-idx", "search-results-query-idx"],
+            name: "query-results",
             type: "search-results"
           },
           temp: {
@@ -152,7 +152,7 @@ describe('Search part', function() {
       scope: scope
     };
 
-    SearchPart.handle(context, function() {
+    QueryPart.handle(context, function() {
       expect(context.shapes[0].results).to.equal(15);
       done();
     });
@@ -180,7 +180,7 @@ describe('Search part', function() {
       scope: scope
     };
 
-    SearchPart.handle(context, function() {
+    QueryPart.handle(context, function() {
       expect(context.shapes[0].results).to.deep.equal([
         {id: 9, foo: 'nine'},
         {id: 7, foo: 'seven'},
@@ -232,7 +232,7 @@ describe('Search part', function() {
       scope: scope
     };
 
-    SearchPart.handle(context, function() {
+    QueryPart.handle(context, function() {
       expect(context.shapes[0].results).to.deep.equal([
         {id: 9, foo: 'nine'},
         {id: 1, foo: 'one'},

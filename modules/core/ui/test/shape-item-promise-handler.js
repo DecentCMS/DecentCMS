@@ -29,6 +29,12 @@ describe('Shape Item Promise Handler', function() {
                   return [];
                 }
               };
+            case 'shell':
+              return {
+                settings: {
+                  setting1: 'value1'
+                }
+              };
           }
         },
         lifecycle: function() {

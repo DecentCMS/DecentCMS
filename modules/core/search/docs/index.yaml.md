@@ -1,9 +1,9 @@
-title: Search
+title: Search and query
 
 -8<------------------------------------------------------------------
 
 The search module provides the infrastructure to build and query
-search indexes, as well as a file-based implementation that is
+indexes, as well as file-based implementations that are
 suitable for small sites.
 
 Querying in DecentCMS is based on a simple JavaScript API that is
@@ -16,9 +16,9 @@ It also enables querying to work in a unified way across
 heterogeneous storage mechanisms.
 Effectively, storage and querying are entirely separated.
 
-It is possible to create and query a search index from code, like
+It is possible to create and query an index from code, like
 `documentation-toc-part` is doing, but there is also a ready-to-use
-content part that makes simple querying really easy: `search-part`.
+content part that makes simple querying really easy: `query-part`.
 
 The search API
 --------------
@@ -140,7 +140,7 @@ We'll assume here that the site that we're working on has the
 `api-documentation` feature enabled, so that the topics we want to
 display actually exist.
 
-The `search-part` feature must also be enabled on the site, as well
+The `query-part` feature must also be enabled on the site, as well
 as the `query` feature, and an implementation of the `index` service,
 such as the one in the `file-index` feature.
 
@@ -228,6 +228,6 @@ The search part is a convenient and simple way of querying the CMS,
 and of displaying the results.
 The reference documentation for it can be found in this topic:
 
-[/docs/api/decent-core-search/search-part](/docs/api/decent-core-search/search-part)
+[/docs/api/decent-core-search/query-part](/docs/api/decent-core-search/query-part)
 
   [get-index]: /docs/api/decent-core-search/index

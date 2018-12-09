@@ -12,13 +12,13 @@
       "name": "File Index",
       "description": "File-based index persistence."
     },
-    "search-part": {
+    "query-part": {
       "name": "Search Part",
       "description": "Content part that displays the results of a search."
     },
-    "lunr-full-text-search": {
+    "lunr-search": {
       "name": "Lunr Full-Text Search",
-      "description": "Full-text search suitable for small sites."
+      "description": "Full-text search engine suitable for small sites."
     }
   },
   "main": "./index",
