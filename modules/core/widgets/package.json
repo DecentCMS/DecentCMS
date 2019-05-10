@@ -22,7 +22,7 @@
   "dependencies": {
     "async": "^2.6.1",
     "esprima": "^4.0.1",
-    "static-eval": "^2.0.0"
+    "static-eval": "^2.0.2"
   },
   "devDependencies": {
     "chai": "^4.2.0",
