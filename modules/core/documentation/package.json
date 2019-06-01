@@ -24,8 +24,8 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "dependencies": {
-    "async": "^2.6.1",
-    "jsdoc-to-markdown": "^4.0.1"
+    "async": "^2.6.2",
+    "jsdoc-to-markdown": "^5.0.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",

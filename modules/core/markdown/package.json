@@ -16,7 +16,7 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "dependencies": {
-    "marked": "^0.5.1"
+    "marked": "^0.6.2"
   },
   "devDependencies": {
     "chai": "^4.2.0",
