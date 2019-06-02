@@ -196,4 +196,21 @@ describe('Dust View Engine', function() {
       });
     });
   });
+
+  it('can register and render link tags', function(done) {
+    template =
+      '{@link rel="foo" type="foo/foo" href="Fou"/}' +
+      '{@link rel="bar" type="bar/bar" href="Barre" custom="yup" other="baz"/}' +
+      'Registered links:{~n}{@links/}.';
+    dustViewEngine.load('path-to-template-registering-links', function(renderTemplate) {
+      renderTemplate({}, renderer, function() {
+        expect(html.join(''))
+          .to.equal('Registered links:\n' +
+          '<link rel="foo" type="foo/foo" href="Fou"/>' +
+          '<link custom="yup" other="baz" rel="bar" type="bar/bar" href="Barre"/>' +
+          '.');
+        done();
+      });
+    });
+  });
 });

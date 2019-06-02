@@ -82,6 +82,25 @@
  * ```
  *     {@metas/}
  * ```
+ * 
+ * Link
+ * ----
+ * Registers a link tag, pointing to a relative resource.
+ * For styles, use the style helper instead.
+ * rel: specifies the relationship to the document
+ * type: specifies the MIME type
+ * href: the URL of the linked content
+ * Additional attributes will be rendered as-is.
+ *
+ *     {@link rel="icon" type="ïmage/png" href="/media/favicon-128.png" sizes="128x128"/}
+ *
+ * Links
+ * -----
+ * Renders registered link tags.
+ *
+ * ```
+ *     {@links/}
+ * ```
  *
  * Date
  * ----
@@ -196,6 +215,7 @@ var DustViewEngine = function DustViewEngine(scope) {
         scripts: renderer.scripts,
         stylesheets: renderer.stylesheets,
         meta: renderer.meta,
+        links: renderer.links,
         title: renderer.title
       });
       innerRenderer
@@ -312,6 +332,44 @@ var DustViewEngine = function DustViewEngine(scope) {
       html += data;
     });
     innerRenderer._renderMeta();
+    return chunk.write(html);
+  };
+
+  dust.helpers.link = function linkDustHelper(chunk, context, bodies, params) {
+    var attributes = {};
+    var rel = '';
+    var type = '';
+    var href = '';
+    Object.getOwnPropertyNames(params).forEach(function forEachParam(attrName) {
+      switch(attrName) {
+        case 'rel':
+          rel = dust.helpers.tap(params.rel, chunk, context);
+          break;
+        case 'type':
+          type = dust.helpers.tap(params.type, chunk, context);
+          break;
+        case 'href':
+          href = dust.helpers.tap(params.href, chunk, context);
+          break;
+        default:
+          attributes[attrName] = dust.helpers.tap(params[attrName], chunk, context);
+      }
+    });
+    var renderer = chunk.root['decent-renderer'];
+    renderer._addLink(rel, type, href, attributes);
+    return chunk;
+  };
+
+  dust.helpers.links = function linksDustHelper(chunk, context, bodies, params) {
+    var renderer = chunk.root['decent-renderer'];
+    var innerRenderer = new RenderStream(renderer.scope, {
+      links: renderer.links
+    });
+    var html = '';
+    innerRenderer.on('data', function onShapeData(data) {
+      html += data;
+    });
+    innerRenderer._renderLinks();
     return chunk.write(html);
   };
 

@@ -303,4 +303,20 @@ describe('Render Stream', function() {
       '<meta foo="fou"/>\r\n' +
       '<meta foo="fou" content="bar"/>\r\n');
   });
+
+  it('renders link tags', function() {
+    renderer
+      .addLink('icon', 'image/png', '/media/icon.png')
+      .addLink('foo', 'bar', null, {baz:'baaaa', blah: 'lorem'})
+      .addLink(null, null, null, {foo: 'fou'})
+      .addLink(null, 'bar', null, {foo: 'fou'})
+      .renderLinks();
+
+    expect(result)
+      .to.equal(
+      '<link rel="icon" type="image/png" href="/media/icon.png"/>\r\n' +
+      '<link baz="baaaa" blah="lorem" rel="foo" type="bar"/>\r\n' +
+      '<link foo="fou"/>\r\n' +
+      '<link foo="fou" type="bar"/>\r\n');
+  });
 });

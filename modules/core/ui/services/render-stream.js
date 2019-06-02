@@ -13,6 +13,7 @@ var util = require('util');
  * @param {object} options The options
  * @param {Array} [options.scripts] The list of scripts
  * @param {Array} [options.stylesheets] The list of stylesheets
+ * @param {Array} [options.links] The list of links
  * @param {object} [options.meta] The meta tags
  * @param {string} [options.title] The title
  * @param {Array} [options.tags] The stack of tags currently open
@@ -30,6 +31,7 @@ function RenderStream(scope, options) {
   this.scope = scope;
   this.scripts = options.scripts = options.scripts || [];
   this.stylesheets = options.stylesheets = options.stylesheets || [];
+  this.links = options.links = options.links || [];
   this.meta = options.meta = options.meta || {};
   this.metaIndex = 0;
   this.title = options.title = options.title || '';
@@ -455,6 +457,58 @@ function RenderStream(scope, options) {
           if (meta.name) attributes.name = meta.name;
           if (meta.value) attributes.content = meta.value;
           this.tag('meta', attributes);
+        }
+        return this;
+      }
+  );
+
+  /**
+   * @description
+   * Adds a link tag. This does not render the tag, it just stores the data for,
+   * typically, the layout template to render using renderLinks.
+   * @param {string} rel          The relationship of the linked resource to the current page (will be rendered as the rel attribute).
+   * @param {string} type         The MIME type of the link tag (will be rendered as the type attribute).
+   * @param {string} href         The URL of the link tag (will be rendered as the content attribute).
+   * @param {object} [attributes] Additional attributes to add to the link tag.
+   */
+  this.addLink = this.asyncify(this._addLink =
+    function addLink(rel, type, href, attributes) {
+      this.links.push({
+        rel: rel,
+        type: type,
+        href: href,
+        attributes: attributes
+      });
+    return this;
+    }
+  );
+
+  /**
+   * @description
+   * Renders the link tags that have been registered so far using addLink.
+   */
+  this.renderLinks = this.asyncify(this._renderLinks =
+    scope.debug
+      ? function renderLinks() {
+        for (var i = 0; i < this.links.length; i++) {
+          var link = this.links[i];
+          var attributes = link.attributes || {};
+          if (link.rel) attributes.rel = link.rel;
+          if (link.type) attributes.type = link.type;
+          if (link.href) attributes.href = link.href;
+          this.tag('link', attributes);
+          this.push('\r\n');
+        }
+        return this;
+      }
+      : function renderLinks() {
+        for (var i = 0; i < this.links.length; i++) {
+          var link = this.links[i];
+          var attributes = link.attributes || {};
+          if (link.rel) attributes.rel = link.rel;
+          if (link.type) attributes.type = link.type;
+          if (link.href) attributes.href = link.href;
+          this.tag('link', attributes);
         }
         return this;
       }
