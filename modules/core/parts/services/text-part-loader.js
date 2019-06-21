@@ -3,7 +3,7 @@
 var htmlencode = require('htmlencode');
 
 /**
- * The text part loader parses date strings into real date objects.
+ * The text part loader transforms all flavors of text to HTML.
  */
 var TextPartLoader = {
   feature: 'core-parts',

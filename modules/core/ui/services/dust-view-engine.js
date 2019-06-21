@@ -168,21 +168,13 @@ var DustViewEngine = function DustViewEngine(scope) {
 
   dust.helpers.shape = function shapeDustHelper(chunk, context, bodies, params) {
     var theShape = dust.helpers.tap(params.shape, chunk, context);
-    if (!theShape) {
-      return chunk.map(function renderEmpty(chunk) {chunk.end();});
-    }
+    var name, tag;
+    var attributes = {};
     // Clone the shape, so that its attributes can be changed between different
     // renderings of the same shape.
     // Warning: shallow copy, so weird things may still happen for object and
     // array properties.
-    var shape = {meta: theShape.meta, temp: theShape.temp};
-    Object.getOwnPropertyNames(theShape)
-      .forEach(function(propertyName) {
-        if (propertyName === 'meta' || propertyName == 'temp') return;
-        shape[propertyName] = theShape[propertyName];
-      });
-    var name, tag;
-    var attributes = {};
+    var shape = theShape ? {meta: theShape.meta, temp: theShape.temp} : null;
     Object.getOwnPropertyNames(params)
       .forEach(function(paramName) {
         var param = dust.helpers.tap(params[paramName], chunk, context);
@@ -205,9 +197,21 @@ var DustViewEngine = function DustViewEngine(scope) {
               attributes[paramName] = param;
             }
             else {
+              if (!shape) {
+                shape = {meta: {}, temp: {}};
+              }
               shape[paramName] = param;
             }
         }
+      });
+    // If after that, we still don't have a shape, render nothing.
+    if (!shape) {
+      return chunk.map(function renderEmpty(chunk) {chunk.end();});
+    }
+    if (theShape) Object.getOwnPropertyNames(theShape)
+      .forEach(function(propertyName) {
+        if (propertyName === 'meta' || propertyName == 'temp') return;
+        shape[propertyName] = theShape[propertyName];
       });
     var renderer = chunk.root['decent-renderer'];
     return chunk.map(function renderShapeFromDust(chunk) {
@@ -404,7 +408,7 @@ var DustViewEngine = function DustViewEngine(scope) {
       var p = html.match(/<p[^>]*>(.*?)<\/p>/gmi) || [];
       if (p[0]) output = p[0];
     }
-    return dust.filters.plain(output);
+    return output;
   }
 
   /**
