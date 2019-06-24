@@ -18,7 +18,7 @@
  * Makes the enclosed string localizable.
  *
  * ```
- *     {@t}Text to localize{/t}
+ * {@t}Text to localize{/t}
  * ```
  * 
  * Shape
@@ -26,10 +26,49 @@
  * It adds a 'shape' helper that enables the rendering of
  * DecentCMS shapes. The shape helper takes a 'shape' parameter
  * that should point to the shape object to render.
- * Optional parameters are tag and class.
+ * Optional parameters are tag and class, which specify a HTML tag
+ * that will surround the shape rendering.
+ * Parameters with a name that is prefixed with 'data-' are copied
+ * onto the surrounding tag.
  *
+ * The following tag creates a 'footer' zone that can then be
+ * targeted by placement and contains other shapes such as widgets.
+ * 
  * ```
- *     {@shape shape=footer tag="footer" class="main-footer"/}
+ * {@shape shape=footer tag="footer" class="main-footer"/}
+ * ```
+ * 
+ * The 'shape' attribute, if specified, points to the model object
+ * representing the shape.
+ * 
+ * The 'name' attribute, if specified, tells the rendering engine
+ * the base template name to use when looking for the best template
+ * to render the shape.
+ * 
+ * Other parameters are copied onto the shape object, and can be used
+ * from the template that will be used to render it.
+ * If those parameters exist, that creates a shape object even when
+ * one didn't exist before.
+ * This means that the shape tag is a very simple way to structure
+ * a complex template into multiple smaller and simpler ones.
+ * 
+ * For instance, the following tag will create a 'tweet' template and
+ * render it in-place:
+ * 
+ * ```
+ * {@shape name="tweet" text="{site.name} {_episode} - {_title|s}" url="{temp.baseUrl}/{_id}" via="{site.twitter}" /}
+ * ```
+ * 
+ * If the theme's views folder contains a `tweet.tl` template, it will
+ * get rendered:
+ * 
+ * ```
+ * <a href="https://twitter.com/intent/tweet?text={text|uc}&via={via|uc}&url={url|uc}" target="_blank">
+ *  <span class="badge badge-dark share-twitter">
+ *    <i class="fab fa-twitter"></i>
+ *    <span class="share-text">Tweet</span>
+ *  </span>
+ * </a>
  * ```
  * 
  * Style
@@ -38,7 +77,7 @@
  * Use the non-minimized name, without extension, as the name parameter.
  *
  * ```
- *     {@style name="style"/}
+ * {@style name="style"/}
  * ```
  * 
  * Styles
@@ -46,7 +85,7 @@
  * Renders the list of registered styles.
  *
  * ```
- *     {@styles/}
+ * {@styles/}
  * ```
  * 
  * Script
@@ -55,7 +94,7 @@
  * Use the non-minimized name, without extension, as the name parameter.
  *
  * ```
- *     {@script name="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.js"/}
+ * {@script name="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.js"/}
  * ```
  * 
  * Scripts
@@ -63,7 +102,7 @@
  * Renders the list of registered scripts.
  *
  * ```
- *     {@scripts/}
+ * {@scripts/}
  * ```
  * 
  * Meta
@@ -73,14 +112,16 @@
  * value: the value of the tag (rendered as the content attribute)
  * Additional attributes will be rendered as-is.
  *
- *     {@meta name="generator" value="DecentCMS"/}
+ * ```
+ * {@meta name="generator" value="DecentCMS"/}
+ * ```
  *
  * Metas
  * -----
  * Renders registered meta tags.
  *
  * ```
- *     {@metas/}
+ * {@metas/}
  * ```
  * 
  * Link
@@ -92,14 +133,16 @@
  * href: the URL of the linked content
  * Additional attributes will be rendered as-is.
  *
- *     {@link rel="icon" type="ïmage/png" href="/media/favicon-128.png" sizes="128x128"/}
+ * ```
+ * {@ link rel="icon" type="image/png" href="/media/favicon-128.png" sizes="128x128"/}
+ * ```
  *
  * Links
  * -----
  * Renders registered link tags.
  *
  * ```
- *     {@links/}
+ * {@links/}
  * ```
  *
  * Date
@@ -109,7 +152,7 @@
  * format: the format string to use (see <https://moment.github.io/luxon/docs/manual/formatting.html> for reference).
  *
  * ```
- *      {@date format/}
+ * {@date format/}
  * ```
  * 
  * Dump
@@ -118,8 +161,8 @@
  * This is particularly useful to dump the current content and debug templates.
  * 
  * ```
- *      {meta|dump|s}
- *      {.|dump|s}
+ * {meta|dump|s}
+ * {.|dump|s}
  * ```
  * 
  * Note: you may need to install Node with full ICU support, in order
@@ -130,7 +173,7 @@
  * A filter that removes tags and newlines from an HTML source.
  * 
  * ```
- *      {body.html|plain}
+ * {body.html|plain}
  * ```
  * 
  * First Paragraph
@@ -139,9 +182,11 @@
  * or all the text before a `<--more-->` tag.
  * 
  * ```
- *      {body.html|firstp}
+ * {body.html|firstp}
  * ```
- */
+ * 
+ * @constructor
+*/
 var DustViewEngine = function DustViewEngine(scope) {
   this.scope = scope;
 
