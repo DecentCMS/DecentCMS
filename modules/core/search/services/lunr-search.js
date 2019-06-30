@@ -123,7 +123,7 @@ class LunrIndex {
       results = results.filter(result => options.where(result));
     }
     const totalCount = results.length;
-    if (options.start) {
+    if (options.start || options.start === 0) {
       if (options.count) {
         results = results.slice(options.start, options.start + options.count);
       }
