@@ -25,6 +25,7 @@ var CouchContentEnumerator = {
       : context.idFilter || /^[^_]/;
     var shell = scope.require('shell');
     var config = shell.settings[CouchContentEnumerator.feature];
+    var exclude = config.exclude || [];
     var Couch = scope.require('couch-db');
     var couch = Couch.getCouch(config);
 
@@ -47,6 +48,7 @@ var CouchContentEnumerator = {
         couch.getIndexPage({
           page: currentPage++,
           idFilter: idFilter,
+          exclude: exclude,
           pageSize: pageSize},
           function handleNewItems(err, items) {
             if (err) {

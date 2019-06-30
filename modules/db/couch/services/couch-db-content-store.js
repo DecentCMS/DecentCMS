@@ -35,6 +35,7 @@ var CouchContentStore = {
 
     var Couch = scope.require('couch-db');
     var couch = Couch.getCouch(config);
+    // TODO: implement idFilter and exclude
     couch.fetchItems(paths, function (err, newItems) {
       if (err) {
         var log = scope.require('log');

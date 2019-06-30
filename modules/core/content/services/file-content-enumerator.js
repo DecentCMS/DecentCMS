@@ -27,9 +27,10 @@ var fileContentEnumerator = {
       ? new RegExp(context.idFilter)
       : context.idFilter;
     var shell = scope.require('shell');
+    var exclude = shell.settings[fileContentEnumerator.feature].exclude || [];
     var siteRoot = path.resolve(shell.rootPath, 'content');
     var currentDirPath = siteRoot;
-    var currentDir = fs.readdirSync(siteRoot);
+    var currentDir = fs.readdirSync(siteRoot).filter(d => !exclude.includes(d));
     var i = 0;
     var currentPath;
     var extensions = Array.prototype.concat.apply([],
