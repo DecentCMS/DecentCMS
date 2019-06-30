@@ -444,6 +444,7 @@ var DustViewEngine = function DustViewEngine(scope) {
   }
 
   dust.filters.firstp = function firstParagraphDustFilter(html) {
+    html = html || '';
     var output = html;
     var more = html.search(/<!--more.*-->/gm);
     if (more !== -1) {
