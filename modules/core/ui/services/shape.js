@@ -93,7 +93,7 @@ var Shape = {
    */
   parseOrder: function parseOrder(orderString) {
     if (!orderString) return [];
-    return orderString
+    return (''+ orderString)
       .split('.')
       .map(function (token) {
         var numberToken = parseInt(token, 10);
