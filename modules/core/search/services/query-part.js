@@ -27,7 +27,7 @@ var QueryPart = {
    *  [idFilter]            | `string`  | A filter regular expression to apply to item ids before they are handed to the indexing process.
    *  map                   | `string`  | A mapping expression for the index. It can refer to the passed-in content item as `item`. It can evaluate as null, an object, or an array of objects.
    *  orderBy               | `string`  | An ordering expression for the index. It can refer to the passed-in index entry as `entry`. It can evaluate as an object, or an array.
-   *  [where]               | `string`  | A where expression. It can refer to the index entry to filter as `entry`. It evaluates as a Boolean.
+   *  [where]               | `string`  | A where expression. It can refer to the index entry to filter as `entry` and to the parsed query string as `query`. It evaluates as a Boolean.
    *  [reduce]              | `string`  | A reduce expression. It can refer to the previous value as `val`, the index entry as `entry`, and the index of the entry as `i`. It evaluates as the new value. The part will pass null as the first initial value, so the function should create what it needs if it sees null. If not specified, an array of index entries is the result.
    *  [page]                | `number`  | The 0-based page number to display. The default is 0. The page number will be overwritten with the value from the querystring if there is one.
    *  [pageSize]            | `number`  | The size of the page. If zero, all results are shown. The default value is 10.
@@ -37,7 +37,7 @@ var QueryPart = {
    *  [displayFirstLast]    | `Boolean` | True if buttons to go to the first and last pages should be displayed by pagination.
    *
    * @param {object} context The context object.
-   * @param {object} context.part The text part to handle.
+   * @param {object} context.part The query part to handle.
    * @param {string} context.partName The name of the part.
    * @param {string} context.displayType The display type.
    * @param {object} context.item A reference to the content item.
@@ -87,7 +87,7 @@ var QueryPart = {
       var whereSource = '(' + queryPart.where + ')';
       var whereAst = astCache[whereSource] || (astCache[whereSource] = parse(whereSource).body[0].expression);
       where = function where(entry) {
-        return evaluate(whereAst, {entry: entry});
+        return evaluate(whereAst, {entry: entry, query: context.scope.query});
       };
     }
     // Check if there's a page number on the query string.

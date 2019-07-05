@@ -116,7 +116,7 @@ FilePlacementStrategy.feature = 'file-placement-strategy';
 FilePlacementStrategy.dependencies = ['decent-core-io'];
 
 /**
- * Dispatches a list of shapes under a root shape, by handing over the task
+ * Dispatches a list of shapes under a root shape's zones, by handing over the task
  * to the placement strategies discovered by the constructor.
  * @param {object} context The context.
  * @param {object} context.shape

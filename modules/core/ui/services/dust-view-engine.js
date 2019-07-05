@@ -26,13 +26,16 @@
  * It adds a 'shape' helper that enables the rendering of
  * DecentCMS shapes. The shape helper takes a 'shape' parameter
  * that should point to the shape object to render.
+ * If a shape is not provided, the current view model is used
+ * (equivalent to '.').
  * Optional parameters are tag and class, which specify a HTML tag
  * that will surround the shape rendering.
  * Parameters with a name that is prefixed with 'data-' are copied
  * onto the surrounding tag.
  *
- * The following tag creates a 'footer' zone that can then be
- * targeted by placement and contains other shapes such as widgets.
+ * The following tag creates a 'footer' shape to be rendered with
+ * the 'footer' object as its view model. It will be enclosed in
+ * a `footer` tag with a `main-footer` class.
  * 
  * ```
  * {@shape shape=footer tag="footer" class="main-footer"/}
@@ -56,7 +59,7 @@
  * render it in-place:
  * 
  * ```
- * {@shape name="tweet" text="{site.name} {_episode} - {_title|s}" url="{temp.baseUrl}/{_id}" via="{site.twitter}" /}
+ * {@shape name="tweet" text="{site.name} {episode} - {title|s}" url="{temp.baseUrl}/{id}" via="{site.twitter}" /}
  * ```
  * 
  * If the theme's views folder contains a `tweet.tl` template, it will
@@ -70,7 +73,21 @@
  *  </span>
  * </a>
  * ```
+ *  
+ * Zone
+ * -----
+ * It adds a 'zone' helper that enables the rendering of special "zone"
+ * shapes that can be used as target for dynamically placing other shapes.
  * 
+ * Zones should have at least a name attribute.
+ * Like shapes, an optional tag attribute enables for the zone rendering
+ * to be surrounded by a tag if the zone is not empty.
+ * Additional attributes get added to that tag if it's defined.
+ * 
+ * ```
+ * {@zone name="main" tag="div" class="container"/}
+ * ```
+ *
  * Style
  * -----
  * Registers a style sheet.
@@ -212,7 +229,8 @@ var DustViewEngine = function DustViewEngine(scope) {
   }
 
   dust.helpers.shape = function shapeDustHelper(chunk, context, bodies, params) {
-    var theShape = dust.helpers.tap(params.shape, chunk, context);
+    var shapeParam = params.shape;
+    var theShape = shapeParam ? dust.helpers.tap(shapeParam, chunk, context) : context.stack.head;
     var name, tag;
     var attributes = {};
     // Clone the shape, so that its attributes can be changed between different
@@ -277,6 +295,57 @@ var DustViewEngine = function DustViewEngine(scope) {
         });
       innerRenderer
         .shape({shape: shape, tag: tag, attributes: attributes, shapeName: name})
+        .finally(function() {
+          chunk.end();
+        });
+    });
+  };
+
+  dust.helpers.zone = function zoneDustHelper(chunk, context, bodies, params) {
+    var name, tag;
+    var attributes = {};
+    Object.getOwnPropertyNames(params)
+      .forEach(function(paramName) {
+        var param = dust.helpers.tap(params[paramName], chunk, context);
+        switch(paramName) {
+          case 'name':
+            name = param;
+            break;
+          case 'tag':
+            tag = param;
+            break;
+          case 'class':
+            attributes['class'] = param;
+            break;
+          case 'style':
+            attributes.style = param;
+            break;
+        }
+      });
+    var zone = context.stack.head.zones[name];
+    // If after that, we still don't have a zone, render nothing.
+    if (!zone) {
+      return chunk.map(function renderEmpty(chunk) {chunk.end();});
+    }
+    var renderer = chunk.root['decent-renderer'];
+    return chunk.map(function renderZoneFromDust(chunk) {
+      var innerRenderer = new RenderStream(renderer.scope, {
+        scripts: renderer.scripts,
+        stylesheets: renderer.stylesheets,
+        meta: renderer.meta,
+        links: renderer.links,
+        title: renderer.title
+      });
+      innerRenderer
+        .on('data', function onShapeData(data) {
+          chunk.write(data);
+        })
+        .onError(function(err) {
+          renderer._onError(err);
+          chunk.end();
+        });
+      innerRenderer
+        .shape({shape: zone, tag, attributes})
         .finally(function() {
           chunk.end();
         });

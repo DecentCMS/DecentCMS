@@ -9,6 +9,5 @@ module.exports = {
   RenderStream: require('./services/render-stream'),
   Shape: require('./services/shape'),
   ShapeItemPromiseHandler: require('./services/shape-item-promise-handler'),
-  TemplateRenderingStrategy: require('./services/template-rendering-strategy'),
-  ZoneHandler: require('./services/zone-handler')
+  TemplateRenderingStrategy: require('./services/template-rendering-strategy')
 };

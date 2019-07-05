@@ -11,21 +11,7 @@ function zoneTemplate(zone, renderer, done) {
       renderer
         .shape({shape: item})
         .finally(next);
-    },
-    function() {
-      var zones = zone.temp.zones;
-      async.eachSeries(
-        Object.getOwnPropertyNames(zones || {}),
-        function(zoneName, next) {
-          renderer
-            .shape({shape: zones[zoneName]})
-            .finally(next);
-        },
-        function() {
-          done();
-        }
-      );
-    });
+    }, done);
 }
 
 module.exports = zoneTemplate;

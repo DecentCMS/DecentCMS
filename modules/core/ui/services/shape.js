@@ -28,18 +28,14 @@ var Shape = {
   place: function placeShape(root, path, shape, order) {
     if (path === '-') return;
     path = Array.isArray(path) ? path : path.split('/');
-    var tempRoot = this.temp(root);
-    if (!tempRoot.items) {
-      tempRoot.items = [];
-    }
-    if (!tempRoot.zones) {
-      tempRoot.zones = {};
-    }
+    var rootTemp = this.temp(root);
     if (path.length > 0) {
+      if (!rootTemp.items) rootTemp.items = [];
+      if (!root.zones) root.zones = {};
       for (var i = 0; i < path.length; i++) {
-        var next = root[path[i]];
+        var next = root.zones[path[i]];
         if (!next) {
-          next = root[path[i]] = {
+          next = root.zones[path[i]] = {
             meta: {
               type: 'zone',
               name: path[i]
@@ -51,12 +47,11 @@ var Shape = {
             }
           };
         }
-        tempRoot.zones[path[i]] = next;
         root = next;
-        tempRoot = this.temp(root);
+        rootTemp = this.temp(root);
       }
     }
-    this.insert(tempRoot.items, shape, order);
+    this.insert(rootTemp.items, shape, order);
     this.temp(shape).parent = root;
   },
   /**

@@ -19,10 +19,11 @@ var util = require('util');
  * @param {Array} [options.tags] The stack of tags currently open
  */
 function RenderStream(scope, options) {
-  var flasync = require('flasync');
-  var html = require('htmlencode');
+  const async = require('async');
+  const flasync = require('flasync');
+  const html = require('htmlencode');
 
-  var self = this;
+  const self = this;
   Transform.call(this, {
     objectMode: true
   });
@@ -227,16 +228,17 @@ function RenderStream(scope, options) {
         done = options;
         options = {};
       }
-      var shape = options.shape || null;
-      var tag = options.tag || null;
-      var attributes = options.attributes || null;
-      var shapeName = options.shapeName || null;
-      if (shape && tag) this._startTag(tag, attributes);
+      const shape = options.shape || null;
+      const tag = options.tag || null;
+      const attributes = options.attributes || null;
+      const shapeName = options.shapeName || null;
+       if (shape && tag) this._startTag(tag, attributes);
       if (!shape) {
         done();
         return this;
       }
-      var innerRenderStream = new RenderStream(scope, options);
+      const shapeTemp = shape.temp ? shape.temp : shape.temp = {};
+      const innerRenderStream = new RenderStream(scope, options);
       innerRenderStream.title = self.title;
       innerRenderStream
         .on('data', function(data) {
@@ -246,20 +248,62 @@ function RenderStream(scope, options) {
           done(err);
           return;
         });
-      this.scope.callService('rendering-strategy', 'render', {
-        shape: shape,
-        shapeName: shapeName,
-        renderStream: innerRenderStream
-      }, function(err) {
-        if (err) {
-          done(err);
-          return;
-        }
-        if (tag) {
-          self._endTag();
-        }
+      // Call handlers on items of that shape
+      async.each(
+        shapeTemp.items || [],
+        (item, next) => scope.callService('shape-handler', 'handle', {
+            scope,
+            shape: item,
+            renderStream: innerRenderStream
+          }, next),
+        err => {
+          if (err) {
+            done(err);
+            return;
+          }
+          this.scope.callService('rendering-strategy', 'render',
+            { shape, shapeName, renderStream: innerRenderStream },
+            err => {
+              if (err) {
+                done(err);
+                return;
+              }
+              if (tag) {
+                self._endTag();
+              }
+              done();
+            });
+        });
+      return this;
+    }
+  );
+
+
+  /**
+   * @description
+   * Triggers the rendering of the provided zone.
+   * @param {object} [options] The options object.
+   * @param {object} [options.shape] The parent shape of the zone to render.
+   * @param {string} [options.zone] The name of the zone to render.
+   * @param {string} [options.tag] An optional tag name to enclose the zone in if it exists.
+   * @param {object} [options.attributes] An optional list of attributes to add to the enclosing tag.
+   */
+  this.zone = this.async(this._zone =
+    function renderZone(options, done) {
+      if (typeof(options) === 'function') {
+        done = options;
+        options = {};
+      }
+      if (options.shape) {
+        this._shape({
+          shape: options.shape.zones[options.name],
+          tag: options.tag,
+          attributes: options.attributes
+        }, done);
+      }
+      else {
         done();
-      });
+      }
       return this;
     }
   );
