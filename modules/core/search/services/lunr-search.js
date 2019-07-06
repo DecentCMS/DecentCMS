@@ -1,10 +1,24 @@
 // DecentCMS (c) 2015 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
 
-const {Builder: lunrBuilder, Index: lunrIndex} = require('lunr');
+const lunr = require('lunr');
+const {Builder: lunrBuilder, Index: lunrIndex} = lunr;
 const path = require('path');
 const fs = require('fs');
 const async = require('async');
+
+// customize Lunr so it normalizes punctuation
+function fixToken(token) {
+  const tokenString = token.toString();
+  const rewrittenToken = tokenString.replace(/[\(\)\!\?\'\"#&’\.\[\]\{\}…\,”]/g, '');
+  return rewrittenToken.length !== tokenString.length ? token.update(() => rewrittenToken) : token;
+}
+
+function normalizeTokens(builder) {
+  lunr.Pipeline.registerFunction(fixToken, 'normalizeTokens');
+  builder.pipeline.add(fixToken);
+  builder.searchPipeline.add(fixToken);
+}
 
 /**
  * An in-memory search engine implementation with file storage suitable for small sites.
@@ -50,6 +64,7 @@ class LunrIndex {
     }
     else {
       this._builder = new lunrBuilder();
+      this._builder.use(normalizeTokens);
       this._fields.forEach(field => this._builder.field(field));
     }
   }
