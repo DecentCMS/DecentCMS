@@ -451,7 +451,7 @@ var DustViewEngine = function DustViewEngine(scope) {
       output = html.substr(0, more);
     }
     else {
-      var p = html.match(/<p[^>]*>(.*?)<\/p>/gmi) || [];
+      var p = html.match(/<p[^>]*>([\w\W]+?)<\/p>/gmi) || [];
       if (p[0]) output = p[0];
     }
     return output;
