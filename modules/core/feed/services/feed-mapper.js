@@ -24,13 +24,16 @@ const defaultFeedMapper = {
     const parseToAst = source => astCache[source] || (astCache[source] = parse('(' + source + ')').body[0].expression);
     const parseToFunction = source => (item, site) => evaluate(parseToAst(source), {item, site});
     // Find mapping data if it exists, use default mappings otherwise
-    let feedMapping = (item, site) => ({
-      title: item.title && item.title.text ? item.title.text : item.title ? item.title : site.name,
-      description: item.body ? item.body.text : null,
-      id: item.url,
-      link: item.url,
-      image: item.baseUrl + site.icon,
-      favicon: item.baseUrl + site.favicon,
+    const combine = (base, path) =>
+      (base.length > 0 && base[base.length - 1] === '/' ? base.substr(0, base.length - 1) : base) + '/' +
+      (path.length > 0 && path[0] === '/' ? path.substr(1) : path);
+    let feedMapping = (feedItem, site) => ({
+      title: feedItem.title && feedItem.title.text ? feedItem.title.text : feedItem.title ? feedItem.title : site.name,
+      description: feedItem.body ? feedItem.body.text : null,
+      id: feedItem.url,
+      link: feedItem.url,
+      image: combine(feedItem.baseUrl, site.icon),
+      favicon: combine(feedItem.baseUrl, site.favicon),
       copyright: site.copyright,
       generator: 'DecentCMS',
       author: {
@@ -40,10 +43,10 @@ const defaultFeedMapper = {
       postsShapeName: 'query-results',
       postsShapeProperty: 'results'
     });
-    let postMapping = (post, site) => ({
+    let postMapping = post => ({
       title: post.title,
-      id: item.baseUrl + '/' + post.url,
-      link: item.baseUrl + '/' + post.url,
+      id: combine(item.baseUrl, post.url),
+      link: combine(item.baseUrl, post.url),
       description: post.summary,
       content: post.body ? post.body.text : null,
       author: {
@@ -51,7 +54,7 @@ const defaultFeedMapper = {
         email: post.email
       },
       date: new Date(post.date),
-      image: post.image
+      image: combine(item.baseUrl, post.image)
     });
     const compose = (f1, f2) => (item, site) => Object.assign(f1(item, site), f2(item, site));
     const type = cm.getType(item);

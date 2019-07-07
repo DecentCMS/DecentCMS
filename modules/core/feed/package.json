@@ -10,9 +10,17 @@
     }
   },
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "mocha"
+  },
   "author": "Bertrand Le Roy",
   "license": "MIT",
+  "devDependencies": {
+    "async": "^2.6.1",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "proxyquire": "^2.1.0"
+  },
   "dependencies": {
     "esprima": "^4.0.1",
     "feed": "^2.0.1",
