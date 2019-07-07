@@ -14,8 +14,9 @@ function fixToken(token) {
   return rewrittenToken.length !== tokenString.length ? token.update(() => rewrittenToken) : token;
 }
 
+lunr.Pipeline.registerFunction(fixToken, 'normalizeTokens');
+
 function normalizeTokens(builder) {
-  lunr.Pipeline.registerFunction(fixToken, 'normalizeTokens');
   builder.pipeline.add(fixToken);
   builder.searchPipeline.add(fixToken);
 }
