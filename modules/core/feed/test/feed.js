@@ -2,8 +2,6 @@
 "use strict";
 
 const expect = require("chai").expect;
-const proxyquire = require("proxyquire");
-const path = require("path");
 
 // Some fakes
 const contentManager = {

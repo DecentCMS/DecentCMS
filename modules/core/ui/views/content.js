@@ -3,14 +3,10 @@
 
 function contentTemplate(content, renderer, done) {
   renderer
-    .startTag('article');
-  if (content.zones) {
-    renderer
-      .zone({name: 'header', shape: content, tag: 'header'})
-      .zone({name: 'main', shape: content})
-      .zone({name: 'footer', shape: content, tag: 'footer'});
-  }
-  renderer
+    .startTag('article')
+    .zone({name: 'header', shape: content, tag: 'header'})
+    .zone({name: 'main', shape: content})
+    .zone({name: 'footer', shape: content, tag: 'footer'})
     .endTag()
     .finally(done);
 }

@@ -11,7 +11,7 @@
   },
   "main": "./index",
   "scripts": {
-    "test": "./test/index"
+    "test": "mocha"
   },
   "author": "Bertrand Le Roy",
   "license": "MIT",

@@ -294,7 +294,7 @@ function RenderStream(scope, options) {
         done = options;
         options = {};
       }
-      if (options.shape) {
+      if (options.shape && options.shape.zones && options.shape.zones[options.name]) {
         this._shape({
           shape: options.shape.zones[options.name],
           tag: options.tag,

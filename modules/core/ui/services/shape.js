@@ -31,8 +31,8 @@ var Shape = {
     var rootTemp = this.temp(root);
     if (path.length > 0) {
       if (!rootTemp.items) rootTemp.items = [];
-      if (!root.zones) root.zones = {};
       for (var i = 0; i < path.length; i++) {
+        if (!root.zones) root.zones = {};
         var next = root.zones[path[i]];
         if (!next) {
           next = root.zones[path[i]] = {

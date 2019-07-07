@@ -239,14 +239,14 @@ describe('File Content Store', function() {
       scope: scope,
       items: {},
       itemsToFetch: {
-        doesntExist: []
+        doesNotExist: []
       }
     };
 
     fileContentStore.loadItems(context, function (err) {
       expect(err).to.not.be.ok;
-      expect(context.itemsToFetch.doesntExist).to.be.ok;
-      expect(context.items.doesntExist).to.not.be.ok;
+      expect(context.itemsToFetch.doesNotExist).to.be.ok;
+      expect(context.items.doesNotExist).to.not.be.ok;
       done();
     });
   });

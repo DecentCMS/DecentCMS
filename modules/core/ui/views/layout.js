@@ -19,8 +19,8 @@ module.exports = function layoutTemplate(layout, renderer, done) {
     .endTag()
     .writeLine()
     .startTag('body')
-    .zone({shape: layout, zone: 'navigation'})
-    .zone({shape: layout, zone: 'main'})
+    .zone({shape: layout, name: 'navigation'})
+    .zone({shape: layout, name: 'main'})
     .writeLine()
 
     .renderScripts()

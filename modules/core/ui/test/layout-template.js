@@ -1,32 +1,28 @@
 // DecentCMS (c) 2014 Bertrand Le Roy, under MIT. See LICENSE.txt for licensing details.
 'use strict';
-var expect = require('chai').expect;
-var EventEmitter = require('events').EventEmitter;
-var RenderStream = require('../services/render-stream');
 
-describe('Layout Template', function() {
-  it('renders scripts, stylesheets, metas, body', function(done) {
-    var scope = new EventEmitter();
-    var renderer = new RenderStream(scope);
-    var result = '';
-    renderer.on('data', function(data) {
-      result += data;
-    });
+const expect = require('chai').expect;
+const EventEmitter = require('events').EventEmitter;
+const RenderStream = require('../services/render-stream');
+
+describe('Layout Template', () => {
+  it('renders scripts, stylesheets, metas, body', done => {
+    const scope = new EventEmitter();
+    const renderer = new RenderStream(scope);
+    let result = '';
+    renderer.on('data', data => result += data);
     renderer.title = 'Foo';
     renderer.scripts = ['script.js'];
     renderer.stylesheets = ['style.css'];
     renderer.addMeta('generator', 'DecentCMS');
-    scope.callService = function(service, method, options, next) {
-      options.renderStream
-        .write('[' + options.shape.name + ']')
-        .finally(next);
-    };
-    var layout = {
-      main: {name: 'main'}
-    };
-    var layoutView = require('../views/layout');
+    // Only one service method is being used in this code path: render from rendering-strategy services
+    scope.callService = (service, method, options, next) =>
+      options.renderStream.write('[' + options.shape.name + ']').finally(next);
 
-    layoutView(layout, renderer, function() {
+    const layout = { zones: { main: {name: 'main'} } };
+    const layoutView = require('../views/layout');
+
+    layoutView(layout, renderer, () => {
       expect(result)
         .to.equal(
         '<!DOCTYPE html>' +

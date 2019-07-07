@@ -23,7 +23,8 @@
     "url": "http://weblogs.asp.net/bleroy"
   },
   "scripts": {
-    "postinstall": "node ./lib/install-decent-modules.js -- install"
+    "postinstall": "node ./lib/all-decent-modules.js -- install",
+    "test": "node ./lib/all-decent-modules.js -- test"
   },
   "dependencies": {},
   "devDependencies": {

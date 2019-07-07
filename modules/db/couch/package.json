@@ -21,7 +21,7 @@
   },
   "main": "./index",
   "scripts": {
-    "test": "./test/index"
+    "test": "mocha"
   },
   "devDependencies": {
     "chai": "^4.2.0",
