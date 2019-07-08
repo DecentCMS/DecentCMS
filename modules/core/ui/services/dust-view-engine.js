@@ -314,13 +314,9 @@ var DustViewEngine = function DustViewEngine(scope) {
           case 'tag':
             tag = param;
             break;
-          case 'class':
-            attributes['class'] = param;
-            break;
-          case 'style':
-            attributes.style = param;
-            break;
-        }
+          default:
+            attributes[paramName] = param;
+          }
       });
     var zone = context.stack.head.zones[name];
     // If after that, we still don't have a zone, render nothing.
