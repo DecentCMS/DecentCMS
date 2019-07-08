@@ -232,7 +232,7 @@ function RenderStream(scope, options) {
       const tag = options.tag || null;
       const attributes = options.attributes || null;
       const shapeName = options.shapeName || null;
-       if (shape && tag) this._startTag(tag, attributes);
+      if (shape && tag) this._startTag(tag, attributes);
       if (!shape) {
         done();
         return this;

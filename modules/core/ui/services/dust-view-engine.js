@@ -230,7 +230,7 @@ var DustViewEngine = function DustViewEngine(scope) {
 
   dust.helpers.shape = function shapeDustHelper(chunk, context, bodies, params) {
     var shapeParam = params.shape;
-    var theShape = shapeParam ? dust.helpers.tap(shapeParam, chunk, context) : context.stack.head;
+    var theShape = shapeParam ? dust.helpers.tap(shapeParam, chunk, context) : null;
     var name, tag;
     var attributes = {};
     // Clone the shape, so that its attributes can be changed between different
