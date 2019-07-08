@@ -18,29 +18,29 @@
     <![endif]-->
   </head>
   <body role="document">
-    {@shape shape=analytics/}
+    {@zone name="analytics" shape=analytics/}
     <a href="#content" class="sr-only sr-only-focusable">{@t}Skip to main content{/t}</a>
-    {@shape shape=navigation tag="nav" class="navbar navbar-inverse navbar-fixed-top"/}
+    {@zone name="navigation" tag="nav" class="navbar navbar-inverse navbar-fixed-top"/}
     <div class="container" id="content" role="main">
-      {?leftSidebar}
-        {?rightSidebar}
-          {@shape shape=leftSidebar tag="div" class="left-sidebar layout-lmr"/}
-          {@shape shape=main tag="div" class="main layout-lmr"/}
-          {@shape shape=rightSidebar tag="div" class="right-sidebar layout-lmr"/}
+      {?zones.leftSidebar}
+        {?zones.rightSidebar}
+          {@zone name="leftSidebar" tag="div" class="left-sidebar layout-lmr"/}
+          {@zone name="main" tag="div" class="main layout-lmr"/}
+          {@zone name="rightSidebar" tag="div" class="right-sidebar layout-lmr"/}
         {:else}
-          {@shape shape=leftSidebar tag="div" class="left-sidebar layout-lm"/}
-          {@shape shape=main tag="div" class="main layout-lm"/}
-        {/rightSidebar}
+          {@zone name="leftSidebar" tag="div" class="left-sidebar layout-lm"/}
+          {@zone name="main" tag="div" class="main layout-lm"/}
+        {/zones.rightSidebar}
       {:else}
-        {?rightSidebar}
-          {@shape shape=main tag="div" class="main layout-mr"/}
-          {@shape shape=rightSidebar tag="div" class="right-sidebar layout-mr"/}
+        {?zones.rightSidebar}
+          {@zone name="main" tag="div" class="main layout-mr"/}
+          {@zone name="rightSidebar" tag="div" class="right-sidebar layout-mr"/}
         {:else}
-          {@shape shape=main tag="div" class="main layout-m"/}
-        {/rightSidebar}
-      {/leftSidebar}
+          {@zone name="main" tag="div" class="main layout-m"/}
+        {/zones.rightSidebar}
+      {/zones.leftSidebar}
     </div>
-    {@shape shape=footer tag="footer" class="main-footer"/}
+    {@zone name="footer" tag="footer" class="main-footer"/}
     {@scripts/}
   </body>
 </html>

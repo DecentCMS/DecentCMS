@@ -70,24 +70,24 @@ For example, the following code creates three zones: "leftSidebar",
 "main", and "rightSidebar".
 
 ```html
-{@shape shape=leftSidebar tag="div" class="left-sidebar layout-lmr"/}
-{@shape shape=main tag="div" class="main layout-lmr"/}
-{@shape shape=rightSidebar tag="div" class="right-sidebar layout-lmr"/}
+{@zone name="leftSidebar" tag="div" class="left-sidebar layout-lmr"/}
+{@zone name="main" tag="div" class="main layout-lmr"/}
+{@zone name="rightSidebar" tag="div" class="right-sidebar layout-lmr"/}
 ```
 
 Those zones get rendered each wrapped in a div tag, if they have any
 content in them.
 If no shape was ever added under them, no property with the name of
-the zone will exist on the layout shape.
+the zone will exist on the layout shape's zones.
 This is what makes conditional rendering based on the existence of
 content in a zone as easy as checking it by name:
 
 ```html
-{?leftSidebar}
+{?zones.leftSidebar}
 ...
 {:else}
 ...
-{/leftSidebar}
+{/zones.leftSidebar}
 ```
 
 If all you want to do is conditionally render the zone based on
@@ -96,7 +96,7 @@ as in that case the `shape` tag will not render anything, not even
 a wrapper.
 
 The last thing that the template renders, right before the
-`&lt;/html&gt;` and `&lt;/html&gt;` tags, is the list of registered
+`</body>` and `</html>` tags, is the list of registered
 scripts.
 
 ```html
