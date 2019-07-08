@@ -6,7 +6,7 @@
 /**
  * A content part that can query a query index and present the results.
  */
-var QueryPart = {
+const QueryPart = {
   feature: 'query-part',
   service: 'query-part-handler',
   scope: 'request',
@@ -23,7 +23,8 @@ var QueryPart = {
    *
    *  Property              | Type      | Description
    * -----------------------|-----------|-------------------------------------------------------------------------------------------------
-   *  indexName             | `string`  | The name of the index to use or create.
+   *  [indexName]           | `string`  | The name of the index to use or create.
+   *  [definition]          | `string`  | The name of an index definition to get from index definition providers and to replace direct specification of id filter, map, order by, and descending, where, reduce, and name.
    *  [idFilter]            | `string`  | A filter regular expression to apply to item ids before they are handed to the indexing process.
    *  map                   | `string`  | A mapping expression for the index. It can refer to the passed-in content item as `item`. It can evaluate as null, an object, or an array of objects.
    *  orderBy               | `string`  | An ordering expression for the index. It can refer to the passed-in index entry as `entry`. It can evaluate as an object, or an array.
@@ -46,60 +47,85 @@ var QueryPart = {
    * @param {Function} done The callback.
    */
   handle: function handleQueryPart(context, done) {
-    var shapes = context.shapes;
+    const shapes = context.shapes;
     if (!shapes) {done();return;}
-    var scope = context.scope;
+    const scope = context.scope;
 
     // find the index service, return if there isn't one.
-    var indexService = scope.require('index');
+    const indexService = scope.require('index');
     if (!indexService) {done();return;}
 
     // Prepare dependencies.
-    var shell = scope.require('shell');
-    var request = scope.require('request');
-    var astCache = shell['ast-cache'] || (shell['ast-cache'] = {});
-    var evaluate = require('static-eval');
-    var parse = require('esprima').parse;
-    var queryPart = context.part;
-    var partName = context.partName;
+    const request = scope.require('request');
+    const queryPart = context.part;
     
-    // Prepare an AST for the mapping and order by functions.
-    var mapSource = '(' + (queryPart.map || '{}') + ')';
-    var mapAst = astCache[mapSource] || (astCache[mapSource] = parse(mapSource).body[0].expression);
-    var orderBySource = '(' + queryPart.orderBy + ')';
-    var orderByAst = astCache[orderBySource] || (astCache[orderBySource] = parse(orderBySource).body[0].expression);
-    var descending = !!queryPart.descending;
-    // Prepare the index.
-    var index = indexService.getIndex({
-      name: queryPart.indexName,
-      idFilter: queryPart.idFilter ? new RegExp(queryPart.idFilter) : null,
-      map: function map(item) {
-        return evaluate(mapAst, {item: item});
-      },
-      orderBy: function orderBy(entry) {
-        return evaluate(orderByAst, {entry: entry});
-      },
-      descending
-    });
-    // Prepare the AST for the where function.
-    var where = null;
-    if (queryPart.where) {
-      var whereSource = '(' + queryPart.where + ')';
-      var whereAst = astCache[whereSource] || (astCache[whereSource] = parse(whereSource).body[0].expression);
-      where = function where(entry) {
-        return evaluate(whereAst, {entry: entry, query: context.scope.query});
-      };
+    // Is there an index definition name?
+    let indexName, idFilter, map, orderBy, descending, where, reduce;
+    const definitionName = queryPart.definition;
+    if (definitionName) {
+      const indexDefinitionProvider = scope.require('index-definition-provider');
+      if (indexDefinitionProvider) {
+        const definition = indexDefinitionProvider.getDefinition(definitionName);
+        if (definition) {
+          if (definition.idFilter) idFilter = definition.idFilter;
+          if (definition.name) indexName = definition.name;
+          if (definition.map) map = definition.map;
+          if (definition.orderBy) orderBy = definition.orderBy;
+          if (typeof(definition.descending) === 'boolean') descending = definition.descending;
+          if (definition.where) where = entry => definition.where(entry, context.scope.query);
+          if (definition.reduce) reduce = definition.reduce;
+        }
+      }
     }
+
+    if (!map || !orderBy || (!where && queryPart.where) || (!reduce && queryPart.reduce)) {
+      const shell = scope.require('shell');
+      const astCache = shell['ast-cache'] || (shell['ast-cache'] = {});
+      const evaluate = require('static-eval');
+      const parse = require('esprima').parse;
+      // Prepare an AST for the mapping, where, and order by functions.
+      if (!map) {
+        const mapSource = '(' + (queryPart.map || '{}') + ')';
+        const mapAst = astCache[mapSource] || (astCache[mapSource] = parse(mapSource).body[0].expression);
+        map = item => evaluate(mapAst, {item});
+      }
+      if (!orderBy) {
+        const orderBySource = '(' + queryPart.orderBy + ')';
+        const orderByAst = astCache[orderBySource] || (astCache[orderBySource] = parse(orderBySource).body[0].expression);
+        orderBy = entry => evaluate(orderByAst, {entry});
+      }
+      if (!where && queryPart.where) {
+        const whereSource = '(' + queryPart.where + ')';
+        const whereAst = astCache[whereSource] || (astCache[whereSource] = parse(whereSource).body[0].expression);
+        where = entry => evaluate(whereAst, {entry, query: context.scope.query});
+      }
+      if (!reduce && queryPart.reduce) {
+        const reduceSource = queryPart.reduce;
+        const reduceAst = astCache[reduceSource] || (astCache[reduceSource] = parse(reduceSource).body[0].expression);
+        reduce = (val, entry, i) => evaluate(reduceAst, {val, entry, i});
+      }
+    }
+
+    // Prepare the index.
+    const index = indexService.getIndex({
+      name: indexName || queryPart.indexName,
+      idFilter: idFilter || (queryPart.idFilter ? new RegExp(queryPart.idFilter) : null),
+      map,
+      orderBy,
+      descending: typeof(descending) === 'boolean' ? descending : !!queryPart.descending
+    });
+
     // Check if there's a page number on the query string.
-    var pageParameter = queryPart.pageParameter || 'p';
-    var page = request.query[pageParameter];
+    const pageParameter = queryPart.pageParameter || 'p';
+    let page = request.query[pageParameter];
     page = (page ? parseInt(page, 10) - 1 : queryPart.page) || 0;
+
     // Page size is 10 by default, and must be explicitly set to 0 to disable pagination.
-    var pageSize = queryPart.hasOwnProperty('pageSize')
-      ? queryPart.pageSize
-      : 10;
+    const pageSize = queryPart.hasOwnProperty('pageSize') ? queryPart.pageSize : 10;
+
     // Prepare the callback.
-    var callback = function indexReduced(reduced) {
+    const partName = context.partName;
+    const callback = function indexReduced(reduced) {
       // Change the part into a proper shape
       queryPart.meta = {
         type: 'search-results',
@@ -157,7 +183,7 @@ var QueryPart = {
             where: where,
             initialValue: 0
           },
-          function(countWhere) {pushPaginationShape(countWhere);}
+          countWhere => pushPaginationShape(countWhere)
         );
       }
       else {
@@ -165,15 +191,7 @@ var QueryPart = {
         pushPaginationShape(index.getLength());
       }
     };
-    // Prepare the AST for the reduce function.
-    var reduce = null;
-    if (queryPart.reduce) {
-      var reduceSource = queryPart.reduce;
-      var reduceAst = astCache[reduceSource] || (astCache[reduceSource] = parse(reduceSource).body[0].expression);
-      // The reduce function doesn't handle pagination.
-      reduce = function reduce(val, entry, i) {
-        return evaluate(reduceAst, {val: val, entry: entry, i: i});
-      };
+    if (reduce) {
       // Finally, do reduce, then create the results shape.
       index.reduce(
         {where: where, reduce: reduce, initialValue: null}, callback);
