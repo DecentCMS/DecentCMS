@@ -233,11 +233,20 @@ Shell.prototype.load = function() {
     });
   // Load shell theme if it exists
   if (self.rootPath) {
-    var themePath = path.join(self.rootPath, 'theme');
-    if (fs.existsSync(themePath)) {
+    const themePath = path.join(self.rootPath, 'theme');
+    const themeExists = fs.existsSync(themePath);
+    const servicesPath = path.join(self.rootPath, 'services');
+    const hasServices = fs.existsSync(servicesPath);
+    if (themeExists || hasServices) {
       var discoverModule = require('./module-discovery').discoverModule;
-      var theme = discoverModule(themePath, self.availableModules);
-      if (theme) self.loadModule(theme.name);
+      if (themeExists) {
+        var theme = discoverModule(themePath, self.availableModules);
+        if (theme) self.loadModule(theme.name);
+      }
+      if (hasServices) {
+        var siteModule = discoverModule(self.rootPath, self.availableModules);
+        if (siteModule) self.loadModule(siteModule.name);
+      }
     }
   }
   // Initialize shell and all services
