@@ -23,7 +23,8 @@ const SearchPart = {
    *
    *  Property              | Type      | Description
    * -----------------------|-----------|-------------------------------------------------------------------------------------------------
-   *  indexName             | `string`  | The name of the index to use or create.
+   *  [indexName]           | `string`  | The name of the index to use or create.
+   *  [definition]          | `string`  | The name of an index definition to get from index definition providers and to replace direct specification of id filter, fields, map, where and name.
    *  [idFilter]            | `string`  | A filter regular expression to apply to item ids before they are handed to the indexing process.
    *  map                   | `string`  | A mapping expression for the index. It can refer to the passed-in content item as `item`. It can evaluate as null, an object, or an array of objects.
    *  [where]               | `string`  | A where expression. It can refer to the index entry to filter as `entry`. It evaluates as a Boolean.
@@ -54,31 +55,53 @@ const SearchPart = {
     if (!searchEngine) {done();return;}
 
     // Prepare dependencies.
-    const shell = scope.require('shell');
     const request = scope.require('request');
-    const astCache = shell['ast-cache'] || (shell['ast-cache'] = {});
-    const evaluate = require('static-eval');
-    const parse = require('esprima').parse;
     const searchPart = context.part;
     const partName = context.partName;
     
-    // Prepare an AST for the mapping function.
-    const mapSource = '(' + (searchPart.map || '{}') + ')';
-    const mapAst = astCache[mapSource] || (astCache[mapSource] = parse(mapSource).body[0].expression);
+    
+    // Is there an index definition name?
+    let indexName, idFilter, fields, map, where;
+    const definitionName = searchPart.definition;
+    if (definitionName) {
+      const indexDefinitionProvider = scope.require('index-definition-provider');
+      if (indexDefinitionProvider) {
+        const definition = indexDefinitionProvider.getDefinition(definitionName);
+        if (definition) {
+          if (definition.name) indexName = definition.name;
+          if (definition.idFilter) idFilter = definition.idFilter;
+          if (definition.fields) fields = definition.fields;
+          if (definition.map) map = definition.map;
+          if (definition.where) where = definition.where;
+        }
+      }
+    }
+
+    if (!map || (!where && searchPart.where)) {
+      const shell = scope.require('shell');
+      const astCache = shell['ast-cache'] || (shell['ast-cache'] = {});
+      const evaluate = require('static-eval');
+      const parse = require('esprima').parse;
+      if (!map) {
+        // Prepare an AST for the mapping function.
+        const mapSource = '(' + (searchPart.map || '{}') + ')';
+        const mapAst = astCache[mapSource] || (astCache[mapSource] = parse(mapSource).body[0].expression);
+        map = item => evaluate(mapAst, {item});
+      }
+      if (searchPart.where) {
+        // Prepare the AST for the where function.
+        const whereSource = '(' + searchPart.where + ')';
+        const whereAst = astCache[whereSource] || (astCache[whereSource] = parse(whereSource).body[0].expression);
+        where = entry => evaluate(whereAst, {entry});
+      }
+    }
     // Prepare the index.
     const index = searchEngine.getIndex(
-      searchPart.idFilter ? new RegExp(searchPart.idFilter) : null,
-      item => evaluate(mapAst, {item}),
-      searchPart.indexName,
-      searchPart.fields
+      idFilter || (searchPart.idFilter ? new RegExp(searchPart.idFilter) : null),
+      map,
+      indexName || searchPart.indexName,
+      fields || searchPart.fields
     );
-    // Prepare the AST for the where function.
-    let where = null;
-    if (searchPart.where) {
-      const whereSource = '(' + searchPart.where + ')';
-      const whereAst = astCache[whereSource] || (astCache[whereSource] = parse(whereSource).body[0].expression);
-      where = entry => evaluate(whereAst, {entry: entry});
-    }
     // Get the query.
     const queryParameter = searchPart.queryParameter || 'q';
     const query = request.query[queryParameter];
