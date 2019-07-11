@@ -169,7 +169,7 @@
  * format: the format string to use (see <https://moment.github.io/luxon/docs/manual/formatting.html> for reference).
  *
  * ```
- * {@date format/}
+ * {@date value=date format="EEEE, MMMM d, yyyy"/}
  * ```
  * 
  * Dump
@@ -495,6 +495,9 @@ var DustViewEngine = function DustViewEngine(scope) {
     if (!val) return chunk;
     var dt = (val.constructor === Date ? DateTime.fromJSDate(val) : DateTime.fromISO(val))
       .setLocale(locale);
+    if (!dt.isValid) {
+      dt = DateTime.fromJSDate(new Date(val));
+    }
     var format = dust.helpers.tap(params.format, chunk, context) || DateTime.DATETIME_SHORT;
     return chunk.write(dt.toFormat(format));
   }
