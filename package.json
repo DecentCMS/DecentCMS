@@ -26,10 +26,10 @@
     "postinstall": "node ./lib/all-decent-modules.js -- install",
     "test": "node ./lib/all-decent-modules.js -- test"
   },
-  "dependencies": {},
   "devDependencies": {
     "async": "^2.6.1",
     "chai": "^4.2.0",
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "nyc": "^14.1.1"
   }
 }
