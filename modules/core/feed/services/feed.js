@@ -70,7 +70,7 @@ const feedRouteHandler = {
         const id = request.path === '/rss' || request.path === '/atom' || request.path === 'json'
           ? '/' : require('querystring').unescape(request.path.substr(0, request.path.length - format.length - 1));
         response.type(format);
-        if (id) {
+        if (typeof(id) === 'string') {
           fetchItem(id, request, function(err, item) {
             if (err) {
               response.status(500);

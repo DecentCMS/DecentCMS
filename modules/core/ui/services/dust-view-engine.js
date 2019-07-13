@@ -207,14 +207,15 @@
 var DustViewEngine = function DustViewEngine(scope) {
   this.scope = scope;
 
-  var RenderStream = require('./render-stream');
-  var dust = require('dustjs-linkedin');
+  const RenderStream = require('./render-stream');
+  const dust = require('dustjs-linkedin');
   dust.config.whitespace = !!scope.debug;
   dust.helper = require('dustjs-helpers');
-  var DateTime = require('luxon').DateTime;
-  var pretty = require('js-object-pretty-print').pretty;
-  var shapeHelper = scope.require('shape');
-  var striptags = require('striptags');
+  const DateTime = require('luxon').DateTime;
+  const pretty = require('js-object-pretty-print').pretty;
+  const shapeHelper = scope.require('shape');
+  const striptags = require('striptags');
+  const summarize = (scope.require('summarize-strategy') || {summarize: text => text}).summarize;
 
   function getDustTemplate(templatePath) {
     return function dustTemplate(shape, renderer, next) {
@@ -511,19 +512,7 @@ var DustViewEngine = function DustViewEngine(scope) {
     return striptags(html).replace(/\s\s+/gm, ' ').replace(/[\r\n]/gm, ' ').trim();
   }
 
-  dust.filters.firstp = function firstParagraphDustFilter(html) {
-    html = html || '';
-    var output = html;
-    var more = html.search(/<!--more.*-->/gm);
-    if (more !== -1) {
-      output = html.substr(0, more);
-    }
-    else {
-      var p = html.match(/<p[^>]*>([\w\W]+?)<\/p>/gmi) || [];
-      if (p[0]) output = p[0];
-    }
-    return output;
-  }
+  dust.filters.firstp = html => summarize(html);
 
   /**
    * @description

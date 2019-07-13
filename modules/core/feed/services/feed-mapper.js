@@ -17,46 +17,52 @@ const defaultFeedMapper = {
   map: function mapItemToFeed(scope, item) {
     const cm = scope.require('content-manager');
     const shape = scope.require('shape');
+    const summarize = (scope.require('summarize-strategy') || {summarize: text => text}).summarize;
+    const combine = (base, path) =>
+      !path ? base :
+      (base.length > 0 && base[base.length - 1] === '/' ? base.substr(0, base.length - 1) : base) + '/' +
+      (path.length > 0 && path[0] === '/' ? path.substr(1) : path);
+    const url = id => combine(item.baseUrl, id);
     const meta = shape.meta(item);
     const parse = require('esprima').parse;
     const evaluate = require('static-eval');
     const astCache = scope['ast-cache'] || (scope['ast-cache'] = {});
     const parseToAst = source => astCache[source] || (astCache[source] = parse('(' + source + ')').body[0].expression);
-    const parseToFunction = source => (item, site) => evaluate(parseToAst(source), {item, site});
+    const parseToFunction = source => (context) => evaluate(parseToAst(source), context);
     // Find mapping data if it exists, use default mappings otherwise
-    const combine = (base, path) =>
-      (base.length > 0 && base[base.length - 1] === '/' ? base.substr(0, base.length - 1) : base) + '/' +
-      (path.length > 0 && path[0] === '/' ? path.substr(1) : path);
-    let feedMapping = (feedItem, site) => ({
-      title: feedItem.title && feedItem.title.text ? feedItem.title.text : feedItem.title ? feedItem.title : site.name,
-      description: feedItem.body ? feedItem.body.text : null,
-      id: feedItem.url,
-      link: feedItem.url,
-      image: combine(feedItem.baseUrl, site.icon),
-      favicon: combine(feedItem.baseUrl, site.favicon),
-      copyright: site.copyright,
+    let feedMapping = context => ({
+      title: context.feed.title && context.feed.title.text
+        ? context.feed.title.text
+        : context.feed.title || context.site.name,
+      description: context.feed.body ? context.feed.body.text : null,
+      id: context.feed.url,
+      link: context.feed.url,
+      image: url(context.site.icon),
+      favicon: url(context.site.favicon),
+      copyright: context.site.copyright,
       generator: 'DecentCMS',
       author: {
-        name: site.authors.join(', '),
-        email: site.email
+        name: context.site.authors.join(', '),
+        email: context.site.email
       },
       postsShapeName: 'query-results',
       postsShapeProperty: 'results'
     });
-    let postMapping = post => ({
-      title: post.title,
-      id: combine(item.baseUrl, post.url),
-      link: combine(item.baseUrl, post.url),
-      description: post.summary,
-      content: post.body ? post.body.text : null,
+    let postMapping = context => ({
+      title: context.post.title,
+      id: url(context.post.url),
+      link: url(context.post.url),
+      description: context.post.summary
+        || summarize(context.post.body ? context.post.body.html || context.post.body : ""),
+      content: context.post.body ? context.post.body.html : null,
       author: {
-        name: post.authors ? post.authors.join(', ') : null,
-        email: post.email
+        name: context.post.authors ? context.post.authors.join(', ') : null,
+        email: context.post.email
       },
-      date: new Date(post.date),
-      image: combine(item.baseUrl, post.image)
+      date: new Date(context.post.date),
+      image: context.post.image ? url(context.post.image) : null
     });
-    const compose = (f1, f2) => (item, site) => Object.assign(f1(item, site), f2(item, site));
+    const compose = (f1, f2) => (context) => Object.assign(f1(context), f2(context));
     const type = cm.getType(item);
     if (type) {
       if (type.feedMapping) feedMapping = compose(feedMapping, parseToFunction(type.feedMapping));
@@ -65,7 +71,7 @@ const defaultFeedMapper = {
     if (meta.feedMapping) feedMapping = compose(feedMapping, parseToFunction(meta.feedMapping));
     if (meta.postMapping) postMapping = compose(postMapping, parseToFunction(meta.postMapping));
     // Map the feed properties
-    const feed = feedMapping(item, scope.settings);
+    const feed = feedMapping({feed: item, site: scope.settings, url, summarize});
     feed.posts = [];
     const postsShape = item[feed.postsShapeName];
     if (postsShape) {
@@ -73,7 +79,7 @@ const defaultFeedMapper = {
       if (posts) {
         posts.forEach(post => {
           post.url = post.url || item.baseUrl + post.id;
-          const mappedPost = postMapping(post, scope.settings);
+          const mappedPost = postMapping({post, site: scope.settings, url, summarize});
           feed.posts.push(mappedPost);
         });
       }

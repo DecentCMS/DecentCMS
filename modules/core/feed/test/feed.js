@@ -33,7 +33,7 @@ const post1 = {
   title: "first post",
   url: "first-post",
   summary: "first summary",
-  body: { text: "first body" },
+  body: { html: "first body" },
   authors: [ "Douglas", "Terry" ],
   email: "someone@decentcms.org",
   date: "2019-02-01T00:00:00.000Z",
@@ -44,7 +44,7 @@ const post2 = {
   title: "second post",
   url: "second-post",
   summary: "second summary",
-  body: { text: "second body" },
+  body: { html: "second body" },
   authors: [ "Neil", "Nikhil" ],
   email: "someoneelse@decentcms.org",
   date: "2019-04-03T00:00:00.000Z",
@@ -90,7 +90,7 @@ describe("Feed mapper", () => {
           id: "http://decentcms.org/first-post",
           link: "http://decentcms.org/first-post",
           description: post1.summary,
-          content: post1.body.text,
+          content: post1.body.html,
           author: {
             name: "Douglas, Terry",
             email: post1.email
@@ -103,7 +103,7 @@ describe("Feed mapper", () => {
           id: "http://decentcms.org/second-post",
           link: "http://decentcms.org/second-post",
           description: post2.summary,
-          content: post2.body.text,
+          content: post2.body.html,
           author: {
             name: "Neil, Nikhil",
             email: post2.email
