@@ -430,19 +430,28 @@ describe('Shell', function() {
       ServiceClass2.init = function() {
         initialized2 = true;
       };
+      var resolvedPathToService = path.resolve('path/to/module1/lib/service1');
+      var resolvedPathToShellThemeService = path.resolve('path/to/shell/theme/services/service2');
+      var resolvedThemeManifest = path.resolve('path/to/shell/theme/package.json');
+      var resolvedSiteManifest = path.resolve('path/to/shell/package.json');
+      var themeServicesPath = path.resolve('path/to/shell/theme/services');
       var stubs = {
         fs: {
-          existsSync: function() {return true;},
-          readdirSync: function() {return ['service2.js'];}
+          existsSync: () => true,
+          readdirSync: function(path) {
+            return path.substr(-15) === themeServicesPath.substr(-15)
+              ? ['service2.js'] : [];
+          }
         }
       };
-      var resolvedPathToService = path.resolve('path/to/module1/lib/service1');
       stubs[resolvedPathToService] = ServiceClass1;
-      var resolvedPathToShellThemeService = path.resolve('path/to/shell/theme/services/service2');
       stubs[resolvedPathToShellThemeService] = ServiceClass2;
-      var resolvedThemeManifest = path.resolve('path/to/shell/theme/package.json');
       stubs[resolvedThemeManifest] = {
         name: 'site-theme',
+        '@noCallThru': true
+      };
+      stubs[resolvedSiteManifest] = {
+        name: 'site',
         '@noCallThru': true
       };
       var phoniedModuleDiscovery = proxyquire('../lib/module-discovery', stubs);
@@ -469,6 +478,8 @@ describe('Shell', function() {
       shell1.load();
       shell2.load();
 
+      expect(initialized1).to.be.true;
+      expect(initialized2).to.be.true;
       expect(shell1.services)
         .to.have.property('service1');
       expect(shell2.services)
