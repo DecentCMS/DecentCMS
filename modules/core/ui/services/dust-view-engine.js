@@ -176,6 +176,7 @@
  * ----
  * A filter to pretty-print an object, skipping its 'temp' property.
  * This is particularly useful to dump the current content and debug templates.
+ * Object graph loops are removed before the dump is performed.
  * 
  * ```
  * {meta|dump|s}
@@ -184,6 +185,18 @@
  * 
  * Note: you may need to install Node with full ICU support, in order
  * to format with locales other than 'en-US'.
+ * 
+ * Log
+ * ---
+ * A filter to dump the object to the browser's console.
+ * This is useful to inspect the structure of an object using the rich UI of the browser's
+ * dev tools without upsetting the page's layout.
+ * Object graph loops are removed before the dump is performed.
+ * 
+ * ```
+ * {meta|log}
+ * {.|log}
+ * ```
  * 
  * Plain
  * -----
@@ -506,6 +519,11 @@ var DustViewEngine = function DustViewEngine(scope) {
   dust.filters.dump = function dumpDustFilter(value) {
     var filteredValue = shapeHelper.copy(value);
     return pretty(filteredValue, 2, 'HTML');
+  }
+
+  dust.filters.log = function logDustFilter(value) {
+    var filteredValue = shapeHelper.copy(value);
+    return '<script>console.log(' + JSON.stringify(filteredValue) + ');</script>';
   }
 
   dust.filters.plain = function plainDustFilter(html) {
