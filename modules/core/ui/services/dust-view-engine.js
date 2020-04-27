@@ -220,18 +220,19 @@
 var DustViewEngine = function DustViewEngine(scope) {
   this.scope = scope;
 
+  // Non-scoped dependencies
   const RenderStream = require('./render-stream');
   const dust = require('dustjs-linkedin');
-  dust.config.whitespace = !!scope.debug;
   dust.helper = require('dustjs-helpers');
   const DateTime = require('luxon').DateTime;
   const pretty = require('js-object-pretty-print').pretty;
-  const shapeHelper = scope.require('shape');
   const striptags = require('striptags');
-  const summarize = (scope.require('summarize-strategy') || {summarize: text => text}).summarize;
 
   function getDustTemplate(templatePath) {
     return function dustTemplate(shape, renderer, next) {
+      if (renderer.scope && renderer.scope.parentScope) {
+        ensureDustScope(renderer.scope.parentScope);
+      }
       var stream = dust.stream(templatePath, shape)
         .on('data', function(data) {
           renderer.write(data);
@@ -242,295 +243,310 @@ var DustViewEngine = function DustViewEngine(scope) {
     };
   }
 
-  dust.helpers.shape = function shapeDustHelper(chunk, context, bodies, params) {
-    var shapeParam = params.shape;
-    var theShape = shapeParam ? dust.helpers.tap(shapeParam, chunk, context) : null;
-    var name, tag;
-    var attributes = {};
-    // Clone the shape, so that its attributes can be changed between different
-    // renderings of the same shape.
-    // Warning: shallow copy, so weird things may still happen for object and
-    // array properties.
-    var shape = theShape ? {meta: theShape.meta, temp: theShape.temp} : null;
-    Object.getOwnPropertyNames(params)
-      .forEach(function(paramName) {
-        var param = dust.helpers.tap(params[paramName], chunk, context);
-        switch(paramName) {
-          case 'shape': break;
-          case 'name':
-            name = param;
-            break;
-          case 'tag':
-            tag = param;
-            break;
-          case 'class':
-            attributes['class'] = param;
-            break;
-          case 'style':
-            attributes.style = param;
-            break;
-          default:
-            if (paramName.substr(0, 5) === 'data-') {
-              attributes[paramName] = param;
+  // Ensure the dust global object is currently configured for this scope
+  function ensureDustScope(scope) {
+    if (dust.decentScope != scope.name) {
+      dust.decentScope = scope.name;
+
+      dust.config.whitespace = !!scope.debug;
+
+      // Scoped dependencies
+      const shapeHelper = scope.require('shape');
+      const summarize = (scope.require('summarize-strategy') || {summarize: text => text}).summarize;
+
+      dust.helpers.shape = function shapeDustHelper(chunk, context, bodies, params) {
+        var shapeParam = params.shape;
+        var theShape = shapeParam ? dust.helpers.tap(shapeParam, chunk, context) : null;
+        var name, tag;
+        var attributes = {};
+        // Clone the shape, so that its attributes can be changed between different
+        // renderings of the same shape.
+        // Warning: shallow copy, so weird things may still happen for object and
+        // array properties.
+        var shape = theShape ? {meta: theShape.meta, temp: theShape.temp} : null;
+        Object.getOwnPropertyNames(params)
+          .forEach(function(paramName) {
+            var param = dust.helpers.tap(params[paramName], chunk, context);
+            switch(paramName) {
+              case 'shape': break;
+              case 'name':
+                name = param;
+                break;
+              case 'tag':
+                tag = param;
+                break;
+              case 'class':
+                attributes['class'] = param;
+                break;
+              case 'style':
+                attributes.style = param;
+                break;
+              default:
+                if (paramName.substr(0, 5) === 'data-') {
+                  attributes[paramName] = param;
+                }
+                else {
+                  if (!shape) {
+                    shape = {meta: {}, temp: {}};
+                  }
+                  shape[paramName] = param;
+                }
             }
-            else {
-              if (!shape) {
-                shape = {meta: {}, temp: {}};
-              }
-              shape[paramName] = param;
-            }
+          });
+        // If after that, we still don't have a shape, render nothing.
+        if (!shape) {
+          return chunk.map(function renderEmpty(chunk) {chunk.end();});
         }
-      });
-    // If after that, we still don't have a shape, render nothing.
-    if (!shape) {
-      return chunk.map(function renderEmpty(chunk) {chunk.end();});
-    }
-    if (theShape) Object.getOwnPropertyNames(theShape)
-      .forEach(function(propertyName) {
-        if (propertyName === 'meta' || propertyName == 'temp') return;
-        shape[propertyName] = theShape[propertyName];
-      });
-    var renderer = chunk.root['decent-renderer'];
-    return chunk.map(function renderShapeFromDust(chunk) {
-      var innerRenderer = new RenderStream(renderer.scope, {
-        scripts: renderer.scripts,
-        stylesheets: renderer.stylesheets,
-        meta: renderer.meta,
-        links: renderer.links,
-        title: renderer.title
-      });
-      innerRenderer
-        .on('data', function onShapeData(data) {
-          chunk.write(data);
-        })
-        .onError(function(err) {
-          renderer._onError(err);
-          chunk.end();
+        if (theShape) Object.getOwnPropertyNames(theShape)
+          .forEach(function(propertyName) {
+            if (propertyName === 'meta' || propertyName == 'temp') return;
+            shape[propertyName] = theShape[propertyName];
+          });
+        var renderer = chunk.root['decent-renderer'];
+        return chunk.map(function renderShapeFromDust(chunk) {
+          var innerRenderer = new RenderStream(renderer.scope, {
+            scripts: renderer.scripts,
+            stylesheets: renderer.stylesheets,
+            meta: renderer.meta,
+            links: renderer.links,
+            title: renderer.title
+          });
+          innerRenderer
+            .on('data', function onShapeData(data) {
+              chunk.write(data);
+            })
+            .onError(function(err) {
+              renderer._onError(err);
+              chunk.end();
+            });
+          innerRenderer
+            .shape({shape: shape, tag: tag, attributes: attributes, shapeName: name})
+            .finally(function() {
+              chunk.end();
+            });
         });
-      innerRenderer
-        .shape({shape: shape, tag: tag, attributes: attributes, shapeName: name})
-        .finally(function() {
-          chunk.end();
+      };
+    
+      dust.helpers.zone = function zoneDustHelper(chunk, context, bodies, params) {
+        var name, tag;
+        var attributes = {};
+        Object.getOwnPropertyNames(params)
+          .forEach(function(paramName) {
+            var param = dust.helpers.tap(params[paramName], chunk, context);
+            switch(paramName) {
+              case 'name':
+                name = param;
+                break;
+              case 'tag':
+                tag = param;
+                break;
+              default:
+                attributes[paramName] = param;
+              }
+          });
+        var zone = context.stack.head.zones[name];
+        // If after that, we still don't have a zone, render nothing.
+        if (!zone) {
+          return chunk.map(function renderEmpty(chunk) {chunk.end();});
+        }
+        var renderer = chunk.root['decent-renderer'];
+        return chunk.map(function renderZoneFromDust(chunk) {
+          var innerRenderer = new RenderStream(renderer.scope, {
+            scripts: renderer.scripts,
+            stylesheets: renderer.stylesheets,
+            meta: renderer.meta,
+            links: renderer.links,
+            title: renderer.title
+          });
+          innerRenderer
+            .on('data', function onShapeData(data) {
+              chunk.write(data);
+            })
+            .onError(function(err) {
+              renderer._onError(err);
+              chunk.end();
+            });
+          innerRenderer
+            .shape({shape: zone, tag, attributes})
+            .finally(function() {
+              chunk.end();
+            });
         });
-    });
-  };
-
-  dust.helpers.zone = function zoneDustHelper(chunk, context, bodies, params) {
-    var name, tag;
-    var attributes = {};
-    Object.getOwnPropertyNames(params)
-      .forEach(function(paramName) {
-        var param = dust.helpers.tap(params[paramName], chunk, context);
-        switch(paramName) {
-          case 'name':
-            name = param;
-            break;
-          case 'tag':
-            tag = param;
-            break;
-          default:
-            attributes[paramName] = param;
+      };
+    
+      dust.helpers.t = function localizationDustHelper(chunk, context, bodies) {
+        var renderer = chunk.root['decent-renderer'];
+        var scope = renderer.scope;
+        var t = scope.require('localization') || function(s) {return s;};
+        var body = dust.helpers.tap(bodies.block, chunk, context);
+        var localizedBody = t(body);
+        var reTokenized = localizedBody.replace(/\[([^\]]+)]/g, '{$1}');
+        dust.loadSource(dust.compile(reTokenized, reTokenized));
+        return chunk.map(function renderLocalizedString(chunk) {
+          dust.render(reTokenized, context, function(err, rendered) {
+            chunk.end(rendered);
+          });
+        });
+      };
+    
+      dust.helpers.style = function styleDustHelper(chunk, context, bodies, params) {
+        var stylesheet = dust.helpers.tap(params.name, chunk, context);
+        if (!stylesheet) return;
+        var renderer = chunk.root['decent-renderer'];
+        if (/^(https?:)?\/\//.test(stylesheet)) {
+          renderer._addExternalStyleSheet(stylesheet);
+        }
+        else {
+          renderer._addStyleSheet(stylesheet);
+        }
+        return chunk;
+      };
+    
+      dust.helpers.styles = function stylesDustHelper(chunk, context, bodies, params) {
+        var renderer = chunk.root['decent-renderer'];
+        var innerRenderer = new RenderStream(renderer.scope, {
+          stylesheets: renderer.stylesheets
+        });
+        var html = '';
+        innerRenderer.on('data', function onShapeData(data) {
+          html += data;
+        });
+        innerRenderer._renderStyleSheets();
+        return chunk.write(html);
+      };
+    
+      dust.helpers.script = function scriptDustHelper(chunk, context, bodies, params) {
+        var script = dust.helpers.tap(params.name, chunk, context);
+        if (!script) return;
+        var renderer = chunk.root['decent-renderer'];
+        if (/^(https?:)?\/\//.test(script)) {
+          renderer._addExternalScript(script);
+        }
+        else {
+          renderer._addScript(script);
+        }
+        return chunk;
+      };
+    
+      dust.helpers.scripts = function scriptsDustHelper(chunk, context, bodies, params) {
+        var renderer = chunk.root['decent-renderer'];
+        var innerRenderer = new RenderStream(renderer.scope, {
+          scripts: renderer.scripts
+        });
+        var html = '';
+        innerRenderer.on('data', function onShapeData(data) {
+          html += data;
+        });
+        innerRenderer._renderScripts();
+        return chunk.write(html);
+      };
+    
+      dust.helpers.meta = function metaDustHelper(chunk, context, bodies, params) {
+        var attributes = {};
+        var name = null;
+        var value = '';
+        Object.getOwnPropertyNames(params).forEach(function forEachParam(attrName) {
+          switch(attrName) {
+            case 'name':
+              name = dust.helpers.tap(params.name, chunk, context);
+              break;
+            case 'value':
+              value = dust.helpers.tap(params.value, chunk, context);
+              break;
+            default:
+              attributes[attrName] = dust.helpers.tap(params[attrName], chunk, context);
           }
-      });
-    var zone = context.stack.head.zones[name];
-    // If after that, we still don't have a zone, render nothing.
-    if (!zone) {
-      return chunk.map(function renderEmpty(chunk) {chunk.end();});
-    }
-    var renderer = chunk.root['decent-renderer'];
-    return chunk.map(function renderZoneFromDust(chunk) {
-      var innerRenderer = new RenderStream(renderer.scope, {
-        scripts: renderer.scripts,
-        stylesheets: renderer.stylesheets,
-        meta: renderer.meta,
-        links: renderer.links,
-        title: renderer.title
-      });
-      innerRenderer
-        .on('data', function onShapeData(data) {
-          chunk.write(data);
-        })
-        .onError(function(err) {
-          renderer._onError(err);
-          chunk.end();
         });
-      innerRenderer
-        .shape({shape: zone, tag, attributes})
-        .finally(function() {
-          chunk.end();
+        var renderer = chunk.root['decent-renderer'];
+        renderer._addMeta(name, value, attributes);
+        return chunk;
+      };
+    
+      dust.helpers.metas = function metasDustHelper(chunk, context, bodies, params) {
+        var renderer = chunk.root['decent-renderer'];
+        var innerRenderer = new RenderStream(renderer.scope, {
+          meta: renderer.meta
         });
-    });
-  };
-
-  dust.helpers.t = function localizationDustHelper(chunk, context, bodies) {
-    var renderer = chunk.root['decent-renderer'];
-    var scope = renderer.scope;
-    var t = scope.require('localization') || function(s) {return s;};
-    var body = dust.helpers.tap(bodies.block, chunk, context);
-    var localizedBody = t(body);
-    var reTokenized = localizedBody.replace(/\[([^\]]+)]/g, '{$1}');
-    dust.loadSource(dust.compile(reTokenized, reTokenized));
-    return chunk.map(function renderLocalizedString(chunk) {
-      dust.render(reTokenized, context, function(err, rendered) {
-        chunk.end(rendered);
-      });
-    });
-  };
-
-  dust.helpers.style = function styleDustHelper(chunk, context, bodies, params) {
-    var stylesheet = dust.helpers.tap(params.name, chunk, context);
-    if (!stylesheet) return;
-    var renderer = chunk.root['decent-renderer'];
-    if (/^(https?:)?\/\//.test(stylesheet)) {
-      renderer._addExternalStyleSheet(stylesheet);
-    }
-    else {
-      renderer._addStyleSheet(stylesheet);
-    }
-    return chunk;
-  };
-
-  dust.helpers.styles = function stylesDustHelper(chunk, context, bodies, params) {
-    var renderer = chunk.root['decent-renderer'];
-    var innerRenderer = new RenderStream(renderer.scope, {
-      stylesheets: renderer.stylesheets
-    });
-    var html = '';
-    innerRenderer.on('data', function onShapeData(data) {
-      html += data;
-    });
-    innerRenderer._renderStyleSheets();
-    return chunk.write(html);
-  };
-
-  dust.helpers.script = function scriptDustHelper(chunk, context, bodies, params) {
-    var script = dust.helpers.tap(params.name, chunk, context);
-    if (!script) return;
-    var renderer = chunk.root['decent-renderer'];
-    if (/^(https?:)?\/\//.test(script)) {
-      renderer._addExternalScript(script);
-    }
-    else {
-      renderer._addScript(script);
-    }
-    return chunk;
-  };
-
-  dust.helpers.scripts = function scriptsDustHelper(chunk, context, bodies, params) {
-    var renderer = chunk.root['decent-renderer'];
-    var innerRenderer = new RenderStream(renderer.scope, {
-      scripts: renderer.scripts
-    });
-    var html = '';
-    innerRenderer.on('data', function onShapeData(data) {
-      html += data;
-    });
-    innerRenderer._renderScripts();
-    return chunk.write(html);
-  };
-
-  dust.helpers.meta = function metaDustHelper(chunk, context, bodies, params) {
-    var attributes = {};
-    var name = null;
-    var value = '';
-    Object.getOwnPropertyNames(params).forEach(function forEachParam(attrName) {
-      switch(attrName) {
-        case 'name':
-          name = dust.helpers.tap(params.name, chunk, context);
-          break;
-        case 'value':
-          value = dust.helpers.tap(params.value, chunk, context);
-          break;
-        default:
-          attributes[attrName] = dust.helpers.tap(params[attrName], chunk, context);
+        var html = '';
+        innerRenderer.on('data', function onShapeData(data) {
+          html += data;
+        });
+        innerRenderer._renderMeta();
+        return chunk.write(html);
+      };
+    
+      dust.helpers.link = function linkDustHelper(chunk, context, bodies, params) {
+        var attributes = {};
+        var rel = '';
+        var type = '';
+        var href = '';
+        Object.getOwnPropertyNames(params).forEach(function forEachParam(attrName) {
+          switch(attrName) {
+            case 'rel':
+              rel = dust.helpers.tap(params.rel, chunk, context);
+              break;
+            case 'type':
+              type = dust.helpers.tap(params.type, chunk, context);
+              break;
+            case 'href':
+              href = dust.helpers.tap(params.href, chunk, context);
+              break;
+            default:
+              attributes[attrName] = dust.helpers.tap(params[attrName], chunk, context);
+          }
+        });
+        var renderer = chunk.root['decent-renderer'];
+        renderer._addLink(rel, type, href, attributes);
+        return chunk;
+      };
+    
+      dust.helpers.links = function linksDustHelper(chunk, context, bodies, params) {
+        var renderer = chunk.root['decent-renderer'];
+        var innerRenderer = new RenderStream(renderer.scope, {
+          links: renderer.links
+        });
+        var html = '';
+        innerRenderer.on('data', function onShapeData(data) {
+          html += data;
+        });
+        innerRenderer._renderLinks();
+        return chunk.write(html);
+      };
+    
+      dust.helpers.date = function dateDustHelper(chunk, context, bodies, params) {
+        var renderer = chunk.root['decent-renderer'];
+        var scope = renderer.scope;
+        var locale = scope.require('shell').settings.locale || 'en-US';
+        var val = dust.helpers.tap(params.value, chunk, context);
+        if (!val) return chunk;
+        var dt = (val.constructor === Date ? DateTime.fromJSDate(val) : DateTime.fromISO(val))
+          .setLocale(locale);
+        if (!dt.isValid) {
+          dt = DateTime.fromJSDate(new Date(val));
+        }
+        var format = dust.helpers.tap(params.format, chunk, context) || DateTime.DATETIME_SHORT;
+        return chunk.write(dt.toFormat(format));
       }
-    });
-    var renderer = chunk.root['decent-renderer'];
-    renderer._addMeta(name, value, attributes);
-    return chunk;
-  };
-
-  dust.helpers.metas = function metasDustHelper(chunk, context, bodies, params) {
-    var renderer = chunk.root['decent-renderer'];
-    var innerRenderer = new RenderStream(renderer.scope, {
-      meta: renderer.meta
-    });
-    var html = '';
-    innerRenderer.on('data', function onShapeData(data) {
-      html += data;
-    });
-    innerRenderer._renderMeta();
-    return chunk.write(html);
-  };
-
-  dust.helpers.link = function linkDustHelper(chunk, context, bodies, params) {
-    var attributes = {};
-    var rel = '';
-    var type = '';
-    var href = '';
-    Object.getOwnPropertyNames(params).forEach(function forEachParam(attrName) {
-      switch(attrName) {
-        case 'rel':
-          rel = dust.helpers.tap(params.rel, chunk, context);
-          break;
-        case 'type':
-          type = dust.helpers.tap(params.type, chunk, context);
-          break;
-        case 'href':
-          href = dust.helpers.tap(params.href, chunk, context);
-          break;
-        default:
-          attributes[attrName] = dust.helpers.tap(params[attrName], chunk, context);
+    
+      dust.filters.dump = function dumpDustFilter(value) {
+        var filteredValue = shapeHelper.copy(value);
+        return pretty(filteredValue, 2, 'HTML');
       }
-    });
-    var renderer = chunk.root['decent-renderer'];
-    renderer._addLink(rel, type, href, attributes);
-    return chunk;
-  };
-
-  dust.helpers.links = function linksDustHelper(chunk, context, bodies, params) {
-    var renderer = chunk.root['decent-renderer'];
-    var innerRenderer = new RenderStream(renderer.scope, {
-      links: renderer.links
-    });
-    var html = '';
-    innerRenderer.on('data', function onShapeData(data) {
-      html += data;
-    });
-    innerRenderer._renderLinks();
-    return chunk.write(html);
-  };
-
-  dust.helpers.date = function dateDustHelper(chunk, context, bodies, params) {
-    var renderer = chunk.root['decent-renderer'];
-    var scope = renderer.scope;
-    var locale = scope.require('shell').settings.locale || 'en-US';
-    var val = dust.helpers.tap(params.value, chunk, context);
-    if (!val) return chunk;
-    var dt = (val.constructor === Date ? DateTime.fromJSDate(val) : DateTime.fromISO(val))
-      .setLocale(locale);
-    if (!dt.isValid) {
-      dt = DateTime.fromJSDate(new Date(val));
+    
+      dust.filters.log = function logDustFilter(value) {
+        var filteredValue = shapeHelper.copy(value);
+        return '<script>console.log(' + JSON.stringify(filteredValue) + ');</script>';
+      }
+    
+      dust.filters.plain = function plainDustFilter(html) {
+        return striptags(html).replace(/\s\s+/gm, ' ').replace(/[\r\n]/gm, ' ').trim();
+      }
+    
+      dust.filters.firstp = html => summarize(html);
     }
-    var format = dust.helpers.tap(params.format, chunk, context) || DateTime.DATETIME_SHORT;
-    return chunk.write(dt.toFormat(format));
   }
 
-  dust.filters.dump = function dumpDustFilter(value) {
-    var filteredValue = shapeHelper.copy(value);
-    return pretty(filteredValue, 2, 'HTML');
-  }
-
-  dust.filters.log = function logDustFilter(value) {
-    var filteredValue = shapeHelper.copy(value);
-    return '<script>console.log(' + JSON.stringify(filteredValue) + ');</script>';
-  }
-
-  dust.filters.plain = function plainDustFilter(html) {
-    return striptags(html).replace(/\s\s+/gm, ' ').replace(/[\r\n]/gm, ' ').trim();
-  }
-
-  dust.filters.firstp = html => summarize(html);
+  ensureDustScope(scope);
 
   /**
    * @description
@@ -553,6 +569,7 @@ var DustViewEngine = function DustViewEngine(scope) {
     });
   };
 };
+
 DustViewEngine.service = 'view-engine';
 DustViewEngine.feature = 'dust-view-engine';
 DustViewEngine.scope = 'shell';

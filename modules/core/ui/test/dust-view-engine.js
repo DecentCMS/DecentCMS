@@ -16,7 +16,7 @@ describe('Dust View Engine', function() {
       readFile: readFile
     }
   });
-  var scope = {
+  var shell = {
     callService: function callService(service, method, context, done) {
       process.nextTick(function() {
         var shape = context.shape;
@@ -40,11 +40,17 @@ describe('Dust View Engine', function() {
           default: return str;
         }
       }
-    }
+    },
+    name: "shell1"
   };
-  var dustViewEngine = new DustViewEngine(scope);
+  var req = {
+    parentScope: shell,
+    callService: shell.callService,
+    require: shell.require
+  };
+  var dustViewEngine = new DustViewEngine(shell);
   var html;
-  var renderer = new RenderStream(scope);
+  var renderer = new RenderStream(req);
   renderer.on('data', function(chunk) {
     html.push(chunk);
   });
