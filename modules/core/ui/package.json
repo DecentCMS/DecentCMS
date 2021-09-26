@@ -45,13 +45,13 @@
   "license": "MIT",
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^5.2.0",
+    "mocha": "^9.1.1",
     "proxyquire": "^2.1.0"
   },
   "dependencies": {
     "async": "^2.6.2",
-    "dustjs-helpers": "^1.7.4",
-    "dustjs-linkedin": "^2.7.5",
+    "dustjs-helpers": "^1.6.3",
+    "dustjs-linkedin": "^2.6.1",
     "flasync": "^0.2.3",
     "htmlencode": "0.0.4",
     "js-object-pretty-print": "^0.3.0",
