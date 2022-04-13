@@ -20,7 +20,7 @@
   "author": "Bertrand Le Roy",
   "license": "MIT",
   "dependencies": {
-    "async": "^2.6.1",
+    "async": "^3.2.2",
     "esprima": "^4.0.1",
     "static-eval": "^2.0.2"
   },
