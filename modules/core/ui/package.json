@@ -49,7 +49,7 @@
     "proxyquire": "^2.1.0"
   },
   "dependencies": {
-    "async": "^2.6.2",
+    "async": "^3.2.2",
     "dustjs-helpers": "^1.6.3",
     "dustjs-linkedin": "^2.6.1",
     "flasync": "^0.2.3",
