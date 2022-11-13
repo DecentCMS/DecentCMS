@@ -18,7 +18,7 @@
   "devDependencies": {
     "async": "^3.2.2",
     "chai": "^4.2.0",
-    "mocha": "^9.1.1"
+    "mocha": "^9.2.2"
   },
   "dependencies": {
     "htmlencode": "0.0.4"
