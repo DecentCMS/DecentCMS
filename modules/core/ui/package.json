@@ -51,7 +51,7 @@
   "dependencies": {
     "async": "^3.2.2",
     "dustjs-helpers": "^1.6.3",
-    "dustjs-linkedin": "^2.6.1",
+    "dustjs-linkedin": "^3.0.0",
     "flasync": "^0.2.3",
     "htmlencode": "0.0.4",
     "js-object-pretty-print": "^0.3.0",
