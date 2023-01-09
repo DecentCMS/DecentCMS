@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "esprima": "^4.0.1",
-    "feed": "^2.0.1",
+    "feed": "^4.2.2",
     "static-eval": "^2.0.2"
   }
 }
