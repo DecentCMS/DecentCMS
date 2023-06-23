@@ -20,7 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "winston": "^3.1.0",
-    "winston-daily-rotate-file": "^3.5.1",
+    "winston-daily-rotate-file": "^4.7.1",
     "winston-transport": "^4.2.0"
   },
   "devDependencies": {
