@@ -29,6 +29,14 @@ var ContentApiRouteHandler = {
         }
         var id = request.path === '/api/src'
           ? '/' : require('querystring').unescape(request.path.substr(9));
+        if (id && /(^|\/)\.\.(\/|$)/.test(id)) {
+          response.status(400);
+          response.json({error: 'Invalid id'});
+          request.routed = true;
+          request.handled = true;
+          next();
+          return;
+        }
         response.type('json');
         if (request.debug) {
           request.app.set('json spaces', 2);
@@ -69,6 +77,14 @@ var ContentApiRouteHandler = {
         }
         var id = request.path === '/api/shapes'
           ? '/' : require('querystring').unescape(request.path.substr(12));
+        if (id && /(^|\/)\.\.(\/|$)/.test(id)) {
+          response.status(400);
+          response.json({error: 'Invalid id'});
+          request.routed = true;
+          request.handled = true;
+          next();
+          return;
+        }
         response.type('json');
         if (request.debug) {
           request.app.set('json spaces', 2);
