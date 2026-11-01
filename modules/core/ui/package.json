@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "async": "^3.2.2",
+    "brace-expansion": "^5.0.12",
     "dustjs-helpers": "^1.6.3",
     "dustjs-linkedin": "^3.0.0",
     "flasync": "^0.2.3",
@@ -57,5 +58,10 @@
     "js-object-pretty-print": "^0.3.0",
     "luxon": "^2.5.2",
     "striptags": "^3.1.1"
+  },
+  "overrides": {
+    "minimatch": {
+      "brace-expansion": "5.0.12"
+    }
   }
 }
